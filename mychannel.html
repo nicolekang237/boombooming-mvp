@@ -1,0 +1,626 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        /*
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+        ▩ My Channel
+
+        ▩ 공통으로 쓰이는 레이아웃, 헤더, 푸터 등을 제외하고 오직 이 페이지에서만 쓰이는 스타일은 이곳에만 기재.
+
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        */
+
+        /* ■ 페이지 상단의 헤더 영역
+        ---------------------------------------------------------------------- */
+        .topinfo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-end;
+            position: relative;
+            width: 100%;
+            height: 70px;
+            padding: 0 20px 6px 20px;
+            background-position: center bottom;
+            background-size: 430px;
+        }
+
+        .topinfo__inner {
+            position: relative;
+            width: 100%;
+            height: 60px;
+            padding: 0 0 0 150px;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.4;
+            overflow: hidden;
+        }
+
+        .topinfo__inner > span {
+            position: absolute;
+            bottom: 0;
+        }
+
+        .topinfo__subs, .topinfo__posts, .topinfo__text_subs, .topinfo__text_posts {
+            text-align: center;
+            line-height: 1.15;
+        }
+
+        .topinfo__number_subs, .topinfo__number_posts {
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: -2px;
+        }
+
+        .topinfo__number_subs, .topinfo__unit_subs {
+            vertical-align: baseline;
+        }
+
+        .topinfo__number_subs {
+            color: var(--color-accent-gold-light);
+        }
+
+        .topinfo__unit_subs {
+            font-size: 18px;
+            font-weight: 100;
+        }
+
+        .topinfo__description {
+            width: 100%;
+            padding: 18px 20px 34px 20px;
+        }
+
+        .topinfo__description > div {
+            width: 100%;
+            padding: 0 0 0 150px;
+            line-height: 1.4;
+        }
+
+
+        /* ■ 메인 컨텐츠 영역
+        ---------------------------------------------------------------------- */
+        .main__content_container {
+            width: 100%;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        /* 메인 컨텐츠의 Header 영역 */
+        .main__content_container_header {
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 20px;
+            padding: 0 14px 0 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .main__content_title {
+            padding-bottom: 12px;
+            line-height: 1;
+        }
+
+        .expand-icon { /* 타이틀 오른쪽의 '펼침 아이콘'' 영역 */
+            display: flex;
+            line-height: 1;
+        }
+
+        .btn__more { /* 타이틀 오른쪽의 '더 보기' 버튼 영역 */
+            font-weight: 700;
+            color: #35b4ce;
+        }
+
+        /* 메인 컨텐츠의 Body 영역 */
+        .main__content_container_body {
+            width: 100%;
+            padding: 0 20px 20px 20px;
+        }
+
+        .container__body_type_grid_a {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            justify-content: start;
+        }
+
+        .main__content_vod_thumb { /* 동영상 썸네일 */
+            position: relative;
+            aspect-ratio: 7 / 13;
+            padding: 4px 8px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.2);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .btn__vod_option { /* 동영상 썸네일 내부의 '옵션' 버튼 */
+            position: absolute;
+            bottom: 3px;
+            right: 3px;
+        }
+
+        .btn__vod_rating { /* 동영상 썸네일 내부의 '별점' 버튼 */
+            position: absolute;
+            bottom: 3px;
+            left: 3px;
+        }
+
+        .views__vod_thumb { /* 동영상 썸네일 내부의 '동영상 조회수 표시' 영역 */
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            text-shadow: 0 0 6px rgba(0, 0, 0, 1);
+            font-size: 13px;
+        }
+
+        .views__iconbox {
+            display: flex;
+        }
+
+        /* ■ 더보기 액션시트 — 수정하기 / 삭제하기 */
+        .more__sheet_backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.45);
+            z-index: 220;
+        }
+
+        .more__sheet_backdrop.is_open {
+            display: block;
+        }
+
+        .more__sheet {
+            position: fixed;
+            left: 50%;
+            bottom: 0;
+            transform: translate(-50%, 100%);
+            width: 100%;
+            max-width: 430px;
+            z-index: 221;
+            background-color: #1e1e1e;
+            border-radius: 16px 16px 0 0;
+            padding: 10px 16px 28px;
+            transition: transform 0.25s ease-out;
+        }
+
+        .more__sheet.is_open {
+            transform: translate(-50%, 0);
+        }
+
+        .more__sheet_handle {
+            width: 36px;
+            height: 4px;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.2);
+            margin: 6px auto 14px;
+        }
+
+        .more__sheet_item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 14px 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+        }
+
+        .more__sheet_item:last-of-type {
+            border-bottom: none;
+        }
+
+        .more__sheet_item_title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .more__sheet_item.is_danger .more__sheet_item_title {
+            color: var(--color-error);
+        }
+
+        .more__sheet_item_desc {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        .more__sheet_cancel {
+            margin-top: 12px;
+            text-align: center;
+            padding: 14px;
+            border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.08);
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ My Suite
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_dark app__container_type_basic">
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Header - 상단바 영역.(고정 영역)
+    ▨ 인클루드를 위해 별도의 파일로 만들어서 Import시켜야 하는 하는 영역.
+    ▨ 단, 내부의 버튼이나 구성 등이 페이지마다 다름.
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <header class="header header__bg_purple header__type_basic">
+        <div class="topbar">
+
+            <!-- ▨ NOTE - 여기서부터의 내용은 페이지마다 다를 수 있음 -->
+            <button class="btn btn__size_medium" onclick="location.href='./mysuite.html';">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+            </button>
+
+            <div class="title__main">
+                <span class="title__main_name">휘트니</span><span class="title__main_text">님의 Channel</span>
+            </div>
+
+            <div class="iconbox__topbar">
+                <button class="btn btn__size_medium">
+                    <img src="./assets/images/icon_refresh_32dp.svg" width="30" height="30">
+                </button>
+
+                <button class="btn btn__size_medium">
+                    <img src="./assets/images/icon_edit_32dp.svg" width="26" height="26">
+                </button>
+
+                <!-- 편집 완료 버튼 - 편집 버튼과 토글되어 교체됨 -->
+                <!--
+                <button class="btn btn__size_medium">
+                    <img src="./assets/images/icon_check_32dp.svg" width="30" height="30">
+                </button>
+                -->
+            </div>
+
+        </div>        
+    </header>
+
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Body - 메인 컨텐츠 영역(스크롤 영역)
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <main class="main__container main__container_type_basic">
+
+        <!-- ▨ NOTE - 이곳부터 공통이 아닌 이 페이지만의 내용이 시작됨 -->
+
+        <!-- ▣▣▣▣▣ 상단 프로필 아바타 영역 -->
+        <div class="topinfo header__bg_purple">
+            <div class="topinfo__inner">
+                <span>휘트니의 IT와 프로그램 이야기</span>
+            </div>
+
+            <div class="avatar avatar__size_max">
+                <img src="./assets/images/sample_avatar_1.png">
+            </div>
+        </div>
+
+        <div class="topinfo__description">
+            <div>구글 입사 꼬꼬마 시절부터 X팀 팀장이 되기까지 좌충우돌 드라마.</div>
+        </div>
+
+        <!-- ▣▣▣▣▣ 메뉴 컨텐츠 -->
+        <div class="main__content_wrapper">
+
+            <div class="main__content_container">
+                <div class="main__content_container_header">
+                    <div class="main__content_title">내가 만든 동영상</div>
+
+                    <div class="main__content_title">재생 목록</div>
+                </div>
+
+                <div class="main__content_container_body container__body_type_grid_a">
+                    <div class="main__content_vod_thumb" style="background-image: url(./assets/images/sample_myvideo_4.png);" data-video-id="1" onclick="location.href='./video_detail.html';">
+                        <div class="views__vod_thumb">
+                            <div class="views__iconbox">
+                                <img src="./assets/images/icon_visibility_32dp.svg" width="16" height="16">
+                            </div>
+
+                            <div class="views__count">6225</div>
+                        </div>
+
+                        <button class="btn btn__circle btn__size_small btn__vod_option" onclick="event.stopPropagation(); openMoreSheet(1);">
+                            <img src="./assets/images/icon_more_vert_32dp.svg" width="16" height="16">
+                        </button>
+
+                        <button class="btn btn__circle btn__size_small btn__vod_rating">
+                            <img src="./assets/images/icon_ratings_32dp_white.svg" width="16" height="16">
+                            <!-- <img src="./assets/images/icon_ratings_32dp_fill.svg" width="16" height="16"> --><!-- 속이 꽉 찬 별 아이콘 -->
+                        </button>
+                    </div>
+
+                    <div class="main__content_vod_thumb" style="background-image: url(./assets/images/sample_myvideo_5.png);" data-video-id="2" onclick="location.href='./video_detail.html';">
+                        <div class="views__vod_thumb">
+                            <div class="views__iconbox">
+                                <img src="./assets/images/icon_visibility_32dp.svg" width="16" height="16">
+                            </div>
+
+                            <div class="views__count">327</div>
+                        </div>
+
+                        <button class="btn btn__circle btn__size_small btn__vod_option" onclick="event.stopPropagation(); openMoreSheet(2);">
+                            <img src="./assets/images/icon_more_vert_32dp.svg" width="16" height="16">
+                        </button>
+
+                        <button class="btn btn__circle btn__size_small btn__vod_rating">
+                            <img src="./assets/images/icon_ratings_32dp_white.svg" width="16" height="16">
+                            <!-- <img src="./assets/images/icon_ratings_32dp_fill.svg" width="16" height="16"> --><!-- 속이 꽉 찬 별 아이콘 -->
+                        </button>
+                    </div>
+
+                    <div class="main__content_vod_thumb" style="background-image: url(./assets/images/sample_myvideo_6.png);" data-video-id="3" onclick="location.href='./video_detail.html';">
+                        <div class="views__vod_thumb">
+                            <div class="views__iconbox">
+                                <img src="./assets/images/icon_visibility_32dp.svg" width="16" height="16">
+                            </div>
+
+                            <div class="views__count">4126</div>
+                        </div>
+
+                        <button class="btn btn__circle btn__size_small btn__vod_option" onclick="event.stopPropagation(); openMoreSheet(3);">
+                            <img src="./assets/images/icon_more_vert_32dp.svg" width="16" height="16">
+                        </button>
+
+                        <button class="btn btn__circle btn__size_small btn__vod_rating">
+                            <img src="./assets/images/icon_ratings_32dp_white.svg" width="16" height="16">
+                            <!-- <img src="./assets/images/icon_ratings_32dp_fill.svg" width="16" height="16"> --><!-- 속이 꽉 찬 별 아이콘 -->
+                        </button>
+                    </div>
+
+                    <div class="main__content_vod_thumb" style="background-image: url(./assets/images/sample_myvideo_7.png);" data-video-id="4" onclick="location.href='./video_detail.html';">
+                        <div class="views__vod_thumb">
+                            <div class="views__iconbox">
+                                <img src="./assets/images/icon_visibility_32dp.svg" width="16" height="16">
+                            </div>
+
+                            <div class="views__count">4126</div>
+                        </div>
+
+                        <button class="btn btn__circle btn__size_small btn__vod_option" onclick="event.stopPropagation(); openMoreSheet(4);">
+                            <img src="./assets/images/icon_more_vert_32dp.svg" width="16" height="16">
+                        </button>
+
+                        <button class="btn btn__circle btn__size_small btn__vod_rating">
+                            <img src="./assets/images/icon_ratings_32dp_white.svg" width="16" height="16">
+                            <!-- <img src="./assets/images/icon_ratings_32dp_fill.svg" width="16" height="16"> --><!-- 속이 꽉 찬 별 아이콘 -->
+                        </button>
+                    </div>
+
+                    <div class="main__content_vod_thumb" style="background-image: url(./assets/images/sample_myvideo_8.png);" data-video-id="5" onclick="location.href='./video_detail.html';">
+                        <div class="views__vod_thumb">
+                            <div class="views__iconbox">
+                                <img src="./assets/images/icon_visibility_32dp.svg" width="16" height="16">
+                            </div>
+
+                            <div class="views__count">4126</div>
+                        </div>
+
+                        <button class="btn btn__circle btn__size_small btn__vod_option" onclick="event.stopPropagation(); openMoreSheet(5);">
+                            <img src="./assets/images/icon_more_vert_32dp.svg" width="16" height="16">
+                        </button>
+
+                        <button class="btn btn__circle btn__size_small btn__vod_rating">
+                            <img src="./assets/images/icon_ratings_32dp_white.svg" width="16" height="16">
+                            <!-- <img src="./assets/images/icon_ratings_32dp_fill.svg" width="16" height="16"> --><!-- 속이 꽉 찬 별 아이콘 -->
+                        </button>
+                    </div>
+
+                    <div class="main__content_vod_thumb" style="background-image: url(./assets/images/sample_myvideo_9.png);" data-video-id="6" onclick="location.href='./video_detail.html';">
+                        <div class="views__vod_thumb">
+                            <div class="views__iconbox">
+                                <img src="./assets/images/icon_visibility_32dp.svg" width="16" height="16">
+                            </div>
+
+                            <div class="views__count">4126</div>
+                        </div>
+
+                        <button class="btn btn__circle btn__size_small btn__vod_option" onclick="event.stopPropagation(); openMoreSheet(6);">
+                            <img src="./assets/images/icon_more_vert_32dp.svg" width="16" height="16">
+                        </button>
+
+                        <button class="btn btn__circle btn__size_small btn__vod_rating">
+                            <img src="./assets/images/icon_ratings_32dp_white.svg" width="16" height="16">
+                            <!-- <img src="./assets/images/icon_ratings_32dp_fill.svg" width="16" height="16"> --><!-- 속이 꽉 찬 별 아이콘 -->
+                        </button>
+                    </div>
+
+                    <div class="main__content_vod_thumb" style="background-image: url(./assets/images/sample_myvideo_3.png);" data-video-id="7" onclick="location.href='./video_detail.html';">
+                        <div class="views__vod_thumb">
+                            <div class="views__iconbox">
+                                <img src="./assets/images/icon_visibility_32dp.svg" width="16" height="16">
+                            </div>
+
+                            <div class="views__count">4126</div>
+                        </div>
+
+                        <button class="btn btn__circle btn__size_small btn__vod_option" onclick="event.stopPropagation(); openMoreSheet(7);">
+                            <img src="./assets/images/icon_more_vert_32dp.svg" width="16" height="16">
+                        </button>
+
+                        <button class="btn btn__circle btn__size_small btn__vod_rating">
+                            <img src="./assets/images/icon_ratings_32dp_white.svg" width="16" height="16">
+                            <!-- <img src="./assets/images/icon_ratings_32dp_fill.svg" width="16" height="16"> --><!-- 속이 꽉 찬 별 아이콘 -->
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ▨ NOTE - 이곳까지가 공통이 아닌 이 페이지만의 내용 -->
+
+    </main>
+
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Footer - 하단 툴바 영역.(고정 영역)
+    ▨ 인클루드를 위해 별도의 파일로 만들어서 Import시켜야 하는 하는 영역.
+    ▨ 단, 내부의 버튼이나 구성 등이 페이지마다 다름.
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="history.back();">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+
+                    <div class="btn__text">홈</div>
+                </button>
+
+                <!-- Active Button - '홈' -->
+                <!--
+                <button class="btn__full">
+                    <img src="./assets/images/icon_home_32dp_fill.svg" width="28" height="28">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">홈</div>
+                </button>
+                -->
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+
+                    <div class="btn__text">메시지</div>
+                </button>
+
+                <!-- Active Button - '대화' -->
+                <!--
+                <button class="btn__full">
+                    <img src="./assets/images/icon_chat_32dp_fill.svg" width="26" height="26" style="margin-top: 2px;">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">대화</div>
+                </button>
+                -->
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+
+                    <div class="btn__text">만들기</div>
+                </button>
+
+                <!-- Active Button - '업로드' -->
+                <!--
+                <button class="btn__full">
+                    <img src="./assets/images/icon_add_32dp_fill.svg" width="28" height="28">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">업로드</div>
+                </button>
+                -->
+
+                <div class="btnbox__badge">필수</div>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+
+                <!-- Active Button - 'My Suite' -->
+                <!--
+                <button class="btn__full">
+                    <img src="./assets/images/icon_person_32dp_fill.svg" width="29" height="29">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">마이 스위트</div>
+                </button>
+                -->
+            </div>
+        </div>
+    </footer>
+
+    <!-- ▣ 더보기 액션시트 — 수정하기 / 삭제하기 -->
+    <div class="more__sheet_backdrop" id="moreSheetBackdrop" onclick="closeMoreSheet();"></div>
+    <div class="more__sheet" id="moreSheet">
+        <div class="more__sheet_handle"></div>
+
+        <div class="more__sheet_item" onclick="editVideo();">
+            <div class="more__sheet_item_title">수정하기</div>
+            <div class="more__sheet_item_desc">제목, 설명, 해시태그, 공개범위를 수정합니다.</div>
+        </div>
+
+        <div class="more__sheet_item" onclick="closeMoreSheet();">
+            <div class="more__sheet_item_title">공개범위 변경</div>
+            <div class="more__sheet_item_desc">전체공개 / 친구만 / 비공개로 전환합니다.</div>
+        </div>
+
+        <div class="more__sheet_item is_danger" onclick="deleteVideo();">
+            <div class="more__sheet_item_title">삭제하기</div>
+            <div class="more__sheet_item_desc">이 영상을 완전히 삭제합니다. 되돌릴 수 없습니다.</div>
+        </div>
+
+        <div class="more__sheet_cancel" onclick="closeMoreSheet();">취소</div>
+    </div>
+</div>
+
+
+<!-- ■□■□■ [SCRIPT] 'Javascript' Area -->
+<script>
+    var activeVideoId = null;
+
+    function openMoreSheet(videoId) {
+        activeVideoId = videoId;
+        document.getElementById('moreSheetBackdrop').classList.add('is_open');
+        document.getElementById('moreSheet').classList.add('is_open');
+    }
+
+    function closeMoreSheet() {
+        document.getElementById('moreSheetBackdrop').classList.remove('is_open');
+        document.getElementById('moreSheet').classList.remove('is_open');
+    }
+
+    // 수정하기 — 업로드 상세 화면을 수정 모드로 재사용
+    function editVideo() {
+        var videoId = activeVideoId;
+        closeMoreSheet();
+        location.href = './upload_details.html?mode=edit&videoId=' + encodeURIComponent(videoId);
+    }
+
+    // 삭제하기 — 확인 후 그리드에서 제거
+    function deleteVideo() {
+        var videoId = activeVideoId;
+        closeMoreSheet();
+        if (!confirm('이 영상을 삭제하시겠어요?\n삭제된 영상은 복구할 수 없습니다.')) return;
+        var cell = document.querySelector('.main__content_vod_thumb[data-video-id="' + videoId + '"]');
+        if (cell) cell.remove();
+    }
+</script>
+
+</body>
+</html>

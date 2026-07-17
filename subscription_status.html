@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>구독 상태 - BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/main.css">
+
+    <style>
+        /*
+        ▩ 구독 상태 — rina_payment.html "결제 내역 관리" 하위 화면
+        */
+        .sub__section {
+            padding: 0 18px;
+        }
+
+        .sub__card {
+            background-color: var(--color-bg-dark-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .sub__card_head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .sub__plan_name {
+            font-size: 18px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .sub__badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .sub__badge.is_inactive {
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .sub__badge.is_active {
+            background: rgba(255, 61, 113, 0.18);
+            color: var(--color-primary-pink-active);
+        }
+
+        .sub__desc {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+            line-height: 1.6;
+        }
+
+        .sub__meta_row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            font-size: 13px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin-top: 14px;
+        }
+
+        .sub__meta_label {
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        .sub__meta_value {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .sub__btn_primary {
+            width: 100%;
+            padding: 15px;
+            border-radius: 100px;
+            border: none;
+            background-color: var(--color-primary-pink-active);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 18px;
+        }
+
+        .sub__btn_outline {
+            width: 100%;
+            padding: 15px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: transparent;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .sub__cancel_link {
+            display: block;
+            text-align: center;
+            margin-top: 16px;
+            font-size: 13px;
+            color: var(--color-error);
+            cursor: pointer;
+        }
+
+        /* 활성/비활성 상태 전환용 */
+        #sub-active-view { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="app__container app__bg_dark app__container_type_basic">
+    <header class="header header__type_basic" style="background-color: #0a0a0a;">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="24" height="24">
+            </button>
+            <div class="title__main" style="font-size: 16px;">구독 상태</div>
+            <div class="iconbox__topbar" style="width: 40px;"></div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic" style="background-color: #0a0a0a;">
+        <div class="main__content_wrapper" style="padding-bottom: 24px;">
+            <div class="sub__section">
+
+                <!-- ▣ 미구독 상태 (기본) -->
+                <div id="sub-inactive-view">
+                    <div class="sub__card">
+                        <div class="sub__card_head">
+                            <div class="sub__plan_name">구독 중인 플랜 없음</div>
+                            <div class="sub__badge is_inactive">미구독</div>
+                        </div>
+                        <div class="sub__desc">구독하면 매달 자동으로 크레딧이 충전되고, 리나 강과의 대화를 더 여유롭게 이어갈 수 있어요.</div>
+                        <button class="sub__btn_primary" onclick="location.href='./rina_payment.html';">구독 플랜 보러가기</button>
+                    </div>
+                </div>
+
+                <!-- ▣ 구독 중 상태 (데모 확인용 — 우측 상단 토글 없이, 아래 버튼으로 상태 전환해 미리보기 가능) -->
+                <div id="sub-active-view">
+                    <div class="sub__card">
+                        <div class="sub__card_head">
+                            <div class="sub__plan_name">Plus 구독</div>
+                            <div class="sub__badge is_active">구독 중</div>
+                        </div>
+                        <div class="sub__desc">매달 자동으로 결제되며, 크레딧과 AI 편집 혜택이 제공됩니다.</div>
+                        <div class="sub__meta_row">
+                            <span class="sub__meta_label">다음 결제일</span>
+                            <span class="sub__meta_value">2026.03.03</span>
+                        </div>
+                        <div class="sub__meta_row">
+                            <span class="sub__meta_label">결제 금액</span>
+                            <span class="sub__meta_value">₩9,900 / 월</span>
+                        </div>
+                        <div class="sub__meta_row">
+                            <span class="sub__meta_label">결제 수단</span>
+                            <span class="sub__meta_value">신한카드 **** 1234</span>
+                        </div>
+                        <button class="sub__btn_outline" onclick="location.href='./rina_payment.html';">플랜 변경하기</button>
+                        <span class="sub__cancel_link" onclick="cancelSubscription();">구독 해지하기</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // 데모: 실제로는 서버에서 현재 구독 상태를 받아와 아래 뷰 중 하나를 노출해야 함.
+    // 시연용으로 콘솔에서 showSubscriptionView('active') 호출 시 구독 중 상태를 미리볼 수 있음.
+    function showSubscriptionView(state) {
+        document.getElementById('sub-inactive-view').style.display = state === 'active' ? 'none' : 'block';
+        document.getElementById('sub-active-view').style.display = state === 'active' ? 'block' : 'none';
+    }
+
+    function cancelSubscription() {
+        if (!confirm('정말 구독을 해지하시겠어요?\n다음 결제일부터 자동 결제가 중단되며, 남은 기간까지는 계속 이용할 수 있습니다.')) return;
+        alert('구독이 해지되었습니다.\n2026.03.03까지는 계속 이용하실 수 있어요.');
+        showSubscriptionView('inactive');
+    }
+</script>
+
+</body>
+</html>

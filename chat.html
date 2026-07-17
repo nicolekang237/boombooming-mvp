@@ -1,0 +1,392 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        /*
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+        ▩ 채팅방
+
+        ▩ 공통으로 쓰이는 레이아웃, 헤더, 푸터 등을 제외하고 오직 이 페이지에서만 쓰이는 스타일은 이곳에만 기재.
+
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        */
+
+        /* ■ 메인 컨텐츠 영역
+        ---------------------------------------------------------------------- */
+        .chat__user_container {
+            padding: 24px 20px 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        .chat__content_title {
+            width: 100%;
+            margin-bottom: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .chat__content_main {
+            width: 100%;
+        }
+
+        .chat__content_type_grid_b { /* 가로 리스트 = 가로 스크롤 (2026-07-07 지시 5번) */
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            min-height: 94px; /* chat_first_match.html의 새 인맥들 줄과 동일한 높이 기준 */
+        }
+        .chat__content_type_grid_b::-webkit-scrollbar { display: none; }
+        .chat__content_type_grid_b .main__content_avatar { flex-shrink: 0; width: 70px; }
+
+
+        .chat__list_container {
+            padding: 24px 14px 20px 20px;
+        }
+
+        .chat__room_list {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .chat__list_avatar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .avatar__chat_titlebox {
+            line-height: 1.4;
+        }
+
+        .avatar__chat_name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--color-accent-gold);
+        }
+
+        .avatar__chat_description {
+            margin-top: 4px;
+        }
+
+        
+        .chat__list_option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            flex-shrink: 0;
+        }
+
+        .chat__list_date {
+            margin-top: 5px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ My Suite
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_chat app__container_type_basic">
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Header - 상단바 영역.(고정 영역)
+    ▨ 인클루드를 위해 별도의 파일로 만들어서 Import시켜야 하는 하는 영역.
+    ▨ 단, 내부의 버튼이나 구성 등이 페이지마다 다름.
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <header class="header header__bg_green header__type_basic">
+        <div class="topbar">
+
+            <!-- ▨ NOTE - 여기서부터의 내용은 페이지마다 다를 수 있음 -->
+            <button class="btn btn__size_medium">
+                <img src="./assets/images/logo_symbol_white.png" width="40" height="26">
+            </button>
+
+            <div class="title__main title__main_script">Messages</div>
+
+            <!-- <div class="title__main">
+                <span class="title__main_name">휘트니</span><span class="title__main_text">님의 Channel</span>
+            </div> -->
+
+            <!-- 2026-07-16 사장님 수정지시 2-4: 초록 배너 우측 파일 아이콘 삭제. 레이아웃 균형을 위해 빈 스페이서만 유지 -->
+            <div class="iconbox__topbar"></div>
+
+        </div>
+    </header>
+
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Body - 메인 컨텐츠 영역(스크롤 영역)
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <main class="main__container main__container_type_basic">
+
+        <!-- ▨ NOTE - 이곳부터 공통이 아닌 이 페이지만의 내용이 시작됨 -->
+
+        <!-- ▣▣▣▣▣ 메뉴 컨텐츠 -->
+        <div class="main__content_wrapper">
+            <div class="chat__user_container">
+                <div class="chat__content_title">새로운 대화 시작하기</div>
+
+                <div class="chat__content_main chat__content_type_grid_b">
+                    <div class="main__content_avatar avatar__column" onclick="location.href='./chatroom.html';" style="cursor:pointer;">
+                        <div class="avatar avatar__size_medium">
+                            <img src="./assets/images/sample_avatar_2.png">
+                        </div>
+
+                        <div class="avatar__name">Elon Musk</div>
+                    </div>
+
+                    <div class="main__content_avatar avatar__column" onclick="location.href='./chatroom.html';" style="cursor:pointer;">
+                        <div class="avatar avatar__size_medium">
+                            <img src="./assets/images/sample_avatar_3.png">
+                        </div>
+
+                        <div class="avatar__name">Angelina Jolie</div>
+                    </div>
+
+                    <div class="main__content_avatar avatar__column" onclick="location.href='./chatroom.html';" style="cursor:pointer;">
+                        <div class="avatar avatar__size_medium">
+                            <img src="./assets/images/sample_avatar_4.png">
+                        </div>
+
+                        <div class="avatar__name">Jennifer Lawrence</div>
+                    </div>
+
+                    <div class="main__content_avatar avatar__column" onclick="location.href='./chatroom.html';" style="cursor:pointer;">
+                        <div class="avatar avatar__size_medium">
+                            <img src="./assets/images/sample_avatar_5.png">
+                        </div>
+
+                        <div class="avatar__name">Billie Eilish</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat__list_container">
+                <div class="chat__content_title">최근 대화</div>
+
+                <div class="chat__content_main">
+
+                    <!-- ▨ 1개의 목록 -->
+                    <div class="chat__room_list">
+                        <div class="chat__list_avatar">
+                            <div class="avatar avatar__size_medium">
+                                <img src="./assets/images/sample_avatar_5.png">
+                            </div>
+                            
+                            <div class="avatar__chat_titlebox" onclick="location.href='./chatroom.html';">
+                                <div class="avatar__chat_name">Billie Eilish</div>
+
+                                <div class="avatar__chat_description">채팅방 제목입니다.채팅방 제목입니다.</div>
+                            </div>
+                        </div>
+
+                        <div class="chat__list_option">
+                            <button class="btn btn__circle btn__size_medium">
+                                <img src="./assets/images/icon_ratings_32dp_white.svg" width="20" height="20">
+                            </button>
+
+                            <div class="chat__list_date">09-20</div>
+                        </div>
+                    </div>
+
+                    <!-- ▨ 1개의 목록 -->
+                    <div class="chat__room_list">
+                        <div class="chat__list_avatar">
+                            <div class="avatar avatar__size_medium">
+                                <img src="./assets/images/sample_avatar_4.png">
+                            </div>
+                            
+                            <div class="avatar__chat_titlebox" onclick="location.href='./chatroom.html';">
+                                <div class="avatar__chat_name">Jennifer Lawrence</div>
+
+                                <div class="avatar__chat_description">채팅방 제목입니다.</div>
+                            </div>
+                        </div>
+
+                        <div class="chat__list_option">
+                            <button class="btn btn__circle btn__size_medium">
+                                <img src="./assets/images/icon_ratings_32dp_fill.svg" width="20" height="20">
+                            </button>
+
+                            <div class="chat__list_date">09-20</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ▨ NOTE - 이곳까지가 공통이 아닌 이 페이지만의 내용 -->
+
+    </main>
+
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Footer - 하단 툴바 영역.(고정 영역)
+    ▨ 인클루드를 위해 별도의 파일로 만들어서 Import시켜야 하는 하는 영역.
+    ▨ 단, 내부의 버튼이나 구성 등이 페이지마다 다름.
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+
+                    <div class="btn__text">홈</div>
+                </button>
+
+                <!-- Active Button - '홈' -->
+                <!--
+                <button class="btn__full">
+                    <img src="./assets/images/icon_home_32dp_fill.svg" width="28" height="28">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">홈</div>
+                </button>
+                -->
+            </div>
+
+            <div class="btnbox__toolbar">
+                <!--
+                <button class="btn__full">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+
+                    <div class="btn__text">메시지</div>
+                </button>
+                -->
+
+                <!-- Active Button - '대화' -->
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp_fill.svg" width="26" height="26" style="margin-top: 2px;">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">대화</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+
+                    <div class="btn__text">만들기</div>
+                </button>
+
+                <!-- Active Button - '업로드' -->
+                <!--
+                <button class="btn__full">
+                    <img src="./assets/images/icon_add_32dp_fill.svg" width="28" height="28">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">업로드</div>
+                </button>
+                -->
+
+                <div class="btnbox__badge">필수</div>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+
+                <!-- Active Button - 'My Suite' -->
+                <!--
+                <button class="btn__full">
+                    <img src="./assets/images/icon_person_32dp_fill.svg" width="29" height="29">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">마이 스위트</div>
+                </button>
+                -->
+            </div>
+        </div>
+    </footer>
+</div>
+
+
+<!-- ■□■□■ [SCRIPT] 'Javascript' Area -->
+<script>
+    // 홈에서 상호 인맥연결된 유저를 대화 목록 최상단에 추가합니다.
+    // (데모: 홈 화면 스와이프 매칭 결과를 localStorage 'bbm_connections'로 공유)
+    (function () {
+        var connections;
+        try { connections = JSON.parse(localStorage.getItem('bbm_connections') || '[]'); } catch (e) { connections = []; }
+        if (!connections.length) return;
+
+        var grid = document.querySelector('.chat__content_type_grid_b');
+        var list = document.querySelector('.chat__list_container .chat__content_main');
+
+        // 최신 연결이 맨 앞에 오도록 역순으로 삽입
+        connections.slice().reverse().forEach(function (user) {
+            // '새로운 대화 시작하기' 아바타 줄 맨 앞에 추가
+            if (grid) {
+                var col = document.createElement('div');
+                col.className = 'main__content_avatar avatar__column';
+                col.style.cursor = 'pointer';
+                col.innerHTML =
+                    '<div class="avatar avatar__size_medium"><img src="' + user.avatar + '"></div>' +
+                    '<div class="avatar__name">' + user.name + '</div>';
+                col.onclick = function () { location.href = './chatroom.html'; };
+                grid.insertBefore(col, grid.firstChild);
+            }
+
+            // '최근 대화' 목록 최상단에 추가
+            if (list) {
+                var row = document.createElement('div');
+                row.className = 'chat__room_list';
+                row.innerHTML =
+                    '<div class="chat__list_avatar">' +
+                        '<div class="avatar avatar__size_medium"><img src="' + user.avatar + '"></div>' +
+                        '<div class="avatar__chat_titlebox">' +
+                            '<div class="avatar__chat_name">' + user.name + '</div>' +
+                            '<div class="avatar__chat_description">새로 연결된 인맥이에요. 인사를 나눠보세요!</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="chat__list_option"><div class="chat__list_date">방금</div></div>';
+                row.querySelector('.chat__list_avatar').style.cursor = 'pointer';
+                row.querySelector('.chat__list_avatar').onclick = function () { location.href = './chatroom.html'; };
+                list.insertBefore(row, list.firstChild);
+            }
+        });
+    })();
+</script>
+
+</body>
+</html>

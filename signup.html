@@ -1,0 +1,330 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        .signup__gender_row, .signup__marketing_row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .signup__pill_btn {
+            flex: 1;
+            padding: 9px 0;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 8px;
+            border: 1px solid var(--color-gray-200);
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        .signup__pill_btn_active {
+            background-color: #000000;
+            border-color: #000000;
+            color: #ffffff;
+        }
+
+        .signup__chip {
+            display: inline-block;
+            padding: 9px 13px;
+            border-radius: 20px;
+            border: 1px solid var(--color-gray-200);
+            background-color: #f3f4f6;
+            font-size: 14px;
+            color: #000000;
+            margin: 0 8px 8px 0;
+        }
+
+        .signup__chip_active {
+            background-color: #000000;
+            border-color: #000000;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .signup__avatar_upload {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 16px auto 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ 회원가입
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_white app__container_type_basic">
+    <header class="header header__bg_red header__type_basic">
+        <div class="topbar">
+            <button class="btn btn__size_medium">
+                <img src="./assets/images/logo_symbol_white.png" width="40" height="26">
+            </button>
+
+            <div class="title__main" style="color: #eee; font-size: 16px;">회원가입</div>
+
+            <div class="iconbox__topbar">
+                <button class="btn btn__size_medium" onclick="location.href='./chat_directory.html';">
+                    <img src="./assets/images/icon_add_folder_32dp.svg" width="30" height="30">
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic">
+        <div class="main__content_wrapper">
+            <div class="form__appbar">
+                <img src="./assets/images/icon_arrow_back_32dp_dark.svg" width="24" height="24" onclick="history.back();" style="cursor: pointer;">
+                <div class="form__appbar_title">회원가입</div>
+            </div>
+
+            <div class="form__body">
+                <div class="form__group">
+                    <div class="form__heading" style="margin-bottom: 0;">프로필 정보</div>
+                    <div class="signup__avatar_upload" id="signupAvatarUpload" style="cursor: pointer; overflow: hidden;">
+                        <img id="signupAvatarPreview" src="./assets/images/icon_add_a_photo_32dp_gray.svg" width="40" height="40">
+                    </div>
+                    <input type="file" id="signupAvatarFile" accept="image/*" style="display:none;">
+                </div>
+
+                <div class="form__row form__group">
+                    <div style="flex: 1;">
+                        <label class="form__label">이름</label>
+                        <input class="form__input" type="text" id="signupFirstName" placeholder="이름">
+                    </div>
+                    <div style="flex: 1;">
+                        <label class="form__label">성</label>
+                        <input class="form__input" type="text" id="signupLastName" placeholder="성">
+                    </div>
+                </div>
+
+                <div class="form__group">
+                    <label class="form__label" style="font-weight: 700; font-size: 16px;">보조 이메일</label>
+                    <input class="form__input" type="email" id="signupEmail" placeholder="아이디 찾기용 이메일을 입력하세요">
+                </div>
+
+                <div class="form__group">
+                    <label class="form__label" style="font-weight: 700; font-size: 16px;">비밀번호</label>
+                    <input class="form__input" type="password" id="signupPassword" placeholder="영문, 숫자 포함 8자 이상" style="padding-left: 41px; background-image: url('./assets/images/icon_lock_20dp_gray.svg'); background-repeat: no-repeat; background-position: 12px center;">
+                </div>
+
+                <div class="form__group">
+                    <label class="form__label" style="font-weight: 700; font-size: 16px;">비밀번호 확인</label>
+                    <input class="form__input" type="password" id="signupPasswordConfirm" placeholder="비밀번호를 다시 입력하세요" style="padding-left: 41px; background-image: url('./assets/images/icon_lock_20dp_gray.svg'); background-repeat: no-repeat; background-position: 12px center;">
+                    <div class="form__desc" id="signupPasswordMsg" style="display: none; color: var(--color-error); margin-top: 6px;"></div>
+                </div>
+
+                <div class="form__group">
+                    <label class="form__label" style="font-weight: 700; font-size: 16px;">성별</label>
+                    <div class="signup__gender_row" id="signupGenderRow">
+                        <div class="signup__pill_btn signup__pill_btn_active" onclick="selectPill(this, 'signupGenderRow')">남성</div>
+                        <div class="signup__pill_btn" onclick="selectPill(this, 'signupGenderRow')">여성</div>
+                        <div class="signup__pill_btn" onclick="selectPill(this, 'signupGenderRow')">공개안함</div>
+                    </div>
+                </div>
+
+                <div class="form__group">
+                    <label class="form__label" style="font-weight: 700; font-size: 16px;">마케팅</label>
+                    <div class="signup__marketing_row" id="signupMarketingRow">
+                        <div class="signup__pill_btn signup__pill_btn_active" onclick="selectPill(this, 'signupMarketingRow')">일반</div>
+                        <div class="signup__pill_btn" onclick="selectPill(this, 'signupMarketingRow')">마케팅</div>
+                    </div>
+                </div>
+
+                <div class="form__group">
+                    <label class="form__label">생년월일</label>
+                    <div id="signupBirthdateRow" onclick="document.getElementById('signupBirthdateInput').showPicker ? document.getElementById('signupBirthdateInput').showPicker() : document.getElementById('signupBirthdateInput').click();" style="display: flex; align-items: center; justify-content: space-between; padding: 13px; border: 1px solid var(--color-gray-200); border-radius: 4px; cursor: pointer;">
+                        <span id="signupBirthdateLabel" style="font-size: 14px; color: var(--color-text-muted);">생년월일 선택</span>
+                        <img src="./assets/images/icon_keyboard_arrow_down_32dp_dark.svg" width="16" height="16">
+                    </div>
+                    <input type="date" id="signupBirthdateInput" style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;" max="9999-12-31" onchange="updateBirthdateLabel(this.value)">
+                </div>
+
+                <div class="form__group" style="margin-top: 40px;">
+                    <div class="form__heading">관심 주제 선택</div>
+                    <div class="form__desc" style="margin-bottom: 16px;">관심 있는 분야를 선택해주세요 (최소 1개)</div>
+                    <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">인기 관심 주제</div>
+                    <div id="signupInterestRow">
+                        <span class="signup__chip signup__chip_active" onclick="toggleChip(this)">음악</span>
+                        <span class="signup__chip" onclick="toggleChip(this)">댄스</span>
+                        <span class="signup__chip" onclick="toggleChip(this)">일상</span>
+                        <span class="signup__chip" onclick="toggleChip(this)">게임</span>
+                        <span class="signup__chip" onclick="toggleChip(this)">스포츠</span>
+                    </div>
+                    <div class="form__desc" id="signupInterestMsg" style="display:none; color: var(--color-error); margin-top: 8px;">관심 주제를 최소 1개 선택해주세요.</div>
+                </div>
+
+                <!-- ▣ AI 데이터 활용 동의 (리나 강 대화 요약·분석 → 매칭 추천에 활용) -->
+                <div class="form__group" style="margin-top: 24px; padding: 14px; border: 1px solid var(--color-gray-200); border-radius: 10px; background-color: #f9fafb;">
+                    <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" id="aiConsentCheckbox" checked style="margin-top: 3px; width: 16px; height: 16px; flex-shrink: 0;">
+                        <span style="font-size: 13px; color: var(--color-text-dark); line-height: 1.5;">
+                            <strong>[필수]</strong> AI 매칭을 위한 대화 요약·분석 동의<br>
+                            <span style="font-size: 12px; color: #9ca3af;">리나 강과 나눈 대화는 AI로 요약·분석되어 인맥 추천 품질을 높이는 데 활용됩니다. <a href="./terms.html" style="color: var(--color-text-muted); text-decoration: underline;" onclick="event.stopPropagation();">자세히 보기</a></span>
+                        </span>
+                    </label>
+                </div>
+
+                <button class="form__button" id="signupSubmitBtn" style="margin-top: 24px;" onclick="handleSignupSubmit();">다음으로</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+                    <div class="btn__text">홈</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+                    <div class="btn__text">메시지</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+                    <div class="btn__text">만들기</div>
+                </button>
+                <div class="btnbox__badge">필수</div>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<!-- ■□■□■ [SCRIPT] 'Javascript' Area -->
+<script>
+    // 성별/마케팅 — 같은 그룹 내 단일 선택
+    function selectPill(elem, groupId) {
+        var group = document.getElementById(groupId);
+        group.querySelectorAll('.signup__pill_btn').forEach(function (p) {
+            p.classList.remove('signup__pill_btn_active');
+        });
+        elem.classList.add('signup__pill_btn_active');
+    }
+
+    // 관심 주제 — 다중 선택 토글
+    function toggleChip(elem) {
+        elem.classList.toggle('signup__chip_active');
+    }
+
+    // 생년월일 — 네이티브 date picker 결과를 라벨에 반영
+    function updateBirthdateLabel(value) {
+        if (!value) return;
+        var label = document.getElementById('signupBirthdateLabel');
+        label.textContent = value;
+        label.style.color = 'var(--color-text-dark)';
+    }
+
+    // 프로필 사진 업로드
+    (function () {
+        var uploadArea = document.getElementById('signupAvatarUpload');
+        var fileInput = document.getElementById('signupAvatarFile');
+        var preview = document.getElementById('signupAvatarPreview');
+
+        uploadArea.addEventListener('click', function () { fileInput.click(); });
+        fileInput.addEventListener('change', function () {
+            var file = fileInput.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.style.width = '100%';
+                preview.style.height = '100%';
+                preview.style.objectFit = 'cover';
+                preview.style.borderRadius = '50%';
+            };
+            reader.readAsDataURL(file);
+        });
+    })();
+
+    // 비밀번호 규칙: 영문+숫자 포함 8자 이상 (2026-07-17 회원가입 비밀번호 입력란 추가)
+    var PASSWORD_MIN_LENGTH = 8;
+    var PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d).+$/;
+
+    function handleSignupSubmit() {
+        var firstName = document.getElementById('signupFirstName').value.trim();
+        var lastName = document.getElementById('signupLastName').value.trim();
+        var email = document.getElementById('signupEmail').value.trim();
+        var password = document.getElementById('signupPassword').value;
+        var passwordConfirm = document.getElementById('signupPasswordConfirm').value;
+        var msg = document.getElementById('signupPasswordMsg');
+        var interestMsg = document.getElementById('signupInterestMsg');
+        var selectedInterests = document.querySelectorAll('#signupInterestRow .signup__chip_active');
+
+        interestMsg.style.display = 'none';
+        msg.style.display = 'none';
+
+        if (!firstName || !lastName) {
+            alert('이름과 성을 입력해주세요.');
+            return;
+        }
+        if (!email) {
+            alert('보조 이메일을 입력해주세요.');
+            return;
+        }
+
+        var error = '';
+        if (!password || password.length < PASSWORD_MIN_LENGTH) {
+            error = '비밀번호는 8자 이상이어야 합니다.';
+        } else if (!PASSWORD_PATTERN.test(password)) {
+            error = '비밀번호는 영문과 숫자를 포함해야 합니다.';
+        } else if (password !== passwordConfirm) {
+            error = '비밀번호가 일치하지 않습니다.';
+        }
+
+        if (error) {
+            msg.textContent = error;
+            msg.style.display = 'block';
+            return;
+        }
+
+        if (selectedInterests.length === 0) {
+            interestMsg.style.display = 'block';
+            interestMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+
+        location.href = './home.html';
+    }
+</script>
+
+</body>
+</html>
+

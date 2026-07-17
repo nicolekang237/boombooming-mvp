@@ -1,0 +1,251 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        /*
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+        ▩ 채팅방 즐겨찾기
+
+        ▩ 공통으로 쓰이는 레이아웃, 헤더, 푸터 등을 제외하고 오직 이 페이지에서만 쓰이는 스타일은 이곳에만 기재.
+
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        */
+
+        /* ■ 메인 컨텐츠 영역
+        ---------------------------------------------------------------------- */
+        .chat__list_container {
+            padding: 24px 14px 20px 20px;
+        }
+
+        .chat__room_list {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .chat__list_avatar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .avatar__chat_titlebox {
+            line-height: 1.4;
+        }
+
+        .avatar__chat_name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--color-accent-gold);
+        }
+
+        .avatar__chat_description {
+            margin-top: 4px;
+        }
+
+        
+        .chat__list_option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            flex-shrink: 0;
+        }
+
+        .chat__list_date {
+            margin-top: 5px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ My Suite
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_chat app__container_type_basic">
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Header - 상단바 영역.(고정 영역)
+    ▨ 인클루드를 위해 별도의 파일로 만들어서 Import시켜야 하는 하는 영역.
+    ▨ 단, 내부의 버튼이나 구성 등이 페이지마다 다름.
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <header class="header header__bg_green header__type_basic">
+        <div class="topbar">
+
+            <!-- ▨ NOTE - 여기서부터의 내용은 페이지마다 다를 수 있음 -->
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+            </button>
+
+            <div class="title__main">채팅 즐겨찾기</div>
+
+            <div class="iconbox__topbar">
+            </div>
+            
+        </div>        
+    </header>
+
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Body - 메인 컨텐츠 영역(스크롤 영역)
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <main class="main__container main__container_type_basic">
+
+        <!-- ▨ NOTE - 이곳부터 공통이 아닌 이 페이지만의 내용이 시작됨 -->
+
+        <!-- ▣▣▣▣▣ 메뉴 컨텐츠 -->
+        <div class="main__content_wrapper">
+
+            <div class="chat__list_container">
+                
+                <!-- ▨ 1개의 목록 -->
+                <div class="chat__room_list">
+                    <div class="chat__list_avatar">
+                        <div class="avatar avatar__size_medium">
+                            <img src="./assets/images/sample_avatar_5.png">
+                        </div>
+                        
+                        <div class="avatar__chat_titlebox" onclick="location.href='./chatroom.html';" style="cursor:pointer;">
+                            <div class="avatar__chat_name">Billie Eilish</div>
+
+                            <div class="avatar__chat_description">채팅방 제목입니다.채팅방 제목입니다.</div>
+                        </div>
+                    </div>
+
+                    <div class="chat__list_option">
+                        <button class="btn btn__size_medium">
+                            <img src="./assets/images/icon_ratings_32dp_fill.svg" width="20" height="20">
+                        </button>
+
+                        <div class="chat__list_date">09-20</div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ▨ NOTE - 이곳까지가 공통이 아닌 이 페이지만의 내용 -->
+
+    </main>
+
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Footer - 하단 툴바 영역.(고정 영역)
+    ▨ 인클루드를 위해 별도의 파일로 만들어서 Import시켜야 하는 하는 영역.
+    ▨ 단, 내부의 버튼이나 구성 등이 페이지마다 다름.
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+
+                    <div class="btn__text">홈</div>
+                </button>
+
+                <!-- Active Button - '홈' -->
+                <!--
+                <button class="btn__full">
+                    <img src="./assets/images/icon_home_32dp_fill.svg" width="28" height="28">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">홈</div>
+                </button>
+                -->
+            </div>
+
+            <div class="btnbox__toolbar">
+                <!--
+                <button class="btn__full">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+
+                    <div class="btn__text">메시지</div>
+                </button>
+                -->
+
+                <!-- Active Button - '대화' -->
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp_fill.svg" width="26" height="26" style="margin-top: 2px;">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">대화</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+
+                    <div class="btn__text">만들기</div>
+                </button>
+
+                <!-- Active Button - '업로드' -->
+                <!--
+                <button class="btn__full">
+                    <img src="./assets/images/icon_add_32dp_fill.svg" width="28" height="28">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">업로드</div>
+                </button>
+                -->
+
+                <div class="btnbox__badge">필수</div>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+
+                <!-- Active Button - 'My Suite' -->
+                <!--
+                <button class="btn__full">
+                    <img src="./assets/images/icon_person_32dp_fill.svg" width="29" height="29">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">마이 스위트</div>
+                </button>
+                -->
+            </div>
+        </div>
+    </footer>
+</div>
+
+
+<!-- ■□■□■ [SCRIPT] 'Javascript' Area -->
+
+</body>
+</html>

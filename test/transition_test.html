@@ -1,0 +1,245 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transition Effects Test</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .viewer {
+            position: relative;
+            width: 300px;
+            height: 400px;
+            background-color: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        /* -------------------------------------------
+           슬라이드 공통 (기본은 페이드)
+        ------------------------------------------- */
+        .slide {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.6s ease-in-out;
+            transform-origin: center center;
+        }
+
+        .slide.is_active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .slide.is_prev {
+            opacity: 0;
+            visibility: visible; /* 슬라이드 효과 등을 위해 잠시 보이게 유지 */
+        }
+
+        /* 1. 페이드 (기본 - 위 공통 클래스로 처리) */
+        
+        /* 2. 밀어내기 (Slide) */
+        .slide.fx_slide {
+            transform: translateX(100%);
+        }
+        .slide.fx_slide.is_active {
+            transform: translateX(0);
+        }
+        .slide.fx_slide.is_prev {
+            transform: translateX(-100%);
+            opacity: 1;
+        }
+
+        /* 3. 줌 인 (Zoom In) */
+        .slide.fx_zoom {
+            transform: scale(0.8);
+        }
+        .slide.fx_zoom.is_active {
+            transform: scale(1);
+        }
+
+        /* 4. 플래시 (Flash - 번쩍이는 효과) */
+        /* 배경을 하얗게 만들고, opacity 전환 속도를 조절해 번쩍이는 느낌 부여 */
+        .viewer.bg_flash {
+            background-color: #ffffff;
+        }
+        .slide.fx_flash {
+            transition: opacity 0.3s cubic-bezier(1, 0, 0, 1);
+        }
+
+        /* 5. 블러 (Blur) */
+        .slide.fx_blur {
+            filter: blur(15px);
+        }
+        .slide.fx_blur.is_active {
+            filter: blur(0px);
+        }
+
+        /* 6. 글리치 (Glitch) */
+        .slide.fx_glitch {
+            /* 전환 시작 시 */
+            transform: translate(10px, -10px) skew(-20deg);
+            filter: hue-rotate(90deg);
+        }
+        .slide.fx_glitch.is_active {
+            transform: translate(0, 0) skew(0deg);
+            filter: hue-rotate(0deg);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* 튕기는 듯한 느낌 */
+        }
+
+        /* 7. 팬 & 줌 (Pan & Zoom / 켄 번스) */
+        .slide.fx_pan_zoom {
+            transform: scale(1.2) translate(5%, 5%);
+        }
+        .slide.fx_pan_zoom.is_active {
+            transform: scale(1) translate(0, 0);
+            transition: all 3s linear; /* 팬줌은 아주 천천히 진행 */
+            opacity: 1;
+        }
+
+        /* 8. 회전 (Spin) */
+        .slide.fx_spin {
+            transform: scale(0.2) rotate(-90deg);
+        }
+        .slide.fx_spin.is_active {
+            transform: scale(1) rotate(0deg);
+        }
+
+        /* -------------------------------------------
+           UI 버튼들
+        ------------------------------------------- */
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            width: 300px;
+        }
+
+        button {
+            padding: 12px;
+            background-color: #333;
+            color: white;
+            border: 1px solid #555;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button.active {
+            background-color: var(--color-primary-pink);
+            border-color: var(--color-primary-pink);
+            color: #000;
+            font-weight: bold;
+        }
+
+        .desc {
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #aaa;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>전환 효과 테스트</h2>
+    <div class="desc">버튼을 눌러 효과를 변경해 보세요. (3초마다 자동 전환)</div>
+
+    <div class="viewer" id="viewer">
+        <img src="../assets/images/sample_myvideo_1.png" class="slide is_active" id="slide-0">
+        <img src="../assets/images/sample_myvideo_3.png" class="slide" id="slide-1">
+        <img src="../assets/images/sample_myvideo_5.png" class="slide" id="slide-2">
+    </div>
+
+    <div class="controls" id="controls">
+        <button onclick="setEffect('fx_fade', this)" class="active">1. 페이드</button>
+        <button onclick="setEffect('fx_slide', this)">2. 밀어내기</button>
+        <button onclick="setEffect('fx_zoom', this)">3. 줌 인</button>
+        <button onclick="setEffect('fx_flash', this)">4. 플래시</button>
+        <button onclick="setEffect('fx_blur', this)">5. 블러</button>
+        <button onclick="setEffect('fx_glitch', this)">6. 글리치</button>
+        <button onclick="setEffect('fx_pan_zoom', this)">7. 팬 & 줌</button>
+        <button onclick="setEffect('fx_spin', this)">8. 회전</button>
+    </div>
+
+    <script>
+        let currentIndex = 0;
+        const totalSlides = 3;
+        let currentEffect = 'fx_fade'; // 기본 효과
+
+        function setEffect(effectName, btnElement) {
+            currentEffect = effectName;
+
+            // 버튼 UI 업데이트
+            document.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+            if(btnElement) btnElement.classList.add('active');
+
+            // 플래시 효과를 위해 viewer 배경색 변경 제어
+            const viewer = document.getElementById('viewer');
+            if (effectName === 'fx_flash') {
+                viewer.classList.add('bg_flash');
+            } else {
+                viewer.classList.remove('bg_flash');
+            }
+
+            // 모든 슬라이드에 효과 클래스 갱신 (기존 효과 제거, 새 효과 추가)
+            for (let i = 0; i < totalSlides; i++) {
+                const slide = document.getElementById(`slide-${i}`);
+                slide.className = 'slide'; // 리셋
+                if (effectName !== 'fx_fade') {
+                    slide.classList.add(effectName); // 새 효과 추가 (페이드는 기본이므로 추가 안함)
+                }
+                
+                // 현재 인덱스 복구
+                if (i === currentIndex) {
+                    slide.classList.add('is_active');
+                }
+            }
+        }
+
+        function nextSlide() {
+            const prevIndex = currentIndex;
+            currentIndex = (currentIndex + 1) % totalSlides;
+
+            for (let i = 0; i < totalSlides; i++) {
+                const slide = document.getElementById(`slide-${i}`);
+                
+                if (i === currentIndex) {
+                    slide.classList.add('is_active');
+                    slide.classList.remove('is_prev');
+                } else if (i === prevIndex) {
+                    slide.classList.remove('is_active');
+                    slide.classList.add('is_prev');
+                } else {
+                    slide.classList.remove('is_active');
+                    slide.classList.remove('is_prev');
+                }
+            }
+        }
+
+        // 3초마다 슬라이드 넘김
+        setInterval(nextSlide, 3000);
+
+        // 초기화
+        setEffect('fx_fade', document.querySelector('button.active'));
+
+    </script>
+
+</body>
+</html>
+

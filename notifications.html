@@ -1,0 +1,583 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>알림 — BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        /*
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+        ▩ Notifications — 알림 페이지
+
+        ▩ 공통으로 쓰이는 레이아웃, 헤더, 푸터 등을 제외하고 오직 이 페이지에서만 쓰이는 스타일은 이곳에만 기재.
+
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        */
+
+        /* ■ 탭 영역
+        ---------------------------------------------------------------------- */
+        .tabs__switcher {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .tabs__item {
+            flex: 1;
+            padding: 13px 0;
+            text-align: center;
+            font-size: 14px;
+            color: #777;
+            cursor: pointer;
+        }
+
+        .tabs__item_active {
+            font-weight: 700;
+            color: var(--color-primary-pink);
+            border-bottom: 2px solid var(--color-primary-pink);
+            margin-bottom: -1px;
+        }
+
+        /* ■ 섹션 날짜 레이블
+        ---------------------------------------------------------------------- */
+        .noti__date_label {
+            padding: 16px 16px 8px 16px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #666;
+            letter-spacing: 0.02em;
+        }
+
+        /* ■ 알림 개별 아이템
+        ---------------------------------------------------------------------- */
+        .noti__item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .noti__item:active {
+            background-color: rgba(255, 255, 255, 0.04);
+        }
+
+        .noti__item.unread {
+            background-color: rgba(255, 140, 157, 0.05);
+        }
+
+        .noti__avatar_wrap {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .noti__avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .noti__avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .noti__icon_badge {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--color-gray-900);
+        }
+
+        .noti__icon_badge img {
+            width: 12px;
+            height: 12px;
+        }
+
+        .badge__match   { background-color: var(--color-primary-pink); }
+        .badge__chat    { background-color: #35b4ce; }
+        .badge__like    { background-color: #e05050; }
+        .badge__system  { background-color: #888; }
+        .badge__comment { background-color: #a57dff; }
+        .badge__booming { background-color: #d8b978; } /* 부밍지수 변동 (2026-07-16 사장님 수정지시, 누락 화면 2번) */
+        .badge__league  { background-color: var(--color-success); } /* 리그 승급 */
+
+        .noti__content {
+            flex: 1;
+        }
+
+        .noti__text {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #cccccc;
+        }
+
+        .noti__text strong {
+            color: var(--color-text-primary);
+            font-weight: 700;
+        }
+
+        .noti__text .highlight {
+            color: var(--color-primary-pink);
+        }
+
+        .noti__time {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .noti__unread_dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--color-primary-pink);
+            flex-shrink: 0;
+            margin-top: 5px;
+        }
+
+        /* ■ 썸네일 미리보기 (영상/이미지 알림)
+        ---------------------------------------------------------------------- */
+        .noti__thumb {
+            width: 56px;
+            height: 56px;
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .noti__thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ■ 인맥 신청 버튼 영역
+        ---------------------------------------------------------------------- */
+        .noti__action_row {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .noti__btn {
+            padding: 7px 16px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .noti__btn_accept {
+            background-color: var(--color-primary-pink);
+            color: #ffffff;
+            border: none;
+        }
+
+        .noti__btn_deny {
+            background-color: transparent;
+            color: #aaaaaa;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* ■ 전체 읽음 처리 버튼
+        ---------------------------------------------------------------------- */
+        .noti__topbar_action {
+            font-size: 13px;
+            color: #35b4ce;
+            cursor: pointer;
+        }
+
+        /* ■ 빈 화면
+        ---------------------------------------------------------------------- */
+        .empty__state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 32px;
+            text-align: center;
+        }
+
+        .empty__icon {
+            opacity: 0.25;
+            margin-bottom: 16px;
+        }
+
+        .empty__title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .empty__desc {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ Notifications — 알림
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_dark app__container_type_basic">
+
+    <!-- ■ Header -->
+    <header class="header header__bg_red header__type_basic">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+            </button>
+
+            <div class="title__main">
+                <span class="title__main_text">알림</span>
+            </div>
+
+            <div class="iconbox__topbar">
+                <button class="btn btn__size_medium noti__topbar_action" onclick="markAllRead()">
+                    모두 읽음
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ■ Body -->
+    <main class="main__container main__container_type_basic">
+
+        <!-- ▨ NOTE - 이곳부터 공통이 아닌 이 페이지만의 내용이 시작됨 -->
+
+        <!-- ▣ 탭 (전체 / 인맥 / 활동) -->
+        <div class="tabs__switcher">
+            <div class="tabs__item tabs__item_active" id="tab-all" onclick="switchTab('all')">전체</div>
+            <div class="tabs__item" id="tab-connect" onclick="switchTab('connect')">인맥</div>
+            <div class="tabs__item" id="tab-activity" onclick="switchTab('activity')">활동</div>
+        </div>
+
+        <!-- 받은 인맥 신청만 모아보는 전용 화면 진입점 (기술설계안 A3) -->
+        <div style="display:flex; justify-content:flex-end; padding:10px 16px 0;">
+            <span style="font-size:12.5px; font-weight:700; color:#35b4ce; cursor:pointer;" onclick="location.href='./connection_requests.html';">받은 인맥 신청 전체 관리 ›</span>
+        </div>
+
+        <!-- ▣ 오늘 알림 -->
+        <div class="noti__date_label" data-group="today" data-cat="all">오늘</div>
+
+        <!-- 운영공지 (unread) — 2026-07-16 사장님 수정지시, 누락 화면 2번 -->
+        <div class="noti__item unread" data-cat="activity">
+            <div class="noti__avatar_wrap">
+                <div class="noti__avatar" style="background: #2a2a2a; display:flex; align-items:center; justify-content:center;">
+                    <img src="./assets/images/logo_symbol_red.png" width="28" height="28">
+                </div>
+                <div class="noti__icon_badge badge__system">
+                    <img src="./assets/images/icon_notifications_32dp.svg">
+                </div>
+            </div>
+            <div class="noti__content">
+                <div class="noti__text">
+                    <strong>[공지]</strong> 07/20(월) 새벽 2시~4시 서버 점검이 진행됩니다.
+                </div>
+                <div class="noti__time">1시간 전</div>
+            </div>
+            <div class="noti__unread_dot"></div>
+        </div>
+
+        <!-- 리그 승급 (unread) — 2026-07-16 사장님 수정지시, 누락 화면 2번 -->
+        <div class="noti__item unread" data-cat="activity" onclick="location.href='./booming_index_growth.html'">
+            <div class="noti__avatar_wrap">
+                <div class="noti__avatar" style="background: #2a2a2a; display:flex; align-items:center; justify-content:center;">
+                    <img src="./assets/images/planet_jupiter.png" width="30" height="30" style="border-radius:50%;">
+                </div>
+                <div class="noti__icon_badge badge__league">
+                    <img src="./assets/images/icon_ratings_32dp_fill.svg">
+                </div>
+            </div>
+            <div class="noti__content">
+                <div class="noti__text">
+                    축하해요! <span class="highlight">목성 리그</span>로 승급했습니다 🎉
+                </div>
+                <div class="noti__time">2시간 전</div>
+            </div>
+            <div class="noti__unread_dot"></div>
+        </div>
+
+        <!-- 인맥 신청 알림 (unread) -->
+        <div class="noti__item unread" data-cat="connect">
+            <div class="noti__avatar_wrap">
+                <div class="noti__avatar">
+                    <img src="./assets/images/sample_avatar_rina.png">
+                </div>
+                <div class="noti__icon_badge badge__match">
+                    <img src="./assets/images/icon_group_32dp.svg">
+                </div>
+            </div>
+            <div class="noti__content">
+                <div class="noti__text">
+                    <strong>리나강</strong>님이 인맥 신청을 보냈습니다.
+                </div>
+                <div class="noti__action_row">
+                    <button class="noti__btn noti__btn_accept" onclick="acceptConnect(this)">수락</button>
+                    <button class="noti__btn noti__btn_deny" onclick="denyConnect(this)">거절</button>
+                </div>
+                <div class="noti__time">방금 전</div>
+            </div>
+            <div class="noti__unread_dot"></div>
+        </div>
+
+        <!-- 채팅 알림 (unread) -->
+        <div class="noti__item unread" data-cat="activity" onclick="location.href='./chatroom.html'">
+            <div class="noti__avatar_wrap">
+                <div class="noti__avatar">
+                    <img src="./assets/images/sample_avatar_2.png">
+                </div>
+                <div class="noti__icon_badge badge__chat">
+                    <img src="./assets/images/icon_chat_bubble_32dp_fill.svg">
+                </div>
+            </div>
+            <div class="noti__content">
+                <div class="noti__text">
+                    <strong>Elon Musk</strong>님이 메시지를 보냈습니다.<br>
+                    <span style="color:#888;">"안녕하세요! 잘 지내시나요?"</span>
+                </div>
+                <div class="noti__time">3분 전</div>
+            </div>
+            <div class="noti__unread_dot"></div>
+        </div>
+
+        <!-- 좋아요 알림 (unread) -->
+        <div class="noti__item unread" data-cat="activity">
+            <div class="noti__avatar_wrap">
+                <div class="noti__avatar">
+                    <img src="./assets/images/sample_avatar_3.png">
+                </div>
+                <div class="noti__icon_badge badge__like">
+                    <img src="./assets/images/icon_favorite_32dp_fill.svg">
+                </div>
+            </div>
+            <div class="noti__content">
+                <div class="noti__text">
+                    <strong>Angelina Jolie</strong>님이 내 영상을 좋아합니다.
+                </div>
+                <div class="noti__time">18분 전</div>
+            </div>
+            <div class="noti__thumb">
+                <img src="./assets/images/sample_myvideo_1.png">
+            </div>
+        </div>
+
+        <!-- ▣ 어제 알림 -->
+        <div class="noti__date_label" data-group="yesterday" data-cat="all">어제</div>
+
+        <!-- 인맥 수락 알림 (read) -->
+        <div class="noti__item" data-cat="connect" onclick="location.href='./chatroom.html'">
+            <div class="noti__avatar_wrap">
+                <div class="noti__avatar">
+                    <img src="./assets/images/sample_avatar_4.png">
+                </div>
+                <div class="noti__icon_badge badge__match">
+                    <img src="./assets/images/icon_group_32dp.svg">
+                </div>
+            </div>
+            <div class="noti__content">
+                <div class="noti__text">
+                    <strong>Jennifer Lawrence</strong>님이 인맥 신청을 수락했습니다.<br>
+                    <span class="highlight">지금 대화를 시작해보세요!</span>
+                </div>
+                <div class="noti__time">어제 오후 3:24</div>
+            </div>
+        </div>
+
+        <!-- 댓글 알림 (read) -->
+        <div class="noti__item" data-cat="activity">
+            <div class="noti__avatar_wrap">
+                <div class="noti__avatar">
+                    <img src="./assets/images/sample_avatar_5.png">
+                </div>
+                <div class="noti__icon_badge badge__comment">
+                    <img src="./assets/images/icon_chat_bubble_32dp_fill.svg">
+                </div>
+            </div>
+            <div class="noti__content">
+                <div class="noti__text">
+                    <strong>Billie Eilish</strong>님이 내 영상에 댓글을 남겼습니다.<br>
+                    <span style="color:#888;">"정말 인상적인 영상이네요!"</span>
+                </div>
+                <div class="noti__time">어제 오전 11:05</div>
+            </div>
+            <div class="noti__thumb">
+                <img src="./assets/images/sample_myvideo_2.png">
+            </div>
+        </div>
+
+        <!-- 부밍지수 변동 (read) -->
+        <div class="noti__item" data-cat="activity" onclick="location.href='./booming_index_growth.html'">
+            <div class="noti__avatar_wrap">
+                <div class="noti__avatar" style="background: #2a2a2a; display:flex; align-items:center; justify-content:center;">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="24" height="24">
+                </div>
+                <div class="noti__icon_badge badge__booming">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg">
+                </div>
+            </div>
+            <div class="noti__content">
+                <div class="noti__text">
+                    <strong>BoomBooming</strong> 알림: 이번 주 부밍지수가 <span class="highlight">+15.3%</span> 상승했습니다.
+                </div>
+                <div class="noti__time">어제 오전 9:00</div>
+            </div>
+        </div>
+
+        <!-- 답글 알림 (read) — 2026-07-16 사장님 수정지시, 누락 화면 2번 -->
+        <div class="noti__item" data-cat="activity" onclick="location.href='./video_detail.html'">
+            <div class="noti__avatar_wrap">
+                <div class="noti__avatar">
+                    <img src="./assets/images/sample_avatar_3.png">
+                </div>
+                <div class="noti__icon_badge badge__comment">
+                    <img src="./assets/images/icon_chat_bubble_32dp_fill.svg">
+                </div>
+            </div>
+            <div class="noti__content">
+                <div class="noti__text">
+                    <strong>박소연</strong>님이 내 댓글에 답글을 남겼습니다.<br>
+                    <span style="color:#888;">"저도 완전 공감해요 ㅎㅎ"</span>
+                </div>
+                <div class="noti__time">어제 오후 6:42</div>
+            </div>
+        </div>
+
+        <!-- ▣ 필터링 결과 없음 -->
+        <div class="empty__state" id="notiEmptyState" style="display:none;">
+            <div class="empty__icon">
+                <img src="./assets/images/icon_notifications_32dp.svg" width="48" height="48">
+            </div>
+            <div class="empty__title">알림이 없습니다</div>
+            <div class="empty__desc">해당하는 알림이 아직 없어요.</div>
+        </div>
+
+        <!-- ▨ NOTE - 이곳까지가 공통이 아닌 이 페이지만의 내용 -->
+    </main>
+
+    <!-- ■ Footer -->
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+                    <div class="btn__text">홈</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+                    <div class="btn__text">메시지</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+                    <div class="btn__text">만들기</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<!-- ■□■□■ [SCRIPT] -->
+<script>
+    var tabs = ['all', 'connect', 'activity'];
+
+    function switchTab(active) {
+        tabs.forEach(function(t) {
+            var el = document.getElementById('tab-' + t);
+            if (t === active) {
+                el.classList.add('tabs__item_active');
+            } else {
+                el.classList.remove('tabs__item_active');
+            }
+        });
+
+        // 탭에 맞는 알림만 노출 (전체 / 인맥 / 활동)
+        document.querySelectorAll('.noti__item[data-cat]').forEach(function (item) {
+            var show = (active === 'all') || (item.getAttribute('data-cat') === active);
+            item.style.display = show ? '' : 'none';
+        });
+
+        // 날짜 구분선은 해당 구간에 보이는 알림이 하나라도 있을 때만 노출
+        document.querySelectorAll('.noti__date_label[data-group]').forEach(function (label) {
+            var sibling = label.nextElementSibling;
+            var hasVisible = false;
+            while (sibling && !sibling.classList.contains('noti__date_label')) {
+                if (sibling.classList.contains('noti__item') && sibling.style.display !== 'none') {
+                    hasVisible = true;
+                    break;
+                }
+                sibling = sibling.nextElementSibling;
+            }
+            label.style.display = hasVisible ? '' : 'none';
+        });
+
+        // 필터링 결과가 하나도 없으면 빈 상태 안내 노출
+        var anyVisible = Array.prototype.some.call(
+            document.querySelectorAll('.noti__item[data-cat]'),
+            function (item) { return item.style.display !== 'none'; }
+        );
+        document.getElementById('notiEmptyState').style.display = anyVisible ? 'none' : 'flex';
+    }
+
+    function markAllRead() {
+        document.querySelectorAll('.noti__item.unread').forEach(function(el) {
+            el.classList.remove('unread');
+        });
+        document.querySelectorAll('.noti__unread_dot').forEach(function(el) {
+            el.style.display = 'none';
+        });
+    }
+
+    function acceptConnect(btn) {
+        var row = btn.closest('.noti__action_row');
+        row.innerHTML = '<span style="font-size:13px; color:#50c88c; font-weight:700;">✓ 인맥이 되었습니다!</span>';
+        btn.closest('.noti__item').classList.remove('unread');
+    }
+
+    function denyConnect(btn) {
+        var row = btn.closest('.noti__action_row');
+        row.innerHTML = '<span style="font-size:13px; color:#888;">거절했습니다.</span>';
+        btn.closest('.noti__item').classList.remove('unread');
+    }
+</script>
+
+</body>
+</html>
+

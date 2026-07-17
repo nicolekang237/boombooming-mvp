@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/main.css">
+
+    <style>
+        /* ■ 웰컴 (2026-07-07 사장님 지시 4번 — mod/4-2.jpg 시안) */
+        body {
+            margin: 0;
+            background-color: #b3222f;
+        }
+
+        .welcome__wrapper {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            /* splash_kr_full.png에 로고+BB워터마크+붐부밍이 이미 포함되어 있어 배경 전체로 깔고,
+               background-size:100% auto로 이미지 폭을 항상 뷰포트 폭 기준으로 고정 스케일 —
+               background-size:cover의 가로/세로 기준 분기 문제 없이 로고 위치를 정확히 예측 가능
+               (2026-07-07 사장님 지시 — mod/4-2.jpg 시안) */
+            background: url('./assets/images/splash_kr_full.png') top center / 100% auto no-repeat,
+                        radial-gradient(120% 70% at 50% 0%, #d4394a 0%, #b3222f 55%, #8f1826 100%);
+        }
+
+        /* 이미지 속 로고+붐부밍이 끝나는 지점(원본 기준 약 59.7% = 뷰포트 폭 기준 129vw) 바로 아래에 오버레이 */
+        .welcome__hero {
+            position: absolute;
+            top: 129vw;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 0 32px;
+        }
+
+        .welcome__tagline {
+            font-size: 14px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .welcome__tagline strong {
+            color: #ffffff;
+            font-weight: 800;
+        }
+
+        .welcome__footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 0 24px 40px;
+        }
+
+        .welcome__copyright {
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.55);
+            margin-bottom: 20px;
+        }
+
+        .welcome__btn {
+            display: block;
+            width: 100%;
+            padding: 17px;
+            border-radius: 100px;
+            border: none;
+            font-size: 16px;
+            font-weight: 800;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .welcome__btn_primary {
+            background-color: #f6a9b3;
+            color: #6b1420;
+            margin-bottom: 12px;
+        }
+
+        .welcome__btn_secondary {
+            background-color: #ffffff;
+            color: #b3222f;
+        }
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ 웰컴 — 계정 만들기 / 로그인 선택
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="welcome__wrapper">
+    <div class="welcome__hero">
+        <div class="welcome__tagline">내 인생을 바꾸어 줄 새로운 인맥을 찾고 계세요?<br><strong>붐부밍</strong>과 함께 인맥을 찾아보세요!</div>
+    </div>
+
+    <div class="welcome__footer">
+        <div class="welcome__copyright">© 2026 BoomBooming</div>
+        <button class="welcome__btn welcome__btn_primary" onclick="location.href='./onboarding.html';">계정 만들기</button>
+        <button class="welcome__btn welcome__btn_secondary" onclick="location.href='./login.html';">로그인</button>
+    </div>
+</div>
+
+</body>
+</html>

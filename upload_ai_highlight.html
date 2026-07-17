@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 하이라이트 - BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/main.css">
+
+    <style>
+        /*
+        ▩ 업로드 방식 ③ AI 하이라이트 자동 추출 (Gemini ~90초 + 메타)
+        ▩ 기술설계안 C3 — 업로드 5종 중 Figma에 없던 화면
+        */
+        .ai__stage {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 60px 32px;
+            min-height: 70vh;
+        }
+
+        .ai__stage.is_active {
+            display: flex;
+        }
+
+        /* ■ 진행 중 */
+        .ai__spinner {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.15);
+            border-top-color: var(--color-primary-pink-active);
+            animation: aiSpin 0.9s linear infinite;
+            margin-bottom: 24px;
+        }
+
+        @keyframes aiSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        .ai__progress_title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .ai__progress_desc {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+
+        .ai__progress_track {
+            width: 100%;
+            max-width: 240px;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.15);
+            overflow: hidden;
+        }
+
+        .ai__progress_fill {
+            height: 100%;
+            width: 0%;
+            background: var(--color-primary-pink-active);
+            transition: width 1s ease-in-out;
+        }
+
+        /* ■ 결과 */
+        .ai__result_preview {
+            width: 160px;
+            aspect-ratio: 9 / 16;
+            border-radius: 12px;
+            background-size: cover;
+            background-position: center;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .ai__result_badge {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            padding: 4px 9px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.65);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .ai__result_title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .ai__result_meta_box {
+            width: 100%;
+            max-width: 320px;
+            background: var(--color-bg-dark-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 16px;
+            text-align: left;
+            margin: 12px 0 24px;
+        }
+
+        .ai__result_meta_row {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 4px;
+        }
+
+        .ai__result_meta_value {
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .ai__result_meta_value:last-child {
+            margin-bottom: 0;
+        }
+
+        .ai__hashtag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(255, 61, 113, 0.12);
+            color: var(--color-primary-pink-active);
+            font-size: 12px;
+            font-weight: 700;
+            margin: 0 6px 6px 0;
+        }
+
+        .ai__btn_row {
+            width: 100%;
+            max-width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .ai__btn_primary {
+            width: 100%;
+            padding: 15px;
+            border-radius: 100px;
+            border: none;
+            background-color: var(--color-primary-pink-active);
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .ai__btn_outline {
+            width: 100%;
+            padding: 15px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: transparent;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* ■ 실패 */
+        .ai__fail_icon {
+            font-size: 40px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app__container app__bg_dark app__container_type_basic">
+    <header class="header header__type_basic" style="background-color: #0a0a0a;">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="location.href='./upload_main.html';">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="24" height="24">
+            </button>
+            <div class="title__main" style="font-size: 16px;">AI 하이라이트</div>
+            <div class="iconbox__topbar" style="width: 40px;"></div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic" style="background-color: #0a0a0a;">
+
+        <!-- ▣ 1단계: 진행 중 -->
+        <div class="ai__stage is_active" id="stageProgress">
+            <div class="ai__spinner"></div>
+            <div class="ai__progress_title" id="progressTitle">영상을 분석하는 중...</div>
+            <div class="ai__progress_desc">AI가 영상 전체를 살펴보고<br>가장 흥미로운 90초를 찾고 있어요.</div>
+            <div class="ai__progress_track"><div class="ai__progress_fill" id="progressFill"></div></div>
+        </div>
+
+        <!-- ▣ 2단계: 결과 미리보기 -->
+        <div class="ai__stage" id="stageResult">
+            <div class="ai__result_preview" style="background-image: url('./assets/images/sample_myvideo_1.png');">
+                <div class="ai__result_badge">0:00 - 1:30</div>
+            </div>
+            <div class="ai__result_title">하이라이트 추출 완료!</div>
+
+            <div class="ai__result_meta_box">
+                <div class="ai__result_meta_row">AI 추천 제목</div>
+                <div class="ai__result_meta_value" id="aiSuggestedTitle">도쿄 여행 브이로그 하이라이트 🇯🇵</div>
+                <div class="ai__result_meta_row">AI 추천 해시태그</div>
+                <div>
+                    <span class="ai__hashtag">#도쿄여행</span>
+                    <span class="ai__hashtag">#브이로그</span>
+                    <span class="ai__hashtag">#하이라이트</span>
+                </div>
+            </div>
+
+            <div class="ai__btn_row">
+                <button class="ai__btn_primary" onclick="useHighlight();">이대로 사용하기</button>
+                <button class="ai__btn_outline" onclick="retryHighlight();">다시 추출하기</button>
+            </div>
+        </div>
+
+        <!-- ▣ 3단계: 실패 (예산/쿼터 초과, 처리 실패 등) -->
+        <div class="ai__stage" id="stageFail">
+            <div class="ai__fail_icon">⚠️</div>
+            <div class="ai__progress_title">하이라이트 추출에 실패했어요</div>
+            <div class="ai__progress_desc">일시적인 문제일 수 있어요.<br>다시 시도하거나 직접 구간을 잘라서 게시할 수 있어요.</div>
+            <div class="ai__btn_row">
+                <button class="ai__btn_primary" onclick="retryHighlight();">다시 시도</button>
+                <button class="ai__btn_outline" onclick="location.href='./upload_trim.html';">직접 자르기로 전환</button>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+    var progressSteps = [
+        '영상을 분석하는 중...',
+        '핵심 장면을 찾는 중...',
+        '자막과 제목을 생성하는 중...'
+    ];
+    var stepTimer = null;
+
+    function showStage(id) {
+        document.querySelectorAll('.ai__stage').forEach(function (el) {
+            el.classList.remove('is_active');
+        });
+        document.getElementById(id).classList.add('is_active');
+    }
+
+    function runHighlightExtraction() {
+        showStage('stageProgress');
+        var stepIndex = 0;
+        document.getElementById('progressTitle').textContent = progressSteps[0];
+        document.getElementById('progressFill').style.width = '0%';
+
+        requestAnimationFrame(function () {
+            document.getElementById('progressFill').style.width = '100%';
+        });
+
+        clearInterval(stepTimer);
+        stepTimer = setInterval(function () {
+            stepIndex++;
+            if (stepIndex < progressSteps.length) {
+                document.getElementById('progressTitle').textContent = progressSteps[stepIndex];
+            }
+        }, 900);
+
+        setTimeout(function () {
+            clearInterval(stepTimer);
+            // 데모: 항상 성공 처리. 실패 케이스 확인은 콘솔에서 showStage('stageFail') 호출.
+            showStage('stageResult');
+        }, 2900);
+    }
+
+    function useHighlight() {
+        try {
+            sessionStorage.setItem('uploadSourceType', 'ai_highlight');
+            sessionStorage.setItem('uploadAiTitle', document.getElementById('aiSuggestedTitle').textContent);
+            sessionStorage.setItem('uploadAiHashtags', '#도쿄여행 #브이로그 #하이라이트');
+        } catch (err) { /* 세션 스토리지 사용 불가 시 무시 */ }
+        location.href = './upload_details.html';
+    }
+
+    function retryHighlight() {
+        runHighlightExtraction();
+    }
+
+    runHighlightExtraction();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>구간 자르기 - BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/main.css">
+
+    <style>
+        /*
+        ▩ 업로드 방식 ② 수동 구간 자르기 (클라이언트 trim)
+        ▩ 기술설계안 C3 — 업로드 5종 중 Figma에 없던 화면
+        */
+        .trim__preview_area {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 9 / 16;
+            max-height: 46vh;
+            background-color: #000000;
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+        }
+
+        .trim__play_icon {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.85;
+            pointer-events: none;
+        }
+
+        .trim__duration_badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .trim__panel {
+            background-color: var(--color-gray-900);
+            padding: 20px 20px 28px;
+        }
+
+        .trim__range_label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 10px;
+        }
+
+        .trim__range_value {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .trim__timeline {
+            position: relative;
+            height: 56px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: repeating-linear-gradient(90deg, #3a3a3a 0 40px, #454545 40px 80px);
+            touch-action: none;
+        }
+
+        .trim__selected_range {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            background: rgba(255, 61, 113, 0.22);
+            border-top: 3px solid var(--color-primary-pink-active);
+            border-bottom: 3px solid var(--color-primary-pink-active);
+        }
+
+        .trim__handle {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 18px;
+            background: var(--color-primary-pink-active);
+            border-radius: 4px;
+            cursor: ew-resize;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .trim__handle::after {
+            content: '';
+            width: 3px;
+            height: 18px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 2px;
+        }
+
+        .trim__handle_start {
+            left: 0;
+            transform: translateX(-50%);
+        }
+
+        .trim__handle_end {
+            transform: translateX(-50%);
+        }
+
+        .trim__notice {
+            margin-top: 14px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            text-align: center;
+        }
+
+        .trim__notice.is_error {
+            color: var(--color-error);
+        }
+
+        .trim__next_btn {
+            width: 100%;
+            margin-top: 18px;
+            padding: 15px;
+            border-radius: 100px;
+            border: none;
+            background-color: var(--color-primary-pink-active);
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .trim__next_btn:disabled {
+            background-color: #555555;
+            color: rgba(255, 255, 255, 0.5);
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app__container app__bg_white app__container_type_basic">
+    <header class="header header__bg_black header__type_basic">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="location.href='./upload_main.html';">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="24" height="24">
+            </button>
+            <div class="title__main" style="color: #eee; font-size: 16px;">구간 자르기</div>
+            <div class="iconbox__topbar" style="width: 42px;"></div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic" style="padding: 0;">
+        <div class="trim__preview_area" id="trimPreview" style="background-image: url('./assets/images/sample_myvideo_1.png');">
+            <div class="trim__play_icon">
+                <img src="./assets/images/icon_play.png" width="56" height="56">
+            </div>
+            <div class="trim__duration_badge" id="trimDurationBadge">0:00</div>
+        </div>
+
+        <div class="trim__panel">
+            <div class="trim__range_label">
+                <span>선택 구간</span>
+                <span class="trim__range_value" id="trimRangeLabel">0:00 - 0:00</span>
+            </div>
+
+            <div class="trim__timeline" id="trimTimeline">
+                <div class="trim__selected_range" id="trimSelectedRange"></div>
+                <div class="trim__handle trim__handle_start" id="trimHandleStart"></div>
+                <div class="trim__handle trim__handle_end" id="trimHandleEnd"></div>
+            </div>
+
+            <div class="trim__notice" id="trimNotice">15초 ~ 3분 길이만 게시할 수 있어요</div>
+
+            <button class="trim__next_btn" id="trimNextBtn" onclick="confirmTrim();">다음</button>
+        </div>
+    </main>
+</div>
+
+<script>
+    // 데모: 원본 영상 길이 2분 40초(160초) 가정 — 실제로는 선택된 파일의 메타데이터에서 읽어와야 함
+    var SOURCE_DURATION = 160;
+    var MIN_DURATION = 15;
+    var MAX_DURATION = 180;
+
+    var timeline = document.getElementById('trimTimeline');
+    var handleStart = document.getElementById('trimHandleStart');
+    var handleEnd = document.getElementById('trimHandleEnd');
+    var selectedRange = document.getElementById('trimSelectedRange');
+
+    var startRatio = 0.1;
+    var endRatio = 0.6;
+
+    function formatTime(sec) {
+        var m = Math.floor(sec / 60);
+        var s = Math.floor(sec % 60);
+        return m + ':' + String(s).padStart(2, '0');
+    }
+
+    function render() {
+        var timelineWidth = timeline.clientWidth;
+        var startPx = startRatio * timelineWidth;
+        var endPx = endRatio * timelineWidth;
+
+        handleStart.style.left = startPx + 'px';
+        handleEnd.style.left = endPx + 'px';
+        selectedRange.style.left = startPx + 'px';
+        selectedRange.style.width = (endPx - startPx) + 'px';
+
+        var startSec = startRatio * SOURCE_DURATION;
+        var endSec = endRatio * SOURCE_DURATION;
+        var duration = endSec - startSec;
+
+        document.getElementById('trimRangeLabel').textContent = formatTime(startSec) + ' - ' + formatTime(endSec);
+        document.getElementById('trimDurationBadge').textContent = formatTime(duration);
+
+        var notice = document.getElementById('trimNotice');
+        var nextBtn = document.getElementById('trimNextBtn');
+        if (duration < MIN_DURATION) {
+            notice.textContent = '최소 ' + MIN_DURATION + '초 이상 선택해주세요 (현재 ' + Math.round(duration) + '초)';
+            notice.classList.add('is_error');
+            nextBtn.disabled = true;
+        } else if (duration > MAX_DURATION) {
+            notice.textContent = '최대 3분까지 선택할 수 있어요 (현재 ' + formatTime(duration) + ')';
+            notice.classList.add('is_error');
+            nextBtn.disabled = true;
+        } else {
+            notice.textContent = '15초 ~ 3분 길이만 게시할 수 있어요';
+            notice.classList.remove('is_error');
+            nextBtn.disabled = false;
+        }
+    }
+
+    function makeDraggable(handle, isStart) {
+        function onMove(clientX) {
+            var rect = timeline.getBoundingClientRect();
+            var ratio = Math.min(Math.max((clientX - rect.left) / rect.width, 0), 1);
+            if (isStart) {
+                startRatio = Math.min(ratio, endRatio - 0.02);
+                startRatio = Math.max(startRatio, 0);
+            } else {
+                endRatio = Math.max(ratio, startRatio + 0.02);
+                endRatio = Math.min(endRatio, 1);
+            }
+            render();
+        }
+
+        handle.addEventListener('mousedown', function (e) {
+            e.preventDefault();
+            function onMouseMove(ev) { onMove(ev.clientX); }
+            function onMouseUp() {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            }
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+
+        handle.addEventListener('touchstart', function (e) {
+            function onTouchMove(ev) { onMove(ev.touches[0].clientX); ev.preventDefault(); }
+            function onTouchEnd() {
+                document.removeEventListener('touchmove', onTouchMove);
+                document.removeEventListener('touchend', onTouchEnd);
+            }
+            document.addEventListener('touchmove', onTouchMove, { passive: false });
+            document.addEventListener('touchend', onTouchEnd);
+        });
+    }
+
+    makeDraggable(handleStart, true);
+    makeDraggable(handleEnd, false);
+    window.addEventListener('resize', render);
+    render();
+
+    function confirmTrim() {
+        var startSec = startRatio * SOURCE_DURATION;
+        var endSec = endRatio * SOURCE_DURATION;
+        try {
+            sessionStorage.setItem('uploadSourceType', 'trim');
+            sessionStorage.setItem('uploadTrimRange', JSON.stringify({ start: startSec, end: endSec }));
+        } catch (err) { /* 세션 스토리지 사용 불가 시 무시 */ }
+        location.href = './upload_details.html';
+    }
+</script>
+
+</body>
+</html>

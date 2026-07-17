@@ -1,0 +1,305 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming</title>
+
+    <link rel="stylesheet" href="../css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="../css/main.css"><!-- Main CSS -->
+
+    <style>
+        /*
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+        ▩ 뉴스피드 이외의 장소에서 독립적으로 동영상을 띄울 때 사용되는 페이지.
+
+        ▩ 공통으로 쓰이는 레이아웃, 헤더, 푸터 등을 제외하고 오직 이 페이지에서만 쓰이는 스타일은 이곳에만 기재.
+
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        */
+
+        /* ■ 메인 컨텐츠 영역
+        ---------------------------------------------------------------------- */
+
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ My Suite
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_dark app__container_type_newsfeed">
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Header - 상단바 영역.(고정 영역)
+    ▨ 인클루드를 위해 별도의 파일로 만들어서 Import시켜야 하는 하는 영역.
+    ▨ 단, 내부의 버튼이나 구성 등이 페이지마다 다름.
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <header class="header header__bg_transparent header__type_newsfeed">
+        <div class="topbar">
+
+            <!-- ▨ NOTE - 여기서부터의 내용은 페이지마다 다를 수 있음 -->
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="../assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+            </button>
+
+            <div class="title__main">
+            </div>
+
+            <div class="iconbox__topbar">
+                <button class="btn btn__size_medium">
+                    <img src="../assets/images/icon_search_32dp.svg" width="26" height="26">
+                </button>
+
+                <button class="btn btn__size_medium">
+                    <img src="../assets/images/icon_refresh_32dp.svg" width="26" height="26">
+                </button>
+
+                <button class="btn btn__size_medium">
+                    <img src="../assets/images/icon_notifications_32dp.svg" width="24" height="24">
+                </button>
+
+                <button class="btn btn__size_medium">
+                    <img src="../assets/images/icon_rate_review_32dp.svg" width="22" height="22">
+                </button>
+            </div>
+
+        </div>        
+    </header>
+
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Body - 메인 컨텐츠 영역(게시물 영역)
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <main class="main__container main__container_type_newsfeed">
+
+        <!-- ▨ NOTE - Header, Footer를 제외하고 게시물 영역만 떼어내려면 이곳을 떼어냄 -->
+
+        <div class="main__content_wrapper" style="height: 100%;overflow: hidden;">
+
+            <!-- ▨ NOTE - <video> 태그를 포함한 카드 | <video> 태그 안에 'autoplay'와 'loop' 적용됨. 음소거로 시작하려면 'muted' 적용. -->
+            <div class="card__container">
+                <video class="main__video_wrapper" muted autoplay loop poster="썸네일_이미지_주소.jpg">
+                    <source src="../assets/data/sample_vod_3.mp4" type="video/mp4">
+                    죄송합니다. 귀하의 브라우저는 비디오 태그를 지원하지 않습니다.
+                </video>
+
+                <div class="panel__gradient gradient__type_a"></div><!-- 텍스트 가독성을 위한 그래디언트 배경 -->
+
+                <div class="btnbox__play_video">
+                    <button style="background-image: url(./assets/images/bg_play_button.png);"></button>
+                </div>
+
+                <div class="card__user_wrapper">
+                    <div class="user__wrapper_avatar avatar__row">
+                        <div class="avatar avatar__size_small">
+                            <img src="../assets/images/sample_avatar_1.png">
+                        </div>
+                        
+                        <div class="avatar__name">
+                            Whitney Johns
+                            <div class="avatar__name_sub">Influencer, Google</div>
+                        </div>
+                    </div>
+
+                    <div class="user__wrapper_description">
+                        패션 모델 인터뷰용 화보 모음
+                    </div>
+
+                    <div class="user__wrapper_views">
+                        <div class="views__iconbox">
+                            <img src="../assets/images/icon_visibility_32dp.svg" width="16" height="16">
+                        </div>
+
+                        <div class="views__count">6225</div>
+                    </div>
+                </div>
+
+                <div class="card__option_wrapper">
+                    <div class="card__option_inner">
+                        <div class="btnbox__card_option">
+                            <button class="btn btn__circle btn__size_medium">
+                                <img src="../assets/images/icon_favorite_32dp.svg" width="24" height="24" style="margin-top: 2px;">
+                            </button>
+
+                            <div class="card__option--text">128</div>
+                        </div>
+
+                        <div class="btnbox__card_option">
+                            <button class="btn btn__circle btn__size_medium" style="background-color: var(--color-primary-pink-active);">
+                                <img src="../assets/images/icon_favorite_32dp_fill.svg" width="24" height="24" style="margin-top: 2px;">
+                            </button>
+
+                            <div class="card__option--text">128</div>
+                        </div>
+
+                        <div class="btnbox__card_option">
+                            <button class="btn btn__circle btn__size_medium">
+                                <img src="../assets/images/icon_chat_32dp.svg" width="22" height="22">
+                            </button>
+
+                            <div class="card__option--text">6</div>
+                        </div>
+
+                        <div class="btnbox__card_option">
+                            <button class="btn btn__circle btn__size_medium">
+                                <img src="../assets/images/icon_ratings_32dp_white.svg" width="20" height="20">
+                            </button>
+
+                            <div class="card__option--text">부밍지수</div>
+                        </div>
+
+                        <div class="btnbox__card_option">
+                            <button class="btn btn__circle btn__size_medium">
+                                <img src="../assets/images/icon_add_bookmark_32dp.svg" width="24" height="24">
+                            </button>
+
+                            <div class="card__option--text">보관</div>
+                        </div>
+
+                        <div class="btnbox__card_option">
+                            <button class="btn btn__circle btn__size_medium" style="background-color: var(--color-primary-pink-active);">
+                                <img src="../assets/images/icon_add_bookmark_32dp.svg" width="24" height="24">
+                            </button>
+
+                            <div class="card__option--text">보관</div>
+                        </div>
+
+                        <div class="btnbox__card_option">
+                            <button class="btn btn__circle btn__size_medium">
+                                <img src="../assets/images/icon_share_32dp.svg" width="22" height="22">
+                            </button>
+
+                            <div class="card__option--text">공유</div>
+                        </div>
+
+                        <div class="btnbox__card_option">
+                            <button class="btn btn__circle btn__size_medium">
+                                <img src="../assets/images/icon_settings_32dp.svg" width="24" height="24">
+                            </button>
+
+                            <div class="card__option--text">설정</div>
+                        </div>
+
+                        <div class="btnbox__card_option">
+                            <button class="btn btn__circle btn__size_medium">
+                                <img src="../assets/images/icon_campaign_32dp.svg" width="26" height="26">
+                            </button>
+
+                            <div class="card__option--text">신고</div>
+                        </div>
+                    </div>
+                </div>                
+            </div>
+
+        </div>
+    </main>
+
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Footer - 하단 툴바 영역.(고정 영역)
+    ▨ 인클루드를 위해 별도의 파일로 만들어서 Import시켜야 하는 하는 영역.
+    ▨ 단, 내부의 버튼이나 구성 등이 페이지마다 다름.
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <footer class="footer footer__type_newsfeed">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='../home.html';">
+                    <img src="../assets/images/icon_home_32dp.svg" width="28" height="28">
+
+                    <div class="btn__text">홈</div>
+                </button>
+
+                <!-- Active Button - '홈' -->
+                <!--
+                <button class="btn__full">
+                    <img src="../assets/images/icon_home_32dp_fill.svg" width="28" height="28">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">홈</div>
+                </button>
+                -->
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='../chat.html';">
+                    <img src="../assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+
+                    <div class="btn__text">메시지</div>
+                </button>
+
+                <!-- Active Button - '대화' -->
+                <!--
+                <button class="btn__full">
+                    <img src="../assets/images/icon_chat_32dp_fill.svg" width="26" height="26" style="margin-top: 2px;">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">대화</div>
+                </button>
+                -->
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='../upload_main.html';">
+                    <img src="../assets/images/icon_add_32dp.svg" width="28" height="28">
+
+                    <div class="btn__text">만들기</div>
+                </button>
+
+                <!-- Active Button - '업로드' -->
+                <!--
+                <button class="btn__full">
+                    <img src="../assets/images/icon_add_32dp_fill.svg" width="28" height="28">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">업로드</div>
+                </button>
+                -->
+
+                <div class="btnbox__badge">필수</div>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='../booming_index_growth.html';">
+                    <img src="../assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='../mysuite.html';">
+                    <img src="../assets/images/icon_person_32dp.svg" width="29" height="29">
+
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+
+                <!-- Active Button - 'My Suite' -->
+                <!--
+                <button class="btn__full">
+                    <img src="../assets/images/icon_person_32dp_fill.svg" width="29" height="29">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">마이 스위트</div>
+                </button>
+                -->
+            </div>
+        </div>
+    </footer>
+</div>
+
+
+<!-- ■□■□■ [SCRIPT] 'Javascript' Area -->
+
+</body>
+</html>

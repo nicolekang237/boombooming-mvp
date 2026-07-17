@@ -1,0 +1,693 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로필 수정 - BoomBooming</title>
+    <meta name="description" content="BoomBooming 프로필을 수정하세요. 이름, 직업, 소개, 관심사, 소셜 링크 등을 업데이트할 수 있습니다.">
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        /*
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+        ▩ Edit Profile
+
+        ▩ 공통으로 쓰이는 레이아웃, 헤더, 푸터 등을 제외하고 오직 이 페이지에서만 쓰이는 스타일은 이곳에만 기재.
+
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        */
+
+        /* ■ 헤더 저장 버튼
+        ---------------------------------------------------------------------- */
+        .btn__save_profile {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--color-primary-pink);
+            background: transparent;
+            padding: 0 4px;
+            line-height: 1;
+        }
+
+        /* ■ 프로필 사진 변경 영역
+        ---------------------------------------------------------------------- */
+        .profile_photo_area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 28px 16px 20px;
+        }
+
+        .profile_photo_wrap {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .profile_avatar_img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .btn__photo_camera {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: var(--color-primary-pink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--color-gray-900);
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .btn__photo_camera img {
+            width: 14px;
+            height: 14px;
+        }
+
+        .btn__change_photo_text {
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--color-primary-pink);
+            cursor: pointer;
+            background: transparent;
+        }
+
+        /* ■ 섹션 레이블
+        ---------------------------------------------------------------------- */
+        .edit__section_label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #888;
+            padding: 20px 16px 10px;
+            display: block;
+        }
+
+        /* ■ 섹션 컨테이너
+        ---------------------------------------------------------------------- */
+        .edit__section {
+            background: rgba(255, 255, 255, 0.03);
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .edit__input_group {
+            padding: 0 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* ■ 인풋 박스
+        ---------------------------------------------------------------------- */
+        .edit__input,
+        .edit__textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--color-text-primary);
+            font-size: 15px;
+            font-family: inherit;
+            transition: border-color 0.2s ease;
+        }
+
+        .edit__input::placeholder,
+        .edit__textarea::placeholder {
+            color: rgba(255, 255, 255, 0.28);
+        }
+
+        .edit__input:focus,
+        .edit__textarea:focus {
+            border-color: rgba(255, 140, 157, 0.6);
+            outline: none;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .edit__textarea {
+            height: calc(1.6em * 4 + 24px);
+            line-height: 1.6;
+        }
+
+        /* ■ 글자 수 카운터
+        ---------------------------------------------------------------------- */
+        .bio__wrap {
+            position: relative;
+        }
+
+        .bio__counter {
+            position: absolute;
+            bottom: 10px;
+            right: 14px;
+            font-size: 12px;
+            color: #666;
+            pointer-events: none;
+        }
+
+        .bio__counter.over {
+            color: var(--color-error);
+        }
+
+        /* ■ 관심사 태그 영역
+        ---------------------------------------------------------------------- */
+        .interests__wrap {
+            padding: 0 16px 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .tag__interest {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255, 140, 157, 0.12);
+            border: 1px solid rgba(255, 140, 157, 0.3);
+            border-radius: 100px;
+            padding: 6px 12px;
+            font-size: 13px;
+            color: var(--color-primary-pink);
+            line-height: 1;
+        }
+
+        .tag__interest .btn__tag_delete {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            color: rgba(255, 140, 157, 0.7);
+            padding: 0;
+            margin-left: 2px;
+            font-size: 14px;
+            line-height: 1;
+            cursor: pointer;
+            transition: color 0.15s;
+        }
+
+        .tag__interest .btn__tag_delete:hover {
+            color: var(--color-primary-pink);
+        }
+
+        .btn__add_interest {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: transparent;
+            border: 1px dashed rgba(255, 140, 157, 0.5);
+            border-radius: 100px;
+            padding: 6px 14px;
+            font-size: 13px;
+            color: var(--color-primary-pink);
+            cursor: pointer;
+            transition: border-color 0.2s ease, background 0.2s ease;
+        }
+
+        .btn__add_interest:hover {
+            background: rgba(255, 140, 157, 0.08);
+            border-color: rgba(255, 140, 157, 0.8);
+        }
+
+        /* ■ 소셜 링크 영역
+        ---------------------------------------------------------------------- */
+        .social__link_row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 16px 10px;
+        }
+
+        .social__link_row:first-of-type {
+            padding-top: 0;
+        }
+
+        .social__link_icon {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .social__link_row .edit__input {
+            flex: 1;
+        }
+
+        .social__input_group {
+            padding: 0 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .social__row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .social__icon_box {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .social__row .edit__input {
+            flex: 1;
+            margin: 0;
+        }
+
+        /* ■ 하단 여백 (footer 위)
+        ---------------------------------------------------------------------- */
+        .edit__bottom_spacer {
+            height: 20px;
+        }
+
+        /* ■ 토스트 메시지
+        ---------------------------------------------------------------------- */
+        .toast__message {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid rgba(255, 140, 157, 0.3);
+            color: var(--color-text-primary);
+            font-size: 14px;
+            padding: 12px 22px;
+            border-radius: 100px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            z-index: 999;
+        }
+
+        .toast__message.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ Edit Profile
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_dark app__container_type_basic">
+
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Header - 상단바 영역.(고정 영역)
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <header class="header header__bg_red header__type_basic">
+        <div class="topbar">
+
+            <!-- ▨ NOTE - 여기서부터의 내용은 페이지마다 다를 수 있음 -->
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+            </button>
+
+            <div class="title__main">
+                <span class="title__main_text">프로필 수정</span>
+            </div>
+
+            <div class="iconbox__topbar">
+                <button id="btn-save-profile" class="btn btn__save_profile">저장</button>
+            </div>
+
+        </div>
+    </header>
+
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Body - 메인 컨텐츠 영역(스크롤 영역)
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <main class="main__container main__container_type_basic">
+
+        <!-- ▨ NOTE - 이곳부터 공통이 아닌 이 페이지만의 내용이 시작됨 -->
+
+        <!-- ▣▣▣▣▣ 1. 프로필 사진 변경 영역 -->
+        <div class="profile_photo_area">
+            <div class="profile_photo_wrap">
+                <img
+                    id="profile-avatar-preview"
+                    class="profile_avatar_img"
+                    src="./assets/images/sample_avatar_1.png"
+                    alt="프로필 사진"
+                >
+
+                <button class="btn__photo_camera" id="btn-photo-camera" title="사진 변경">
+                    <img src="./assets/images/icon_photo_camera_32dp.svg" alt="카메라 아이콘">
+                </button>
+            </div>
+
+            <button class="btn__change_photo_text" id="btn-change-photo-text">사진 변경</button>
+
+            <!-- 숨겨진 파일 input -->
+            <input type="file" id="input-photo-file" accept="image/*" style="display:none;">
+        </div>
+
+
+        <!-- ▣▣▣▣▣ 2. 기본 정보 섹션 -->
+        <div class="edit__section">
+            <span class="edit__section_label">기본 정보</span>
+
+            <div class="edit__input_group">
+                <input
+                    id="input-name"
+                    class="edit__input"
+                    type="text"
+                    placeholder="이름을 입력하세요"
+                    value="Whitney Johns"
+                    autocomplete="name"
+                >
+                <input
+                    id="input-job"
+                    class="edit__input"
+                    type="text"
+                    placeholder="직업이나 분야를 입력하세요"
+                    value="Content Creator"
+                    autocomplete="organization-title"
+                >
+                <input
+                    id="input-region"
+                    class="edit__input"
+                    type="text"
+                    placeholder="국가 또는 지역"
+                    value="Seoul, South Korea"
+                    autocomplete="country-name"
+                >
+            </div>
+        </div>
+
+
+        <!-- ▣▣▣▣▣ 3. 소개 섹션 -->
+        <div class="edit__section" style="margin-top: 8px;">
+            <span class="edit__section_label">소개</span>
+
+            <div class="edit__input_group">
+                <div class="bio__wrap">
+                    <textarea
+                        id="input-bio"
+                        class="edit__textarea"
+                        placeholder="나를 소개하는 글을 작성해주세요"
+                        maxlength="200"
+                    >안녕하세요. 미쿡서 온 인플루언서 휘트니 존스라고 합니다.</textarea>
+
+                    <span id="bio-counter" class="bio__counter">23 / 200</span>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ▣▣▣▣▣ 4. 관심사 섹션 -->
+        <div class="edit__section" style="margin-top: 8px;">
+            <span class="edit__section_label">관심사</span>
+
+            <div id="interests-wrap" class="interests__wrap">
+                <!-- 관심사 태그들 -->
+                <div class="tag__interest" data-tag="크리에이터">
+                    <span>#크리에이터</span>
+                    <button class="btn__tag_delete" aria-label="크리에이터 태그 삭제">✕</button>
+                </div>
+                <div class="tag__interest" data-tag="마케팅">
+                    <span>#마케팅</span>
+                    <button class="btn__tag_delete" aria-label="마케팅 태그 삭제">✕</button>
+                </div>
+                <div class="tag__interest" data-tag="여행">
+                    <span>#여행</span>
+                    <button class="btn__tag_delete" aria-label="여행 태그 삭제">✕</button>
+                </div>
+                <div class="tag__interest" data-tag="음악">
+                    <span>#음악</span>
+                    <button class="btn__tag_delete" aria-label="음악 태그 삭제">✕</button>
+                </div>
+
+                <!-- 관심사 추가 버튼 -->
+                <button class="btn__add_interest" id="btn-add-interest">
+                    + 관심사 추가
+                </button>
+            </div>
+        </div>
+
+
+        <!-- ▣▣▣▣▣ 5. 소셜 링크 섹션 -->
+        <div class="edit__section" style="margin-top: 8px;">
+            <span class="edit__section_label">소셜 링크</span>
+
+            <div class="social__input_group">
+                <!-- Instagram -->
+                <div class="social__row">
+                    <div class="social__icon_box">
+                        <img src="./assets/images/icon_link_32dp.svg" width="20" height="20" alt="링크 아이콘">
+                    </div>
+                    <input
+                        id="input-instagram"
+                        class="edit__input"
+                        type="url"
+                        placeholder="instagram.com/username"
+                        autocomplete="url"
+                    >
+                </div>
+
+                <!-- YouTube -->
+                <div class="social__row">
+                    <div class="social__icon_box">
+                        <img src="./assets/images/icon_link_32dp.svg" width="20" height="20" alt="링크 아이콘">
+                    </div>
+                    <input
+                        id="input-youtube"
+                        class="edit__input"
+                        type="url"
+                        placeholder="youtube.com/@channel"
+                        autocomplete="url"
+                    >
+                </div>
+            </div>
+        </div>
+
+        <div class="edit__bottom_spacer"></div>
+
+        <!-- ▨ NOTE - 이곳까지가 공통이 아닌 이 페이지만의 내용 -->
+
+    </main>
+
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Footer - 하단 툴바 영역.(고정 영역)
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+                    <div class="btn__text">홈</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+                    <div class="btn__text">메시지</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+                    <div class="btn__text">만들기</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <!-- Active Button - 'My Suite' (프로필 수정은 My Suite 하위 페이지) -->
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp_fill.svg" width="29" height="29">
+                    <div class="btn__text" style="color: var(--color-primary-pink);">마이 스위트</div>
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+
+<!-- 토스트 메시지 -->
+<div id="toast-message" class="toast__message">저장되었습니다</div>
+
+
+<!-- ■□■□■ [SCRIPT] 'Javascript' Area -->
+<script>
+    // ────────────────────────────────────────────────────
+    // 1. 자기소개 글자 수 카운터 (실시간 업데이트)
+    // ────────────────────────────────────────────────────
+    (function () {
+        var textarea = document.getElementById('input-bio');
+        var counter  = document.getElementById('bio-counter');
+        var MAX_LEN  = 200;
+
+        function updateCounter() {
+            var len = textarea.value.length;
+            counter.textContent = len + ' / ' + MAX_LEN;
+            if (len >= MAX_LEN) {
+                counter.classList.add('over');
+            } else {
+                counter.classList.remove('over');
+            }
+        }
+
+        // 페이지 로드 시 현재 텍스트 기준으로 초기화
+        updateCounter();
+
+        textarea.addEventListener('input', updateCounter);
+    })();
+
+
+    // ────────────────────────────────────────────────────
+    // 2. 저장 버튼 클릭 → 토스트 + history.back()
+    // ────────────────────────────────────────────────────
+    (function () {
+        var btnSave = document.getElementById('btn-save-profile');
+        var toast   = document.getElementById('toast-message');
+        var toastTimer = null;
+
+        function showToast(msg) {
+            toast.textContent = msg;
+            toast.classList.add('show');
+
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(function () {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        btnSave.addEventListener('click', function () {
+            showToast('저장되었습니다');
+            setTimeout(function () {
+                history.back();
+            }, 1000);
+        });
+    })();
+
+
+    // ────────────────────────────────────────────────────
+    // 3. 관심사 태그 x 버튼 클릭 → 해당 태그 삭제
+    // ────────────────────────────────────────────────────
+    (function () {
+        var interestsWrap = document.getElementById('interests-wrap');
+
+        interestsWrap.addEventListener('click', function (e) {
+            var deleteBtn = e.target.closest('.btn__tag_delete');
+            if (!deleteBtn) return;
+
+            var tag = deleteBtn.closest('.tag__interest');
+            if (!tag) return;
+
+            // 삭제 애니메이션
+            tag.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+            tag.style.opacity = '0';
+            tag.style.transform = 'scale(0.8)';
+
+            setTimeout(function () {
+                tag.remove();
+            }, 200);
+        });
+    })();
+
+
+    // ────────────────────────────────────────────────────
+    // 4. 프로필 사진 변경 (카메라 버튼 / '사진 변경' 텍스트)
+    // ────────────────────────────────────────────────────
+    (function () {
+        var fileInput   = document.getElementById('input-photo-file');
+        var preview     = document.getElementById('profile-avatar-preview');
+        var btnCamera   = document.getElementById('btn-photo-camera');
+        var btnText     = document.getElementById('btn-change-photo-text');
+
+        function openFilePicker() {
+            fileInput.click();
+        }
+
+        btnCamera.addEventListener('click', openFilePicker);
+        btnText.addEventListener('click', openFilePicker);
+
+        fileInput.addEventListener('change', function () {
+            var file = fileInput.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    })();
+
+
+    // ────────────────────────────────────────────────────
+    // 5. '+ 관심사 추가' 버튼 (데모: prompt로 간단 추가)
+    // ────────────────────────────────────────────────────
+    (function () {
+        var btnAdd        = document.getElementById('btn-add-interest');
+        var interestsWrap = document.getElementById('interests-wrap');
+
+        btnAdd.addEventListener('click', function () {
+            var keyword = window.prompt('추가할 관심사를 입력하세요 (# 없이)');
+            if (!keyword || keyword.trim() === '') return;
+
+            var tag = document.createElement('div');
+            tag.className = 'tag__interest';
+            tag.dataset.tag = keyword.trim();
+            tag.innerHTML =
+                '<span>#' + keyword.trim() + '</span>' +
+                '<button class="btn__tag_delete" aria-label="' + keyword.trim() + ' 태그 삭제">✕</button>';
+
+            // 추가 버튼 바로 앞에 삽입
+            interestsWrap.insertBefore(tag, btnAdd);
+        });
+    })();
+</script>
+
+</body>
+</html>
+

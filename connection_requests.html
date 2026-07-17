@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>받은 인맥 신청 - BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/main.css">
+
+    <style>
+        /*
+        ▩ 받은 인맥 신청 전용 목록 — 기술설계안 A3
+        ▩ GET /relationships?direction=incoming 대응. 알림 페이지의 수락/거절과 별개로,
+          쌓인 신청을 한 곳에서 모아 관리하는 화면.
+        */
+        .req__list {
+            padding: 8px 16px 24px;
+        }
+
+        .req__item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .req__avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .req__avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .req__info {
+            flex: 1;
+            min-width: 0;
+            cursor: pointer;
+        }
+
+        .req__name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--color-text-primary);
+        }
+
+        .req__desc {
+            font-size: 12.5px;
+            color: #888;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .req__time {
+            font-size: 11.5px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .req__actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .req__btn {
+            padding: 8px 14px;
+            border-radius: 100px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .req__btn_accept {
+            background-color: var(--color-primary-pink);
+            color: #ffffff;
+            border: none;
+        }
+
+        .req__btn_deny {
+            background-color: transparent;
+            color: #aaaaaa;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .req__result {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #50c88c;
+        }
+
+        /* ■ 빈 상태 */
+        .req__empty {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 100px 32px;
+        }
+
+        .req__empty.is_visible {
+            display: flex;
+        }
+
+        .req__empty_icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+        }
+
+        .req__empty_title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #dddddd;
+            margin-bottom: 8px;
+        }
+
+        .req__empty_desc {
+            font-size: 13px;
+            color: #777777;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app__container app__bg_dark app__container_type_basic">
+    <header class="header header__bg_red header__type_basic">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+            </button>
+            <div class="title__main">
+                <span class="title__main_name">받은 인맥 신청</span>
+            </div>
+            <div class="iconbox__topbar" style="visibility: hidden;">
+                <button class="btn btn__size_medium">
+                    <img src="./assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic">
+        <div class="req__list" id="reqList">
+
+            <div class="req__item" data-id="rina_kang">
+                <div class="req__avatar" onclick="location.href='./profile.html';">
+                    <img src="./assets/images/sample_avatar_rina.png">
+                </div>
+                <div class="req__info" onclick="location.href='./profile.html';">
+                    <div class="req__name">리나강</div>
+                    <div class="req__desc">Content Creator · Seoul, Korea</div>
+                    <div class="req__time">방금 전</div>
+                </div>
+                <div class="req__actions">
+                    <button class="req__btn req__btn_accept" onclick="acceptRequest(this, '리나강')">수락</button>
+                    <button class="req__btn req__btn_deny" onclick="denyRequest(this)">거절</button>
+                </div>
+            </div>
+
+            <div class="req__item" data-id="elon_musk">
+                <div class="req__avatar" onclick="location.href='./profile.html';">
+                    <img src="./assets/images/sample_avatar_2.png">
+                </div>
+                <div class="req__info" onclick="location.href='./profile.html';">
+                    <div class="req__name">Elon Musk</div>
+                    <div class="req__desc">CEO, Tesla</div>
+                    <div class="req__time">3시간 전</div>
+                </div>
+                <div class="req__actions">
+                    <button class="req__btn req__btn_accept" onclick="acceptRequest(this, 'Elon Musk')">수락</button>
+                    <button class="req__btn req__btn_deny" onclick="denyRequest(this)">거절</button>
+                </div>
+            </div>
+
+            <div class="req__item" data-id="kim_haneul">
+                <div class="req__avatar" onclick="location.href='./profile.html';">
+                    <img src="./assets/images/sample_avatar_4.png">
+                </div>
+                <div class="req__info" onclick="location.href='./profile.html';">
+                    <div class="req__name">김하늘</div>
+                    <div class="req__desc">스타트업 · 마케터</div>
+                    <div class="req__time">어제</div>
+                </div>
+                <div class="req__actions">
+                    <button class="req__btn req__btn_accept" onclick="acceptRequest(this, '김하늘')">수락</button>
+                    <button class="req__btn req__btn_deny" onclick="denyRequest(this)">거절</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ▣ 빈 상태 -->
+        <div class="req__empty" id="reqEmpty">
+            <div class="req__empty_icon">
+                <img src="./assets/images/icon_group_32dp.svg" width="28" height="28" style="opacity: 0.5;">
+            </div>
+            <div class="req__empty_title">받은 인맥 신청이 없습니다</div>
+            <div class="req__empty_desc">누군가 인맥을 신청하면<br>이곳에서 확인하고 수락할 수 있어요.</div>
+        </div>
+    </main>
+
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+                    <div class="btn__text">홈</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+                    <div class="btn__text">메시지</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+                    <div class="btn__text">만들기</div>
+                </button>
+                <div class="btnbox__badge">필수</div>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<script>
+    function checkEmpty() {
+        var remaining = document.querySelectorAll('.req__item').length;
+        document.getElementById('reqEmpty').classList.toggle('is_visible', remaining === 0);
+    }
+
+    function acceptRequest(btn, name) {
+        var actions = btn.parentElement;
+        actions.innerHTML = '<span class="req__result">✓ 인맥이 되었습니다</span>';
+        var item = btn.closest('.req__item');
+        setTimeout(function () {
+            item.remove();
+            checkEmpty();
+        }, 900);
+    }
+
+    function denyRequest(btn) {
+        var item = btn.closest('.req__item');
+        item.style.opacity = '0.4';
+        setTimeout(function () {
+            item.remove();
+            checkEmpty();
+        }, 200);
+    }
+</script>
+
+</body>
+</html>

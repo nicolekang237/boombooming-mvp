@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>차단 관리 - BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        /*
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+        ▩ Blocked Users (차단 관리) — settings.html > 차단 관리에서 진입
+
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        */
+
+        .blocked__page {
+            background-color: var(--color-gray-900);
+            min-height: 100%;
+        }
+
+        .blocked__desc {
+            padding: 18px 16px 6px;
+            font-size: 12.5px;
+            line-height: 1.6;
+            color: #777777;
+        }
+
+        /* ■ 목록 행
+        ---------------------------------------------------------------------- */
+        .blocked__item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .blocked__avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            background-color: #333333;
+        }
+
+        .blocked__avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .blocked__info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .blocked__name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .blocked__date {
+            font-size: 12px;
+            color: #777777;
+            margin-top: 2px;
+        }
+
+        .blocked__unblock_btn {
+            flex-shrink: 0;
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #dddddd;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            cursor: pointer;
+        }
+
+        .blocked__unblock_btn:active {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* ■ 빈 상태
+        ---------------------------------------------------------------------- */
+        .blocked__empty {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 100px 40px 40px;
+        }
+
+        .blocked__empty.is_visible {
+            display: flex;
+        }
+
+        .blocked__empty_icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+        }
+
+        .blocked__empty_title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #dddddd;
+            margin-bottom: 8px;
+        }
+
+        .blocked__empty_desc {
+            font-size: 13px;
+            color: #777777;
+            line-height: 1.6;
+        }
+
+        .blocked__list {
+            display: none;
+        }
+
+        .blocked__list.is_visible {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ 차단 관리
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_dark app__container_type_basic">
+
+    <header class="header header__bg_red header__type_basic">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+            </button>
+
+            <div class="title__main">
+                <span class="title__main_name">차단 관리</span>
+            </div>
+
+            <div class="iconbox__topbar" style="visibility: hidden;">
+                <button class="btn btn__size_medium">
+                    <img src="./assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic">
+        <div class="blocked__page">
+
+            <div class="blocked__desc">차단한 사용자는 나에게 추천되지 않고, 서로 채팅도 할 수 없습니다. 차단을 해제하면 즉시 추천/채팅이 다시 가능해집니다.</div>
+
+            <!-- ▣ 차단 목록 (localStorage: bbm_blockedUsers) -->
+            <div class="blocked__list" id="blockedList"></div>
+
+            <!-- ▣ 빈 상태 -->
+            <div class="blocked__empty" id="blockedEmpty">
+                <div class="blocked__empty_icon">
+                    <img src="./assets/images/icon_no_accounts_32dp.svg" width="30" height="30" style="opacity: 0.5;">
+                </div>
+                <div class="blocked__empty_title">차단한 사용자가 없습니다</div>
+                <div class="blocked__empty_desc">누군가를 차단하면 이곳에서<br>목록을 확인하고 해제할 수 있어요.</div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+                    <div class="btn__text">홈</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+                    <div class="btn__text">메시지</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+                    <div class="btn__text">만들기</div>
+                </button>
+                <div class="btnbox__badge">필수</div>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+</div>
+
+<!-- ■□■□■ [SCRIPT] 'Javascript' Area -->
+<script>
+    function bbmLoadBlocked() {
+        try { return JSON.parse(localStorage.getItem('bbm_blockedUsers') || '[]'); } catch (e) { return []; }
+    }
+    function bbmSaveBlocked(list) {
+        try { localStorage.setItem('bbm_blockedUsers', JSON.stringify(list)); } catch (e) { /* 무시 */ }
+    }
+
+    function formatBlockedDate(ts) {
+        var d = new Date(ts);
+        if (isNaN(d.getTime())) return '';
+        var y = d.getFullYear();
+        var m = String(d.getMonth() + 1).padStart(2, '0');
+        var day = String(d.getDate()).padStart(2, '0');
+        return y + '.' + m + '.' + day + ' 차단함';
+    }
+
+    function renderBlockedList() {
+        var list = bbmLoadBlocked();
+        var listEl = document.getElementById('blockedList');
+        var emptyEl = document.getElementById('blockedEmpty');
+
+        if (list.length === 0) {
+            listEl.classList.remove('is_visible');
+            emptyEl.classList.add('is_visible');
+            listEl.innerHTML = '';
+            return;
+        }
+
+        emptyEl.classList.remove('is_visible');
+        listEl.classList.add('is_visible');
+
+        listEl.innerHTML = list.map(function (user) {
+            var avatar = user.avatar || './assets/images/sample_avatar_1.png';
+            var name = user.name || '알 수 없는 사용자';
+            return '' +
+                '<div class="blocked__item" data-id="' + escapeAttr(user.id) + '">' +
+                    '<div class="blocked__avatar"><img src="' + escapeAttr(avatar) + '"></div>' +
+                    '<div class="blocked__info">' +
+                        '<div class="blocked__name">' + escapeHtml(name) + '</div>' +
+                        '<div class="blocked__date">' + formatBlockedDate(user.blockedAt) + '</div>' +
+                    '</div>' +
+                    '<button class="blocked__unblock_btn" onclick="unblockUser(\'' + escapeAttr(user.id) + '\', \'' + escapeAttr(name) + '\')">차단 해제</button>' +
+                '</div>';
+        }).join('');
+    }
+
+    function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+    function escapeAttr(str) {
+        return escapeHtml(str).replace(/"/g, '&quot;');
+    }
+
+    function unblockUser(id, name) {
+        if (!confirm(name + '님을 차단 해제하시겠어요?\n다시 추천되고 채팅도 가능해집니다.')) return;
+        var list = bbmLoadBlocked().filter(function (u) { return u.id !== id; });
+        bbmSaveBlocked(list);
+        renderBlockedList();
+    }
+
+    renderBlockedList();
+</script>
+
+</body>
+</html>

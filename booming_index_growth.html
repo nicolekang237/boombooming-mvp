@@ -1,0 +1,564 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        /*
+        ▩ 부밍지수 - 나의 성장
+        ▩ 공통 레이아웃/헤더/푸터를 제외하고, 이 페이지에서만 쓰이는 스타일.
+        ▩ 수치 출처: ../design-tokens/tokens/3-component.json (header.banner.boomingIndex, badge, progressBar, avatar, tabSwitcher)
+        */
+
+        .booming__title_script { /* 배너 타이틀 — 로고와 같은 필기체 (2026-07-07 사장님 지시 11·15번) */
+            font-family: 'Lobster', cursive;
+            font-size: 21px;
+            font-weight: 400;
+            color: #ffffff;
+        }
+
+        .booming__today_card { /* 오늘의 부밍지수 세트 카드 (지시 10번) */
+            position: relative;
+            margin: 16px;
+            padding: 18px 16px;
+            border-radius: 14px;
+            background-color: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+        }
+
+        .booming__gauge_label {
+            margin-top: 2px;
+            font-size: 16px;
+            font-weight: 700;
+            text-align: center;
+            color: #ffde66; /* design-tokens: color.gold.300 */
+        }
+
+        .booming__progress {
+            position: relative;
+            width: 100%;
+            height: 6px;
+            margin-top: 22px; /* 뱃지와 줄이 붙지 않도록 여백 확보 (2026-07-07 사장님 지시) */
+            border-radius: 3px;
+            background-color: rgba(255, 255, 255, 0.28); /* design-tokens: progressBar.trackColor */
+        }
+
+        /* 데이터에 따라 유동적으로 변하는 값: 서버에서 내려주는 (currentValue / maxValue) 비율을
+           style="width: N%"로 렌더링 시 계산해서 넣어주면 됩니다. 아래 60px 값은 583/800 예시. */
+        .booming__progress_fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 72.875%; /* = 583 / 800 * 100 — 실제 값에 맞게 서버/JS에서 교체 */
+            border-radius: 3px;
+            background-color: #ffffff;
+        }
+
+        .booming__progress_scale {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .booming__badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 40px;
+            text-align: center;
+        }
+
+        .booming__badge_circle {
+            width: 34px;
+            height: 34px;
+            margin: 0 auto;
+            border-radius: 50%;
+            border: 1.5px solid #ffffff;
+            background: radial-gradient(circle at 35% 30%, #ffde66, #f57c00);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #ffffff;
+        }
+
+        .booming__badge_tag {
+            display: inline-block;
+            margin-top: 4px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 700;
+            color: #ffffff;
+            background-color: #d92129;
+        }
+
+        /* ■ 본문 - 통계 아이콘 5개
+        ---------------------------------------------------------------------- */
+        .stats__row {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 0 0 0; /* 카드 내부 배치로 변경 (2026-07-07) */
+        }
+
+        .stats__item {
+            width: 20%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stats__item img {
+            width: 26px;
+            height: 26px;
+        }
+
+        .stats__item_label {
+            font-size: 10px;
+            color: var(--color-text-primary); /* design-tokens: color.text.primary */
+            text-align: center;
+        }
+
+        /* ■ 탭 스위처
+        ---------------------------------------------------------------------- */
+        .tabs__switcher {
+            display: flex;
+            margin: 26px 16px 0 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .tabs__item {
+            flex: 1;
+            padding-bottom: 10px;
+            text-align: center;
+            font-size: 15px;
+            color: #8e9192;
+        }
+
+        .tabs__item_active {
+            font-weight: 700;
+            color: var(--color-primary-pink);
+            border-bottom: 3px solid var(--color-primary-pink);
+            margin-bottom: -1px;
+        }
+
+        /* ■ 행성(랭킹 카테고리) 5개
+        ---------------------------------------------------------------------- */
+        .planets__row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 24px 16px 0 16px;
+        }
+
+        .planets__item {
+            width: 20%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .planets__sphere { /* 기준 크기 = 태양 56px */
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* 실제 천체 비례 반영 (2026-07-07 사장님 지시 12번 / 2026-07-16 재확인) */
+        .planets__sphere_moon    { width: 19px; height: 19px; } /* 달 = 1/3 */
+        .planets__sphere_venus,
+        .planets__sphere_mars    { width: 37px; height: 37px; } /* 금성·화성 = 2/3 */
+        .planets__sphere_jupiter { width: 40px; height: 40px; } /* 목성 */
+
+        .planets__item_label {
+            font-size: 11px;
+            color: var(--color-text-primary);
+        }
+
+        /* 사용자가 해당하는 행성 표시 (2026-07-16 사장님 수정지시 4-6) — 점 표시 + 돌출 효과 */
+        .planets__current_dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--color-primary-pink);
+            box-shadow: 0 0 6px var(--color-primary-pink);
+        }
+
+        .planets__item.is_current .planets__sphere {
+            transform: translateY(-6px) scale(1.1);
+            box-shadow: 0 0 0 2px var(--color-primary-pink), 0 4px 10px rgba(255, 105, 135, 0.6);
+        }
+
+        .planets__item.is_current .planets__item_label {
+            color: var(--color-primary-pink);
+            font-weight: 700;
+        }
+
+        /* ■ 랭킹 리스트
+        ---------------------------------------------------------------------- */
+        .ranking__list {
+            margin: 24px 16px 24px 16px;
+        }
+
+        .ranking__row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .ranking__row:last-child {
+            border-bottom: none;
+        }
+
+        .ranking__rank {
+            width: 20px;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--color-primary-pink);
+            text-align: center;
+        }
+
+        .ranking__name {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .ranking__score {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--color-text-primary);
+        }
+
+        /* ■ 최근 부밍지수 리뷰 (2026-07-16 사장님 수정지시 5-8: 마이스위트에서 이전)
+        ---------------------------------------------------------------------- */
+        .review__section_title {
+            margin: 24px 16px 14px;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #d8b978;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+        }
+
+        .review__card {
+            background-color: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 15px;
+            margin: 0 16px 24px;
+        }
+
+        .review__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .review__user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .review__avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .review__avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .review__name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .review__sub {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .review__stars {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .review__score {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-left: 4px;
+        }
+
+        .review__body {
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--color-accent-gold);
+        }
+
+        .review__date {
+            text-align: right;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.3);
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ 부밍지수 - 나의 성장
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_dark app__container_type_basic">
+    <header class="header header__bg_booming header__type_basic">
+        <div class="topbar">
+            <button class="btn btn__size_medium">
+                <img src="./assets/images/logo_symbol_white.png" width="40" height="26">
+            </button>
+
+            <div class="title__main booming__title_script">Booming Index</div>
+
+            <div class="iconbox__topbar">
+                <button class="btn btn__size_medium" onclick="location.href='./chat_directory.html';">
+                    <img src="./assets/images/icon_add_folder_32dp.svg" width="30" height="30">
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic">
+        <div class="main__content_wrapper">
+
+            <!-- ▨ 오늘의 부밍지수 카드 — 라벨+게이지+획득출처 아이콘이 하나의 세트 (2026-07-07 사장님 지시 10번) -->
+            <div class="booming__today_card">
+                <div class="booming__badge">
+                    <div class="booming__badge_circle">★</div>
+                    <div class="booming__badge_tag">Badge</div>
+                </div>
+
+                <div class="booming__gauge_label">오늘의 부밍지수 <span id="booming-score">583</span></div>
+
+                <div class="booming__progress">
+                    <div class="booming__progress_fill" id="booming-progress-fill"></div>
+                </div>
+                <div class="booming__progress_scale">
+                    <span>0</span>
+                    <span id="booming-max">800점</span>
+                </div>
+
+                <div class="stats__row">
+                <div class="stats__item">
+                    <img src="./assets/images/icon_videocam_32dp_white.svg">
+                    <div class="stats__item_label">영상업로드</div>
+                </div>
+                <div class="stats__item">
+                    <img src="./assets/images/icon_group_32dp.svg">
+                    <div class="stats__item_label">인맥연결 성공</div>
+                </div>
+                <div class="stats__item">
+                    <img src="./assets/images/icon_chat_bubble_32dp.svg">
+                    <div class="stats__item_label">댓글 달림</div>
+                </div>
+                <div class="stats__item">
+                    <img src="./assets/images/icon_favorite_32dp_fill_red.svg">
+                    <div class="stats__item_label">좋아요 획득</div>
+                </div>
+                <div class="stats__item">
+                    <img src="./assets/images/icon_visibility_32dp.svg">
+                    <div class="stats__item_label">영상 시청</div>
+                </div>
+            </div>
+            </div><!-- /booming__today_card -->
+
+            <div class="tabs__switcher">
+                <div class="tabs__item tabs__item_active">나의 성장</div>
+                <div class="tabs__item" onclick="location.href='./booming_index_network.html';" style="cursor: pointer;">나의 인맥</div>
+            </div>
+
+            <div class="planets__row" id="planets-row">
+                <div class="planets__item" data-planet="moon">
+                    <img class="planets__sphere planets__sphere_moon" src="./assets/images/planet_moon.png">
+                    <div class="planets__item_label">달</div>
+                </div>
+                <div class="planets__item" data-planet="venus">
+                    <img class="planets__sphere planets__sphere_venus" src="./assets/images/planet_venus.png">
+                    <div class="planets__item_label">금성</div>
+                </div>
+                <div class="planets__item" data-planet="mars">
+                    <img class="planets__sphere planets__sphere_mars" src="./assets/images/planet_mars.png">
+                    <div class="planets__item_label">화성</div>
+                </div>
+                <div class="planets__item" data-planet="jupiter">
+                    <img class="planets__sphere planets__sphere_jupiter" src="./assets/images/planet_jupiter.png">
+                    <div class="planets__item_label">목성</div>
+                </div>
+                <div class="planets__item" data-planet="sun">
+                    <img class="planets__sphere" src="./assets/images/planet_sun.png">
+                    <div class="planets__item_label">태양</div>
+                </div>
+            </div>
+
+            <div class="ranking__list">
+                <div class="ranking__row">
+                    <div class="ranking__rank">1</div>
+                    <div class="avatar avatar__size_tiny"><img src="./assets/images/sample_avatar_1.png"></div>
+                    <div class="ranking__name">윤석열</div>
+                    <div class="ranking__score">647</div>
+                </div>
+                <div class="ranking__row">
+                    <div class="ranking__rank">2</div>
+                    <div class="avatar avatar__size_tiny"><img src="./assets/images/sample_avatar_2.png"></div>
+                    <div class="ranking__name">박근혜</div>
+                    <div class="ranking__score">583</div>
+                </div>
+                <div class="ranking__row">
+                    <div class="ranking__rank">3</div>
+                    <div class="avatar avatar__size_tiny"><img src="./assets/images/sample_avatar_3.png"></div>
+                    <div class="ranking__name">이명박</div>
+                    <div class="ranking__score">581</div>
+                </div>
+                <div class="ranking__row">
+                    <div class="ranking__rank">4</div>
+                    <div class="avatar avatar__size_tiny"><img src="./assets/images/sample_avatar_4.png"></div>
+                    <div class="ranking__name">박정희</div>
+                    <div class="ranking__score">492</div>
+                </div>
+                <div class="ranking__row">
+                    <div class="ranking__rank">5</div>
+                    <div class="avatar avatar__size_tiny"><img src="./assets/images/sample_avatar_5.png"></div>
+                    <div class="ranking__name">이승만</div>
+                    <div class="ranking__score">335</div>
+                </div>
+            </div>
+
+            <!-- ▣ 최근 부밍지수 리뷰 (2026-07-16 사장님 수정지시 5-8: 마이스위트에서 이전) -->
+            <div class="review__section_title">최근 부밍지수</div>
+            <div class="review__card">
+                <div class="review__header">
+                    <div class="review__user">
+                        <div class="review__avatar"><img src="./assets/images/sample_avatar_5.png"></div>
+                        <div>
+                            <div class="review__name">Billie Eilish</div>
+                            <div class="review__sub">Singer, Bad Guys</div>
+                        </div>
+                    </div>
+                    <div class="review__stars">
+                        <img src="./assets/images/icon_ratings_32dp_fill.svg" width="13" height="13">
+                        <img src="./assets/images/icon_ratings_32dp_fill.svg" width="13" height="13">
+                        <img src="./assets/images/icon_ratings_32dp_half.svg" width="13" height="13">
+                        <img src="./assets/images/icon_ratings_32dp.svg" width="13" height="13">
+                        <img src="./assets/images/icon_ratings_32dp.svg" width="13" height="13">
+                        <span class="review__score">2.5</span>
+                    </div>
+                </div>
+                <div class="review__body">제가 IT업계에 처음 들어와서 모르는 것이 많아서, 홍길동님께 여쭤 봤습니다. 살아있는 IT 업계현황과 기술에 대한 지식과 노하우를 말씀해주셔서 정말 큰 도움과 발전이 있었습니다.</div>
+                <div class="review__date">2025-09-02</div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+                    <div class="btn__text">홈</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+                    <div class="btn__text">메시지</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+                    <div class="btn__text">만들기</div>
+                </button>
+                <div class="btnbox__badge">필수</div>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <!-- Active Button - '부밍지수' -->
+                <button class="btn__full">
+                    <img src="./assets/images/icon_mood_up_32dp_pink.svg" width="28" height="28">
+                    <div class="btn__text" style="color: var(--color-primary-pink);">부밍지수</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+
+<!-- ■□■□■ [SCRIPT] 'Javascript' Area -->
+<script>
+    // 예시: 실제 값이 들어오면 이렇게 게이지 바를 갱신합니다.
+    // function updateBoomingGauge(current, max) {
+    //     document.getElementById('booming-score').textContent = current;
+    //     document.getElementById('booming-max').textContent = max + '점';
+    //     document.getElementById('booming-progress-fill').style.width = (current / max * 100) + '%';
+    // }
+
+    /* ──────────────────────────────────────────────
+     ▩ 사용자가 해당하는 행성 표시 (2026-07-16 사장님 수정지시 4-6)
+       달→금성→화성→목성→태양 순으로 5단계 구간을 균등 분할해 현재 점수가 속한 행성을 점 + 돌출로 표시.
+       실제 서비스에서는 서버가 내려주는 등급을 그대로 쓰면 되고, 이 구간 값은 데모용 placeholder입니다.
+    ────────────────────────────────────────────── */
+    (function () {
+        var PLANET_ORDER = ['moon', 'venus', 'mars', 'jupiter', 'sun'];
+        var score = parseInt(document.getElementById('booming-score').textContent, 10) || 0;
+        var max = parseInt(document.getElementById('booming-max').textContent, 10) || 800;
+        var ratio = Math.max(0, Math.min(1, score / max));
+        var tierIndex = Math.min(PLANET_ORDER.length - 1, Math.floor(ratio * PLANET_ORDER.length));
+        var currentPlanet = PLANET_ORDER[tierIndex];
+
+        var currentItem = document.querySelector('.planets__item[data-planet="' + currentPlanet + '"]');
+        if (currentItem) {
+            currentItem.classList.add('is_current');
+            var dot = document.createElement('div');
+            dot.className = 'planets__current_dot';
+            currentItem.insertBefore(dot, currentItem.firstChild);
+        }
+    })();
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,328 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        /*
+        ▩ 부밍지수 - 나의 인맥
+        ▩ 공통 레이아웃/헤더/푸터를 제외하고, 이 페이지에서만 쓰이는 스타일.
+        ▩ 헤더 관련 스타일(.booming__*)은 booming_index_growth.html과 동일 — 공통 CSS로 옮겨도 좋습니다.
+        */
+
+        .booming__title_script { /* 배너 타이틀 — 로고와 같은 필기체 (2026-07-07 사장님 지시 11·15번) */
+            font-family: 'Lobster', cursive;
+            font-size: 21px;
+            font-weight: 400;
+            color: #ffffff;
+        }
+
+        .booming__today_card { /* 오늘의 부밍지수 세트 카드 (지시 10번) */
+            position: relative;
+            margin: 16px;
+            padding: 18px 16px;
+            border-radius: 14px;
+            background-color: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+        }
+
+        .booming__gauge_label {
+            margin-top: 2px;
+            font-size: 16px;
+            font-weight: 700;
+            text-align: center;
+            color: #ffde66;
+        }
+
+        .booming__progress {
+            position: relative;
+            width: 100%;
+            height: 6px;
+            margin-top: 22px; /* 뱃지와 줄이 붙지 않도록 여백 확보 (2026-07-07 사장님 지시) */
+            border-radius: 3px;
+            background-color: rgba(255, 255, 255, 0.28);
+        }
+
+        .booming__progress_fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 72.875%; /* = 583 / 800 * 100 — 실제 값에 맞게 서버/JS에서 교체 */
+            border-radius: 3px;
+            background-color: #ffffff;
+        }
+
+        .booming__progress_scale {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .booming__badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 40px;
+            text-align: center;
+        }
+
+        .booming__badge_circle {
+            width: 34px;
+            height: 34px;
+            margin: 0 auto;
+            border-radius: 50%;
+            border: 1.5px solid #ffffff;
+            background: radial-gradient(circle at 35% 30%, #ffde66, #f57c00);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #ffffff;
+        }
+
+        .booming__badge_tag {
+            display: inline-block;
+            margin-top: 4px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 700;
+            color: #ffffff;
+            background-color: #d92129;
+        }
+
+        /* ■ 탭 스위처
+        ---------------------------------------------------------------------- */
+        .tabs__switcher {
+            display: flex;
+            margin: 24px 16px 0 16px; /* design-tokens: header.banner.contentTopGap = 24px */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .tabs__item {
+            flex: 1;
+            padding-bottom: 10px;
+            text-align: center;
+            font-size: 15px;
+            color: #8e9192;
+        }
+
+        .tabs__item_active {
+            font-weight: 700;
+            color: var(--color-primary-pink);
+            border-bottom: 3px solid var(--color-primary-pink);
+            margin-bottom: -1px;
+        }
+
+        /* ■ 최근 인맥 - 아바타 5개
+        ---------------------------------------------------------------------- */
+        .recent__label {
+            margin: 20px 16px 0 16px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-text-primary);
+        }
+
+        .recent__row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 16px 0 16px;
+        }
+
+        .recent__item {
+            width: 20%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .recent__item_label {
+            font-size: 11px;
+            color: var(--color-text-primary);
+        }
+
+        /* ■ 인맥 리스트
+        ---------------------------------------------------------------------- */
+        .connections__list {
+            margin: 24px 16px 24px 16px;
+        }
+
+        .connections__row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .connections__row:last-child {
+            border-bottom: none;
+        }
+
+        .connections__name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ 부밍지수 - 나의 인맥
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_dark app__container_type_basic">
+    <header class="header header__bg_booming header__type_basic">
+        <div class="topbar">
+            <button class="btn btn__size_medium">
+                <img src="./assets/images/logo_symbol_white.png" width="40" height="26">
+            </button>
+
+            <div class="title__main booming__title_script">Booming Index</div>
+
+            <div class="iconbox__topbar">
+                <button class="btn btn__size_medium" onclick="location.href='./chat_directory.html';">
+                    <img src="./assets/images/icon_add_folder_32dp.svg" width="30" height="30">
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic">
+        <div class="main__content_wrapper">
+
+            <!-- ▨ 오늘의 부밍지수 카드 — 라벨+게이지+획득출처 아이콘이 하나의 세트 (2026-07-07 사장님 지시 10번) -->
+            <div class="booming__today_card">
+                <div class="booming__badge">
+                    <div class="booming__badge_circle">★</div>
+                    <div class="booming__badge_tag">Badge</div>
+                </div>
+
+                <div class="booming__gauge_label">오늘의 부밍지수 <span id="booming-score">583</span></div>
+
+                <div class="booming__progress">
+                    <div class="booming__progress_fill" id="booming-progress-fill"></div>
+                </div>
+                <div class="booming__progress_scale">
+                    <span>0</span>
+                    <span id="booming-max">800점</span>
+                </div>
+            </div><!-- /booming__today_card -->
+
+            <div class="tabs__switcher">
+                <div class="tabs__item" onclick="location.href='./booming_index_growth.html';" style="cursor: pointer;">나의 성장</div>
+                <div class="tabs__item tabs__item_active">나의 인맥</div>
+            </div>
+
+            <div class="recent__label">최근 인맥</div>
+            <div class="recent__row">
+                <div class="recent__item" onclick="location.href='./profile.html';" style="cursor:pointer;">
+                    <div class="avatar avatar__size_medium"><img src="./assets/images/sample_avatar_1.png"></div>
+                    <div class="recent__item_label">김도현</div>
+                </div>
+                <div class="recent__item" onclick="location.href='./profile.html';" style="cursor:pointer;">
+                    <div class="avatar avatar__size_medium"><img src="./assets/images/sample_avatar_2.png"></div>
+                    <div class="recent__item_label">이지연</div>
+                </div>
+                <div class="recent__item" onclick="location.href='./profile.html';" style="cursor:pointer;">
+                    <div class="avatar avatar__size_medium"><img src="./assets/images/sample_avatar_3.png"></div>
+                    <div class="recent__item_label">박민수</div>
+                </div>
+                <div class="recent__item" onclick="location.href='./profile.html';" style="cursor:pointer;">
+                    <div class="avatar avatar__size_medium"><img src="./assets/images/sample_avatar_4.png"></div>
+                    <div class="recent__item_label">최유진</div>
+                </div>
+                <div class="recent__item" onclick="location.href='./profile.html';" style="cursor:pointer;">
+                    <div class="avatar avatar__size_medium"><img src="./assets/images/sample_avatar_5.png"></div>
+                    <div class="recent__item_label">이재훈</div>
+                </div>
+            </div>
+
+            <div class="connections__list">
+                <div class="connections__row" onclick="location.href='./profile.html';" style="cursor:pointer;">
+                    <div class="avatar avatar__size_tiny"><img src="./assets/images/sample_avatar_3.png"></div>
+                    <div class="connections__name">정우진</div>
+                </div>
+                <div class="connections__row" onclick="location.href='./profile.html';" style="cursor:pointer;">
+                    <div class="avatar avatar__size_tiny"><img src="./assets/images/sample_avatar_4.png"></div>
+                    <div class="connections__name">한서연</div>
+                </div>
+                <div class="connections__row" onclick="location.href='./profile.html';" style="cursor:pointer;">
+                    <div class="avatar avatar__size_tiny"><img src="./assets/images/sample_avatar_5.png"></div>
+                    <div class="connections__name">이상훈</div>
+                </div>
+                <div class="connections__row" onclick="location.href='./profile.html';" style="cursor:pointer;">
+                    <div class="avatar avatar__size_tiny"><img src="./assets/images/sample_avatar_1.png"></div>
+                    <div class="connections__name">김민정</div>
+                </div>
+                <div class="connections__row" onclick="location.href='./profile.html';" style="cursor:pointer;">
+                    <div class="avatar avatar__size_tiny"><img src="./assets/images/sample_avatar_2.png"></div>
+                    <div class="connections__name">조현우</div>
+                </div>
+                <div class="connections__row" onclick="location.href='./profile.html';" style="cursor:pointer;">
+                    <div class="avatar avatar__size_tiny"><img src="./assets/images/sample_avatar_3.png"></div>
+                    <div class="connections__name">윤채원</div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+                    <div class="btn__text">홈</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+                    <div class="btn__text">메시지</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+                    <div class="btn__text">만들기</div>
+                </button>
+                <div class="btnbox__badge">필수</div>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <!-- Active Button - '부밍지수' -->
+                <button class="btn__full">
+                    <img src="./assets/images/icon_mood_up_32dp_pink.svg" width="28" height="28">
+                    <div class="btn__text" style="color: var(--color-primary-pink);">부밍지수</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+</body>
+</html>
+

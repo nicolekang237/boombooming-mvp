@@ -1,0 +1,482 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>신고하기 — BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/main.css">
+
+    <style>
+        /*
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+        ▩ Report — 신고하기 페이지
+
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        */
+
+        /* ■ 신고 대상 영역
+        ---------------------------------------------------------------------- */
+        .report__target {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .report__target_avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .report__target_avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .report__target_info {
+            flex: 1;
+        }
+
+        .report__target_name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--color-text-primary);
+        }
+
+        .report__target_desc {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .report__badge {
+            background: var(--color-error);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        /* ■ 섹션 라벨
+        ---------------------------------------------------------------------- */
+        .section__label {
+            padding: 24px 16px 8px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #888;
+        }
+
+        /* ■ 라디오 리스트
+        ---------------------------------------------------------------------- */
+        .radio__list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .radio__item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            cursor: pointer;
+        }
+
+        .radio__text {
+            font-size: 15px;
+            color: #dddddd;
+        }
+
+        .radio__circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+
+        .radio__item.selected .radio__circle {
+            border-color: var(--color-primary-pink);
+        }
+
+        .radio__inner {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: transparent;
+            transition: background-color 0.2s;
+        }
+
+        .radio__item.selected .radio__inner {
+            background-color: var(--color-primary-pink);
+        }
+
+        /* ■ 상세 입력 (초기 숨김)
+        ---------------------------------------------------------------------- */
+        .detail__section {
+            display: none;
+            padding: 0 16px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .detail__textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #eee;
+            font-size: 14px;
+            resize: none;
+            height: 100px;
+            line-height: 1.5;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .detail__textarea:focus {
+            border-color: rgba(255, 140, 157, 0.5);
+        }
+
+        .detail__counter {
+            text-align: right;
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        /* ■ 하단 고정 버튼
+        ---------------------------------------------------------------------- */
+        .bottom__fixed {
+            position: fixed;
+            bottom: 80px; /* footer 높이 고려 */
+            left: 0;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(to top, var(--color-gray-900) 80%, transparent);
+            box-sizing: border-box;
+        }
+
+        .submit__btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 14px;
+            border: none;
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+            cursor: not-allowed;
+        }
+
+        .submit__btn.active {
+            background: linear-gradient(90deg, #ff5f6d, var(--color-primary-pink));
+            cursor: pointer;
+        }
+
+        /* ■ 완료 화면
+        ---------------------------------------------------------------------- */
+        .success__view {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: calc(100vh - 140px);
+            text-align: center;
+            padding: 32px;
+            box-sizing: border-box;
+        }
+
+        .success__icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(80, 200, 140, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .success__title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--color-text-primary);
+            margin-bottom: 12px;
+        }
+
+        .success__desc {
+            font-size: 14px;
+            color: #888;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app__container app__bg_dark app__container_type_basic">
+
+    <!-- ■ Header -->
+    <header class="header header__bg_green header__type_basic" id="headerView">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+            </button>
+            <div class="title__main">
+                <span class="title__main_text">신고하기</span>
+            </div>
+            <div class="iconbox__topbar"></div>
+        </div>
+    </header>
+
+    <!-- ■ Body -->
+    <main class="main__container main__container_type_basic" style="padding-bottom: 160px;">
+
+        <!-- ▣ 입력 폼 (초기 노출) -->
+        <div id="formView">
+            
+            <div class="report__target">
+                <div class="report__target_avatar">
+                    <img id="reportTargetAvatar" src="./assets/images/sample_avatar_2.png">
+                </div>
+                <div class="report__target_info">
+                    <div class="report__target_name" id="reportTargetName">Elon Musk</div>
+                    <div class="report__target_desc" id="reportTargetDesc">CEO, Tesla</div>
+                </div>
+                <div class="report__badge" id="reportTargetBadge">신고 대상</div>
+            </div>
+
+            <div class="section__label">신고 사유를 선택해주세요</div>
+            
+            <div class="radio__list" id="reasonList">
+                <div class="radio__item" onclick="selectReason(this)">
+                    <span class="radio__text">스팸 또는 광고</span>
+                    <div class="radio__circle"><div class="radio__inner"></div></div>
+                </div>
+                <div class="radio__item" onclick="selectReason(this)">
+                    <span class="radio__text">불쾌하거나 부적절한 콘텐츠</span>
+                    <div class="radio__circle"><div class="radio__inner"></div></div>
+                </div>
+                <div class="radio__item" onclick="selectReason(this)">
+                    <span class="radio__text">허위 정보 또는 사기</span>
+                    <div class="radio__circle"><div class="radio__inner"></div></div>
+                </div>
+                <div class="radio__item" onclick="selectReason(this)">
+                    <span class="radio__text">혐오 발언 또는 차별</span>
+                    <div class="radio__circle"><div class="radio__inner"></div></div>
+                </div>
+                <div class="radio__item" onclick="selectReason(this)">
+                    <span class="radio__text">개인정보 침해</span>
+                    <div class="radio__circle"><div class="radio__inner"></div></div>
+                </div>
+                <div class="radio__item" onclick="selectReason(this)">
+                    <span class="radio__text">저작권 침해</span>
+                    <div class="radio__circle"><div class="radio__inner"></div></div>
+                </div>
+                <div class="radio__item" onclick="selectReason(this)">
+                    <span class="radio__text">기타</span>
+                    <div class="radio__circle"><div class="radio__inner"></div></div>
+                </div>
+            </div>
+
+            <div class="detail__section" id="detailSection">
+                <div class="section__label" style="padding-left:0; padding-top:20px;">추가 설명 (선택사항)</div>
+                <textarea class="detail__textarea" id="detailInput" placeholder="신고 내용을 자세히 설명해주세요. 스크린샷이나 URL이 있다면 함께 적어주세요." oninput="updateCount()"></textarea>
+                <div class="detail__counter"><span id="charCount">0</span> / 500</div>
+
+                <label id="blockAlongWrap" style="display:none; align-items:flex-start; gap:10px; margin-top:16px; padding:14px; border-radius:10px; background:rgba(255,255,255,0.04); cursor:pointer;">
+                    <input type="checkbox" id="blockAlongCheckbox" style="margin-top:2px; width:16px; height:16px; flex-shrink:0;">
+                    <span style="font-size:13px; color:#ccc; line-height:1.5;">신고와 함께 <strong id="blockAlongName" style="color:#fff;">이 사용자</strong>를 차단합니다<br><span style="font-size:12px; color:#777;">차단하면 서로 추천되지 않고 채팅도 할 수 없어요. 마이 스위트 &gt; 설정에서 해제할 수 있습니다.</span></span>
+                </label>
+            </div>
+
+            <div class="bottom__fixed" id="submitWrap">
+                <button class="submit__btn" id="submitBtn" onclick="submitReport()">신고 제출하기</button>
+            </div>
+        </div>
+
+        <!-- ▣ 완료 화면 (제출 후 노출) -->
+        <div class="success__view" id="successView">
+            <div class="success__icon">
+                <img src="./assets/images/icon_check_32dp_bold.svg" width="40" height="40" style="filter: invert(68%) sepia(51%) saturate(464%) hue-rotate(97deg) brightness(93%) contrast(85%);">
+            </div>
+            <div class="success__title">신고가 접수되었습니다</div>
+            <div class="success__desc" id="successDesc">
+                검토까지 최대 48시간이 소요될 수 있습니다.<br>
+                검토 결과는 알림으로 안내해 드립니다.
+            </div>
+            <button class="submit__btn active" style="width:200px;" onclick="history.back()">확인</button>
+        </div>
+
+    </main>
+
+    <!-- ■ Footer -->
+    <footer class="footer footer__type_basic" id="footerView">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+                    <div class="btn__text">홈</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+                    <div class="btn__text">메시지</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+                    <div class="btn__text">만들기</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<script>
+    // ─────────────────────────────────────────────────────────
+    // 차단 데이터 저장 (마이 스위트 > 설정 > 차단 관리에서 조회/해제)
+    // ─────────────────────────────────────────────────────────
+    function bbmLoadBlocked() {
+        try { return JSON.parse(localStorage.getItem('bbm_blockedUsers') || '[]'); } catch (e) { return []; }
+    }
+    function bbmSaveBlocked(list) {
+        try { localStorage.setItem('bbm_blockedUsers', JSON.stringify(list)); } catch (e) { /* 무시 */ }
+    }
+    function bbmBlockUser(user) {
+        var list = bbmLoadBlocked();
+        if (!list.some(function (u) { return u.id === user.id; })) {
+            list.push({ id: user.id, name: user.name, avatar: user.avatar, blockedAt: Date.now() });
+            bbmSaveBlocked(list);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // 신고 대상 — 쿼리 파라미터로 전달받아 동적으로 채움
+    // 예) report.html?targetType=user&targetId=rina_kang&targetName=리나강&targetAvatar=...&targetDesc=...
+    // 파라미터가 없으면 데모 기본값(Elon Musk)을 그대로 유지.
+    // ─────────────────────────────────────────────────────────
+    var reportTarget = null;
+    (function () {
+        var params = new URLSearchParams(window.location.search);
+        var targetId = params.get('targetId');
+        var targetName = params.get('targetName');
+        var targetAvatar = params.get('targetAvatar');
+        var targetDesc = params.get('targetDesc');
+        var targetType = params.get('targetType') || 'user';
+
+        if (!targetId && !targetName) return; // 파라미터 없음 → 기본 데모 값 유지
+
+        reportTarget = { id: targetId || targetName, name: targetName || '', avatar: targetAvatar || '', type: targetType };
+
+        if (targetName) document.getElementById('reportTargetName').textContent = targetName;
+        if (targetDesc) document.getElementById('reportTargetDesc').textContent = targetDesc;
+        if (targetAvatar) document.getElementById('reportTargetAvatar').src = targetAvatar;
+
+        var badge = document.getElementById('reportTargetBadge');
+        if (targetType === 'video') badge.textContent = '영상 신고';
+        else if (targetType === 'comment') badge.textContent = '댓글 신고';
+        else badge.textContent = '신고 대상';
+
+        // 신고 대상이 특정 회원(user)일 때만 '함께 차단' 옵션 노출
+        if (targetType === 'user') {
+            document.getElementById('blockAlongName').textContent = targetName || '이 사용자';
+            document.getElementById('blockAlongWrap').style.display = 'flex';
+        }
+    })();
+
+    let isSelected = false;
+
+    function selectReason(element) {
+        // 기존 선택 초기화
+        document.querySelectorAll('.radio__item').forEach(item => {
+            item.classList.remove('selected');
+        });
+        
+        // 현재 항목 선택
+        element.classList.add('selected');
+        
+        // 상세 입력 노출 및 버튼 활성화
+        if (!isSelected) {
+            isSelected = true;
+            document.getElementById('detailSection').style.display = 'block';
+            document.getElementById('submitBtn').classList.add('active');
+            
+            // 살짝 아래로 스크롤
+            setTimeout(() => {
+                window.scrollBy({ top: 150, behavior: 'smooth' });
+            }, 100);
+        }
+    }
+
+    function updateCount() {
+        const val = document.getElementById('detailInput').value;
+        document.getElementById('charCount').innerText = val.length;
+    }
+
+    function submitReport() {
+        if (!isSelected) return;
+
+        // 신고와 함께 차단하기 체크 시 실제로 차단 목록에 반영
+        var blockAlongCheckbox = document.getElementById('blockAlongCheckbox');
+        var didBlock = false;
+        if (reportTarget && blockAlongCheckbox && blockAlongCheckbox.checked) {
+            bbmBlockUser(reportTarget);
+            didBlock = true;
+        }
+
+        // 화면 전환
+        document.getElementById('formView').style.display = 'none';
+        document.getElementById('headerView').style.display = 'none';
+        document.getElementById('footerView').style.display = 'none';
+        document.getElementById('successView').style.display = 'flex';
+
+        if (didBlock) {
+            document.getElementById('successDesc').innerHTML =
+                '검토까지 최대 48시간이 소요될 수 있습니다.<br>' +
+                '<strong style="color:#fff;">' + (reportTarget.name || '해당 사용자') + '</strong>님을 함께 차단했습니다.';
+        }
+
+        // 배경을 완전히 검게 처리 (선택사항)
+        document.body.style.backgroundColor = '#0a0a0a';
+        window.scrollTo(0, 0);
+    }
+</script>
+
+</body>
+</html>
+

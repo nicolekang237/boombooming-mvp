@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        .findid__result {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .findid__result_icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: rgba(80, 200, 140, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .findid__result_title {
+            font-size: 15px;
+            color: var(--color-text-muted);
+            margin-bottom: 10px;
+        }
+
+        .findid__result_email {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--color-text-dark);
+            margin-bottom: 32px;
+        }
+
+        .findid__error {
+            display: none;
+            color: var(--color-error);
+            font-size: 13px;
+            margin-top: -8px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ 아이디 찾기
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_white app__container_type_basic">
+    <header class="header header__bg_red header__type_basic">
+        <div class="topbar">
+            <button class="btn btn__size_medium">
+                <img src="./assets/images/logo_symbol_white.png" width="40" height="26">
+            </button>
+
+            <div class="title__main" style="color: #eee; font-size: 16px;">아이디 찾기</div>
+
+            <div class="iconbox__topbar">
+                <button class="btn btn__size_medium" onclick="location.href='./chat_directory.html';">
+                    <img src="./assets/images/icon_add_folder_32dp.svg" width="30" height="30">
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic">
+        <div class="main__content_wrapper">
+            <div class="form__appbar">
+                <img src="./assets/images/icon_arrow_back_32dp_dark.svg" width="24" height="24" onclick="history.back();" style="cursor: pointer;">
+                <div class="form__appbar_title">아이디 찾기</div>
+            </div>
+
+            <div class="form__body" id="findIdFormView">
+                <div class="form__group">
+                    <div class="form__heading">가입하신 정보를<br>입력해 주세요.</div>
+                    <div class="form__desc">회원가입 시 등록한 이름과 보조 이메일을 입력하시면<br>아이디를 확인하실 수 있습니다.</div>
+                </div>
+
+                <div class="form__group">
+                    <label class="form__label">이름</label>
+                    <input class="form__input" type="text" id="findIdName" placeholder="이름을 입력하세요" oninput="updateFindIdButton()">
+                </div>
+
+                <div class="form__group">
+                    <label class="form__label">보조 이메일</label>
+                    <input class="form__input" type="email" id="findIdEmail" placeholder="가입 시 등록한 보조 이메일" oninput="updateFindIdButton()">
+                </div>
+
+                <div class="findid__error" id="findIdError">일치하는 가입 정보를 찾을 수 없습니다. 이름과 이메일을 다시 확인해주세요.</div>
+
+                <button class="form__button form__button_disabled" id="findIdSubmitBtn" disabled onclick="submitFindId()">아이디 찾기</button>
+            </div>
+
+            <!-- ▣ 결과 화면 (제출 후 노출) -->
+            <div class="findid__result" id="findIdResultView">
+                <div class="findid__result_icon">
+                    <img src="./assets/images/icon_check_32dp_bold.svg" width="32" height="32" style="filter: invert(68%) sepia(51%) saturate(464%) hue-rotate(97deg) brightness(93%) contrast(85%);">
+                </div>
+                <div class="findid__result_title">회원님의 아이디입니다</div>
+                <div class="findid__result_email" id="findIdResultEmail"></div>
+                <button class="form__button" style="width:100%;" onclick="location.href='./login.html';">로그인하러 가기</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+                    <div class="btn__text">홈</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+                    <div class="btn__text">메시지</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+                    <div class="btn__text">만들기</div>
+                </button>
+                <div class="btnbox__badge">필수</div>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<script>
+    function updateFindIdButton() {
+        var name = document.getElementById('findIdName').value.trim();
+        var email = document.getElementById('findIdEmail').value.trim();
+        var btn = document.getElementById('findIdSubmitBtn');
+        var enabled = name.length > 0 && email.length > 0;
+        btn.disabled = !enabled;
+        btn.classList.toggle('form__button_disabled', !enabled);
+    }
+
+    // 이메일 앞부분만 남기고 마스킹 (예: test@test.com → te**@test.com)
+    function maskEmail(email) {
+        var parts = email.split('@');
+        if (parts.length !== 2) return email;
+        var local = parts[0];
+        var visible = local.slice(0, Math.min(2, local.length));
+        var masked = visible + '*'.repeat(Math.max(local.length - visible.length, 2));
+        return masked + '@' + parts[1];
+    }
+
+    // 데모: 이름/이메일이 모두 입력되면 가입된 것으로 간주 (실제로는 서버 조회 필요)
+    function submitFindId() {
+        var name = document.getElementById('findIdName').value.trim();
+        var email = document.getElementById('findIdEmail').value.trim();
+        if (!name || !email) return;
+
+        var errorEl = document.getElementById('findIdError');
+        var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            errorEl.style.display = 'block';
+            return;
+        }
+        errorEl.style.display = 'none';
+
+        document.getElementById('findIdFormView').style.display = 'none';
+        document.getElementById('findIdResultView').style.display = 'flex';
+        document.getElementById('findIdResultEmail').textContent = maskEmail(email);
+    }
+</script>
+
+</body>
+</html>

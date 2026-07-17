@@ -1,0 +1,600 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>검색 — BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        /*
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+        ▩ Search — 검색 페이지
+
+        ▩ 공통으로 쓰이는 레이아웃, 헤더, 푸터 등을 제외하고 오직 이 페이지에서만 쓰이는 스타일은 이곳에만 기재.
+
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        */
+
+        /* ■ 검색창 영역
+        ---------------------------------------------------------------------- */
+        .search__bar_wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 12px 16px 10px 16px;
+            background-color: var(--color-gray-900);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-sizing: border-box;
+        }
+
+        .search__input_box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            height: 42px;
+            padding: 0 14px;
+            border-radius: 100px;
+            background-color: rgba(255, 255, 255, 0.09);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .search__input_box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            color: var(--color-text-primary);
+        }
+
+        .search__input_box input::placeholder {
+            color: #777;
+        }
+
+        /* ■ 탭 영역
+        ---------------------------------------------------------------------- */
+        .tabs__switcher {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .tabs__item {
+            flex: 1;
+            padding: 12px 0;
+            text-align: center;
+            font-size: 14px;
+            color: #777;
+            cursor: pointer;
+        }
+
+        .tabs__item_active {
+            font-weight: 700;
+            color: var(--color-primary-pink);
+            border-bottom: 2px solid var(--color-primary-pink);
+            margin-bottom: -1px;
+        }
+
+        /* ■ 섹션 제목
+        ---------------------------------------------------------------------- */
+        .section__label {
+            padding: 20px 16px 10px 16px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #888;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        /* ■ 최근 검색어
+        ---------------------------------------------------------------------- */
+        .recent__list {
+            padding: 0 16px;
+        }
+
+        .recent__item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            cursor: pointer;
+        }
+
+        .recent__item_left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .recent__keyword {
+            font-size: 15px;
+            color: #dddddd;
+        }
+
+        /* ■ 인기 검색어
+        ---------------------------------------------------------------------- */
+        .trending__list {
+            padding: 0 16px;
+        }
+
+        .trending__item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            cursor: pointer;
+        }
+
+        .trending__rank {
+            width: 20px;
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--color-primary-pink);
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .trending__rank_normal {
+            color: #555;
+        }
+
+        .trending__info {
+            flex: 1;
+        }
+
+        .trending__keyword {
+            font-size: 15px;
+            color: var(--color-text-primary);
+        }
+
+        .trending__meta {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .trending__badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .badge__up {
+            background-color: rgba(255, 80, 80, 0.15);
+            color: var(--color-error);
+        }
+
+        .badge__new {
+            background-color: rgba(80, 200, 140, 0.15);
+            color: #50c88c;
+        }
+
+        /* ■ 추천 인물 카드
+        ---------------------------------------------------------------------- */
+        .suggest__row {
+            display: flex;
+            gap: 12px;
+            padding: 8px 16px 16px 16px;
+            overflow-x: auto;
+        }
+
+        .suggest__row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .suggest__card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            width: 76px;
+            cursor: pointer;
+        }
+
+        .suggest__avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid rgba(255, 140, 157, 0.5);
+        }
+
+        .suggest__avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .suggest__name {
+            font-size: 12px;
+            color: #cccccc;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        /* ■ 검색 결과 영역 (숨김 상태로 시작)
+        ---------------------------------------------------------------------- */
+        .search__result {
+            display: none;
+            padding: 0 16px;
+        }
+
+        .result__item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            cursor: pointer;
+        }
+
+        .result__avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .result__btn.is_requested {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .result__avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .result__info {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .result__name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .result__desc {
+            font-size: 13px;
+            color: #888;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .result__btn {
+            flex-shrink: 0;
+            padding: 6px 14px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 140, 157, 0.6);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-primary-pink);
+            background: transparent;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ Search — 검색
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_dark app__container_type_basic">
+
+    <!-- ■ Header -->
+    <header class="header header__bg_green header__type_basic">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+            </button>
+
+            <!-- ▣ 상단 검색창 -->
+            <div class="search__bar_wrap" style="padding: 0; border: none; background: transparent; flex: 1;">
+                <div class="search__input_box">
+                    <img src="./assets/images/icon_search_32dp.svg" width="18" height="18" style="opacity: 0.5;">
+                    <input id="searchInput" type="text" placeholder="이름, 분야, 키워드로 검색" autofocus
+                           oninput="handleSearchInput(this.value)">
+                    <button class="btn" id="clearBtn" style="display:none;" onclick="clearSearch()">
+                        <img src="./assets/images/icon_close_32dp.svg" width="18" height="18" style="opacity:0.5;">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ■ Body -->
+    <main class="main__container main__container_type_basic">
+
+        <!-- ▨ NOTE - 이곳부터 공통이 아닌 이 페이지만의 내용이 시작됨 -->
+
+        <!-- ▣ 탭 (전체 / 인물 / 영상 / 태그) -->
+        <div class="tabs__switcher">
+            <div class="tabs__item tabs__item_active" id="tab-all" onclick="switchTab('all')">전체</div>
+            <div class="tabs__item" id="tab-people" onclick="switchTab('people')">인물</div>
+            <div class="tabs__item" id="tab-video" onclick="switchTab('video')">영상</div>
+            <div class="tabs__item" id="tab-tag" onclick="switchTab('tag')">#태그</div>
+        </div>
+
+        <!-- ▣ 기본 화면: 최근검색어 + 인기검색어 + 추천 인물 -->
+        <div id="defaultView">
+
+            <!-- 최근 검색어 -->
+            <div class="section__label">최근 검색어</div>
+            <div class="recent__list">
+                <div class="recent__item" onclick="fillSearch('리나강')">
+                    <div class="recent__item_left">
+                        <img src="./assets/images/icon_search_32dp.svg" width="16" height="16" style="opacity:0.4;">
+                        <span class="recent__keyword">리나강</span>
+                    </div>
+                    <button class="btn" onclick="event.stopPropagation();">
+                        <img src="./assets/images/icon_close_32dp.svg" width="16" height="16" style="opacity:0.35;">
+                    </button>
+                </div>
+                <div class="recent__item" onclick="fillSearch('마케팅')">
+                    <div class="recent__item_left">
+                        <img src="./assets/images/icon_search_32dp.svg" width="16" height="16" style="opacity:0.4;">
+                        <span class="recent__keyword">마케팅</span>
+                    </div>
+                    <button class="btn" onclick="event.stopPropagation();">
+                        <img src="./assets/images/icon_close_32dp.svg" width="16" height="16" style="opacity:0.35;">
+                    </button>
+                </div>
+                <div class="recent__item" onclick="fillSearch('IT startup')">
+                    <div class="recent__item_left">
+                        <img src="./assets/images/icon_search_32dp.svg" width="16" height="16" style="opacity:0.4;">
+                        <span class="recent__keyword">IT startup</span>
+                    </div>
+                    <button class="btn" onclick="event.stopPropagation();">
+                        <img src="./assets/images/icon_close_32dp.svg" width="16" height="16" style="opacity:0.35;">
+                    </button>
+                </div>
+            </div>
+
+            <!-- 인기 검색어 -->
+            <div class="section__label" style="margin-top: 8px;">인기 검색어</div>
+            <div class="trending__list">
+                <div class="trending__item" onclick="fillSearch('AI 개발자')">
+                    <div class="trending__rank">1</div>
+                    <div class="trending__info">
+                        <div class="trending__keyword">AI 개발자</div>
+                        <div class="trending__meta">급상승</div>
+                    </div>
+                    <span class="trending__badge badge__up">▲ UP</span>
+                </div>
+                <div class="trending__item" onclick="fillSearch('크리에이터')">
+                    <div class="trending__rank">2</div>
+                    <div class="trending__info">
+                        <div class="trending__keyword">크리에이터</div>
+                        <div class="trending__meta">어제보다 +12%</div>
+                    </div>
+                    <span class="trending__badge badge__new">NEW</span>
+                </div>
+                <div class="trending__item" onclick="fillSearch('스타트업')">
+                    <div class="trending__rank">3</div>
+                    <div class="trending__info">
+                        <div class="trending__keyword">스타트업</div>
+                        <div class="trending__meta">꾸준한 인기</div>
+                    </div>
+                </div>
+                <div class="trending__item" onclick="fillSearch('투자자')">
+                    <div class="trending__rank trending__rank_normal">4</div>
+                    <div class="trending__info">
+                        <div class="trending__keyword">투자자</div>
+                        <div class="trending__meta">유지</div>
+                    </div>
+                </div>
+                <div class="trending__item" onclick="fillSearch('마케터')">
+                    <div class="trending__rank trending__rank_normal">5</div>
+                    <div class="trending__info">
+                        <div class="trending__keyword">마케터</div>
+                        <div class="trending__meta">유지</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 추천 인물 -->
+            <div class="section__label" style="margin-top: 8px;">추천 인물</div>
+            <div class="suggest__row">
+                <div class="suggest__card" onclick="location.href='./profile.html'">
+                    <div class="suggest__avatar">
+                        <img src="./assets/images/sample_avatar_rina.png">
+                    </div>
+                    <div class="suggest__name">리나강</div>
+                </div>
+                <div class="suggest__card" onclick="location.href='./profile.html'">
+                    <div class="suggest__avatar">
+                        <img src="./assets/images/sample_avatar_2.png">
+                    </div>
+                    <div class="suggest__name">Elon M.</div>
+                </div>
+                <div class="suggest__card" onclick="location.href='./profile.html'">
+                    <div class="suggest__avatar">
+                        <img src="./assets/images/sample_avatar_3.png">
+                    </div>
+                    <div class="suggest__name">Angelina</div>
+                </div>
+                <div class="suggest__card" onclick="location.href='./profile.html'">
+                    <div class="suggest__avatar">
+                        <img src="./assets/images/sample_avatar_4.png">
+                    </div>
+                    <div class="suggest__name">Jennifer</div>
+                </div>
+                <div class="suggest__card" onclick="location.href='./profile.html'">
+                    <div class="suggest__avatar">
+                        <img src="./assets/images/sample_avatar_5.png">
+                    </div>
+                    <div class="suggest__name">Billie</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ▣ 검색 결과 화면 (입력 시 노출) -->
+        <div id="resultView" style="display:none;">
+            <div class="section__label">검색 결과</div>
+            <div class="search__result" style="display:block;">
+                <div class="result__item">
+                    <div class="result__avatar" onclick="location.href='./profile.html'">
+                        <img src="./assets/images/sample_avatar_rina.png">
+                    </div>
+                    <div class="result__info" onclick="location.href='./profile.html'">
+                        <div class="result__name">리나강 (Rina Kang)</div>
+                        <div class="result__desc">크리에이터 · 서울, 대한민국</div>
+                    </div>
+                    <button class="result__btn" onclick="toggleConnectBtn(this)">인맥</button>
+                </div>
+                <div class="result__item">
+                    <div class="result__avatar" onclick="location.href='./profile.html'">
+                        <img src="./assets/images/sample_avatar_2.png">
+                    </div>
+                    <div class="result__info" onclick="location.href='./profile.html'">
+                        <div class="result__name">Elon Musk</div>
+                        <div class="result__desc">CEO · Tesla, SpaceX</div>
+                    </div>
+                    <button class="result__btn" onclick="toggleConnectBtn(this)">인맥</button>
+                </div>
+                <div class="result__item">
+                    <div class="result__avatar" onclick="location.href='./profile.html'">
+                        <img src="./assets/images/sample_avatar_3.png">
+                    </div>
+                    <div class="result__info" onclick="location.href='./profile.html'">
+                        <div class="result__name">Angelina Jolie</div>
+                        <div class="result__desc">배우 · UNHCR 친선대사</div>
+                    </div>
+                    <button class="result__btn" onclick="toggleConnectBtn(this)">인맥</button>
+                </div>
+                <div class="result__item">
+                    <div class="result__avatar" onclick="location.href='./profile.html'">
+                        <img src="./assets/images/sample_avatar_4.png">
+                    </div>
+                    <div class="result__info" onclick="location.href='./profile.html'">
+                        <div class="result__name">Jennifer Lawrence</div>
+                        <div class="result__desc">배우 · 아카데미 수상</div>
+                    </div>
+                    <button class="result__btn" onclick="toggleConnectBtn(this)">인맥</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ▨ NOTE - 이곳까지가 공통이 아닌 이 페이지만의 내용 -->
+    </main>
+
+    <!-- ■ Footer -->
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+                    <div class="btn__text">홈</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+                    <div class="btn__text">메시지</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+                    <div class="btn__text">만들기</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<!-- ■□■□■ [SCRIPT] -->
+<script>
+    var tabs = ['all', 'people', 'video', 'tag'];
+
+    function switchTab(active) {
+        tabs.forEach(function(t) {
+            var el = document.getElementById('tab-' + t);
+            if (t === active) {
+                el.classList.add('tabs__item_active');
+            } else {
+                el.classList.remove('tabs__item_active');
+            }
+        });
+    }
+
+    function handleSearchInput(val) {
+        var clearBtn = document.getElementById('clearBtn');
+        var defaultView = document.getElementById('defaultView');
+        var resultView = document.getElementById('resultView');
+
+        if (val.length > 0) {
+            clearBtn.style.display = 'block';
+            defaultView.style.display = 'none';
+            resultView.style.display = 'block';
+        } else {
+            clearBtn.style.display = 'none';
+            defaultView.style.display = 'block';
+            resultView.style.display = 'none';
+        }
+    }
+
+    function clearSearch() {
+        var input = document.getElementById('searchInput');
+        input.value = '';
+        handleSearchInput('');
+        input.focus();
+    }
+
+    function fillSearch(keyword) {
+        var input = document.getElementById('searchInput');
+        input.value = keyword;
+        handleSearchInput(keyword);
+        input.focus();
+    }
+
+    // 인맥 신청 버튼 토글 (profile.html의 인맥 신청 버튼과 동일한 패턴)
+    function toggleConnectBtn(btn) {
+        if (btn.classList.contains('is_requested')) {
+            btn.classList.remove('is_requested');
+            btn.textContent = '인맥';
+        } else {
+            btn.classList.add('is_requested');
+            btn.textContent = '신청됨';
+        }
+    }
+</script>
+
+</body>
+</html>
+

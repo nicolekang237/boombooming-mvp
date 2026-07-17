@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Boombooming - 동영상 업로드</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Figma Fonts: JetBrains Mono (Labels/Buttons), Geist (Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Mobile Container mimicking the app frame (390x844 max width) -->
+  <div class="app-container">
+    
+    <!-- HEADER (Appears mainly in Step 3 or if needed) -->
+    <header class="header" id="header" style="display: none;">
+      <button class="btn-back" id="btn-back">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <h1 class="header-title">새 게시물 작성</h1>
+      <div style="width:24px"></div> <!-- Spacer for center alignment -->
+    </header>
+
+    <!-- STEP 1: VIDEO UPLOAD ZONE -->
+    <main id="step-1" class="step-container active">
+      <div class="scroll-content">
+        <!-- Section: Video Upload Zone -->
+        <section class="section">
+          <h2 class="section-label">MEDIA</h2>
+          
+          <div class="upload-box" id="drop-zone">
+            <svg class="upload-icon" width="33" height="24" viewBox="0 0 33 24" fill="currentColor">
+              <path d="M29 4h-8.59l-2-2H4.01C2.9 2 2.01 2.9 2.01 4L2 20c0 1.1.89 2 1.99 2H29c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H4V6h13.17l2 2H29v12zm-12-6h-4v4h-2v-4H7v-2h4V8h2v4h4v2z"/>
+            </svg>
+            <div class="upload-text-group">
+              <span class="upload-title">Select Video File</span>
+              <span class="upload-subtitle">MP4, MOV up to 1GB (Limit 60s)</span>
+            </div>
+            <!-- Hidden input -->
+            <input type="file" id="file-input" accept="video/mp4,video/quicktime" hidden>
+          </div>
+          
+          <button class="btn-secondary">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            Upload Custom Thumbnail
+          </button>
+        </section>
+      </div>
+
+      <!-- BOTTOM NAV BAR (Figma Style) -->
+      <nav class="bottom-nav" id="bottom-nav">
+        <button class="nav-item">
+          <svg width="16" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        </button>
+        <button class="nav-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+          <span class="nav-text">대화</span>
+        </button>
+        <button class="nav-item active">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          <span class="nav-text">업로드</span>
+          <span class="nav-badge">필수</span>
+        </button>
+        <button class="nav-item" onclick="location.href='../booming_index_growth.html';">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18.984 10.5359C19.0927 8.71406 18.6449 6.90222 17.7001 5.34074C16.7552 3.77925 15.358 2.54193 13.6937 1.79289C12.0294 1.04386 10.1767 0.818517 8.38136 1.14676C6.58603 1.475 4.93292 2.34131 3.64132 3.63078C2.34971 4.92024 1.48066 6.57192 1.14945 8.3667C0.818237 10.1615 1.04051 12.0146 1.78679 13.6801C2.53307 15.3456 3.76808 16.7449 5.32799 17.6924C6.88791 18.6398 8.69901 19.0906 10.521 18.9849M17 19.9999V13.9999M14 16.9999L17 13.9999L20 16.9999M7.00004 7.99991H7.01004M13 7.99991H13.01" transform="translate(3,3)"/><path d="M1 1C1.658 1.64 2.56 2 3.5 2C4.44 2 5.342 1.64 6 1" transform="translate(9.5,15)"/></svg>
+          <span class="nav-text">부밍지수</span>
+        </button>
+        <button class="nav-item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <span class="nav-text">My Suite</span>
+        </button>
+      </nav>
+    </main>
+
+
+    <!-- STEP 3: INFORMATION FORM (Zero-Wait UX) -->
+    <main id="step-3" class="step-container" style="display: none;">
+      <div class="scroll-content pad-bottom">
+        
+        <!-- v2.11 Logic: Video Preview + Soft Subtitles -->
+        <section class="section" id="section-preview">
+          <h2 class="section-label">PREVIEW</h2>
+          <div class="video-preview-box">
+            <video id="video-player" playsinline loop muted></video>
+            <div id="subtitle-overlay" class="subtitle-overlay"></div>
+            <!-- Progress Mock Box -->
+            <div id="progress-box" class="progress-box">
+              <span class="progress-text" id="progress-status">🚀 즉시 분석 중...</span>
+            </div>
+          </div>
+          
+          <div class="toggle-group">
+            <span class="toggle-label">AI 자막 표시</span>
+            <label class="switch">
+              <input type="checkbox" id="toggle-subtitles" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </section>
+
+        <!-- Figma Form: DETAILS -->
+        <section class="section">
+          <h2 class="section-label">DETAILS</h2>
+          
+          <div class="input-group">
+            <label class="input-label" style="display:none;">Video Title</label>
+            <input type="text" id="input-title" class="input-field skeleton" placeholder="Video Title" readonly>
+          </div>
+          
+          <div class="input-group">
+            <label class="input-label" style="display:none;">Description</label>
+            <textarea id="input-desc" class="input-field textarea skeleton" placeholder="Write a description..." readonly></textarea>
+          </div>
+
+          <div class="input-group">
+            <!-- Icon inside input simulated with padding in css -->
+            <input type="text" id="input-tags" class="input-field hashtag skeleton" placeholder="Add tags (comma separated)" readonly>
+          </div>
+        </section>
+
+        <!-- Figma Form: FEATURED AGENT -->
+        <section class="section">
+          <h2 class="section-label">FEATURED AGENT</h2>
+          <div class="agent-box">
+            <div class="agent-info">
+              <div class="agent-avatar"></div>
+              <div class="agent-text">
+                <span class="agent-name">Auto-Select</span>
+                <span class="agent-desc">No agent assigned</span>
+              </div>
+            </div>
+            <button class="btn-text">SELECT</button>
+          </div>
+        </section>
+
+        <!-- Figma Form: VISIBILITY -->
+        <section class="section">
+          <h2 class="section-label">VISIBILITY</h2>
+          <div class="visibility-group">
+            
+            <label class="radio-item">
+              <input type="radio" name="visibility" value="public" checked>
+              <div class="radio-custom"></div>
+              <div class="radio-text">
+                <span class="radio-title">Public</span>
+                <span class="radio-desc">Anyone can view</span>
+              </div>
+            </label>
+
+            <label class="radio-item">
+              <input type="radio" name="visibility" value="followers">
+              <div class="radio-custom"></div>
+              <div class="radio-text">
+                <span class="radio-title">Followers Only</span>
+                <span class="radio-desc">Only your followers</span>
+              </div>
+            </label>
+
+            <label class="radio-item">
+              <input type="radio" name="visibility" value="private">
+              <div class="radio-custom"></div>
+              <div class="radio-text">
+                <span class="radio-title">Private</span>
+                <span class="radio-desc">Only you</span>
+              </div>
+            </label>
+
+          </div>
+        </section>
+      </div>
+
+      <!-- Figma Form: BOTTOM ACTION -->
+      <footer class="footer-action" id="footer-action">
+        <button class="btn-primary" id="btn-publish" disabled>Publish Video</button>
+      </footer>
+    </main>
+
+  </div>
+
+  <script src="upload.js"></script>
+</body>
+</html>

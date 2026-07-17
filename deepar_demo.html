@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DeepAR 모바일 데모 테스트</title>
+    
+    <!-- DeepAR Web SDK 최신 버전 (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/deepar/js/deepar.js"></script>
+
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            overflow: hidden;
+            font-family: sans-serif;
+        }
+
+        /* 캔버스를 전체 화면으로 꽉 채웁니다 */
+        #deepar-canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* 로딩 텍스트 오버레이 */
+        #loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        /* 컨트롤 패널 */
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            z-index: 5;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            background-color: rgba(255, 59, 92, 0.9);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            cursor: pointer;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 로딩 화면 -->
+    <div id="loading-screen">
+        <h2 style="margin-bottom: 10px;">DeepAR 로딩 중...</h2>
+        <p style="font-size: 12px; color: #aaa;">(카메라 권한을 허용해 주세요)</p>
+    </div>
+
+    <!-- 카메라 화면이 렌더링될 캔버스 -->
+    <canvas id="deepar-canvas"></canvas>
+
+    <!-- 하단 효과 변경 버튼들 -->
+    <div class="controls">
+        <button class="btn" onclick="applyEffect(null)">초기화</button>
+        <button class="btn" onclick="applyEffect('https://cdn.jsdelivr.net/npm/deepar/effects/aviators')">선글라스</button>
+    </div>
+
+    <script>
+        // =========================================================
+        // [1] 발급받은 라이선스 키를 아래 따옴표 안에 붙여넣으세요!
+        // =========================================================
+        const YOUR_LICENSE_KEY = '52ada7e7491f142387835ccf2e1a3b6312be12259c0fe1e9a1f3db438ac379de35a4a8226a382351';
+
+        let deepAR = null;
+
+        async function initDeepAR() {
+            try {
+                // DeepAR 초기화
+                deepAR = await deepar.initialize({
+                    licenseKey: YOUR_LICENSE_KEY,
+                    canvas: document.getElementById('deepar-canvas')
+                });
+
+                // 초기화 성공 시 로딩 화면 숨기기
+                document.getElementById('loading-screen').style.display = 'none';
+
+                // 카메라 시작
+                await deepAR.startCamera();
+                console.log("DeepAR 시작 성공!");
+
+            } catch (error) {
+                console.error("DeepAR 초기화 실패:", error);
+                document.getElementById('loading-screen').innerHTML = 
+                    `<h3 style="color: #ff3b5c;">오류 발생!</h3>
+                     <p style="font-size: 12px; text-align: center; padding: 0 20px;">
+                        ${error.message}<br><br>
+                        라이선스 키가 정확한지, 그리고 접속한 도메인이 HTTPS인지 확인해주세요.
+                     </p>`;
+            }
+        }
+
+        // 효과 변경 함수
+        async function applyEffect(effectUrl) {
+            if (deepAR) {
+                await deepAR.switchEffect(effectUrl);
+            }
+        }
+
+        // 페이지 로드 완료 시 실행
+        window.addEventListener('load', initDeepAR);
+    </script>
+
+</body>
+</html>

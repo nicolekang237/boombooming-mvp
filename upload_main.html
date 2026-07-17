@@ -1,0 +1,1112 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <!-- DeepAR Web SDK (실제 카메라 + AR 효과 렌더링용) -->
+    <script src="https://cdn.jsdelivr.net/npm/deepar/js/deepar.js"></script>
+
+    <style>
+        /*
+        ▩ 업로드 메인 (갤러리 / 카메라 통합 화면)
+        ▩ 공통 레이아웃/헤더/푸터를 제외하고, 이 페이지에서만 쓰이는 스타일.
+        ▩ 하단 네비게이션은 카메라 뷰의 몰입감을 위해 숨김 처리(footer 없음).
+        */
+
+        .upload__header {
+            position: relative;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            height: 50px;
+            padding: 0 10px;
+        }
+
+        .upload__tabs {
+            position: relative;
+            z-index: 3;
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            padding: 8px 0 16px 0;
+        }
+
+        .upload__tab {
+            font-size: 15px;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 0.4);
+            padding-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .upload__tab_active {
+            color: #000000;
+            border-bottom: 3px solid var(--color-primary-pink);
+        }
+
+        /* 카메라 탭이 활성화된 동안 헤더/탭 영역을 어두운 배경에 맞는 색으로 전환 */
+        .upload__theme_dark .upload__tab {
+            color: rgba(255, 255, 255, 0.55);
+        }
+
+        .upload__theme_dark .upload__tab_active {
+            color: #ffffff;
+        }
+
+        .upload__panel {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .upload__panel_active {
+            display: block;
+        }
+
+        /* ■ 갤러리 */
+        #panel-gallery {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .upload__gallery_grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            align-content: start;
+            gap: 2px;
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            padding-bottom: 88px; /* FAB에 마지막 줄이 가리지 않도록 여백 확보 */
+        }
+
+        .upload__gallery_item {
+            position: relative;
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        /* 갤러리 칩(Chip) 필터 — 전체 / 동영상 / 사진 */
+        .upload__chip_container {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+        }
+
+        .upload__chip {
+            padding: 6px 16px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 0.5);
+            background-color: #f0f0f0;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .upload__chip.active {
+            color: #ffffff;
+            background-color: #000000;
+        }
+
+        /* ■ 영상 길이 제약 안내 (15초 ~ 3분) */
+        .upload__length_notice {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 16px 10px;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.45);
+        }
+
+        .upload__theme_dark .upload__camera_length_notice {
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        .upload__camera_length_notice {
+            position: absolute;
+            top: 46px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #ffffff;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+            z-index: 2;
+        }
+
+        /* 갤러리 다중 선택 하이라이트 */
+        .upload__gallery_item.selected {
+            border: 3px solid #000000;
+        }
+
+        /* 다중 선택 모드일 때 미선택 사진을 살짝 어둡게 — 선택 대상이 잘 보이도록 강조 */
+        .upload__gallery_grid.has_selection .upload__gallery_item[data-type="photo"]:not(.selected) img {
+            opacity: 0.4;
+        }
+
+        /* 갤러리 선택 뱃지 */
+        .upload__gallery_item .upload__gallery_badge {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 20px;
+            height: 20px;
+            background-color: #000000;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        /* 갤러리 하단 플로팅 버튼(FAB) */
+        .upload__fab {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            max-width: 335px;
+            height: 52px;
+            background-color: #000000;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease;
+        }
+        .upload__fab:active {
+            transform: translateX(-50%) scale(0.96);
+        }
+
+        .upload__gallery_item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.15s ease;
+        }
+
+        .upload__gallery_item .upload__gallery_duration {
+            position: absolute;
+            right: 4px;
+            bottom: 4px;
+            font-size: 10px;
+            color: #ffffff;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+
+        /* ■ 카메라 */
+        .upload__camera_preview {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .upload__camera_canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .upload__camera_status {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            font-size: 12px;
+            color: #ffffff;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 4px 10px;
+            border-radius: 12px;
+            z-index: 2;
+        }
+
+        .upload__record_btn.is_recording::after {
+            border-radius: 8px;
+            width: 26px;
+            height: 26px;
+            top: 17px;
+            left: 17px;
+            right: 17px;
+            bottom: 17px;
+        }
+
+        .upload__record_timer {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 108px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+            display: none;
+        }
+
+        .upload__record_timer.is_active {
+            display: block;
+        }
+
+        .upload__camera_tools {
+            position: absolute;
+            top: 16px;
+            right: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .upload__tool_btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .upload__tool_btn img {
+            width: 26px;
+            height: 26px;
+        }
+
+        .upload__tool_btn span {
+            font-size: 10px;
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+        }
+
+        .upload__record_row {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 28px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .upload__record_btn {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            border: 5px solid #ffffff;
+            background-color: transparent;
+            position: relative;
+        }
+
+        .upload__record_btn::after {
+            content: "";
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            right: 6px;
+            bottom: 6px;
+            border-radius: 50%;
+            background-color: var(--color-error);
+        }
+
+        /* ■ Effects 슬라이드업 시트 */
+        .upload__sheet_backdrop {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.4);
+            z-index: 4;
+        }
+
+        .upload__sheet_backdrop_open {
+            display: block;
+        }
+
+        .upload__sheet {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 5;
+            background-color: var(--color-gray-900);
+            border-radius: 16px 16px 0 0;
+            padding: 20px 20px 28px 20px;
+            transform: translateY(100%);
+            transition: transform 0.25s ease-out;
+        }
+
+        .upload__sheet_open {
+            transform: translateY(0);
+        }
+
+        .upload__sheet_title {
+            font-size: 14px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.55);
+            margin-bottom: 12px;
+        }
+
+        .upload__sheet_item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .upload__sheet_item:last-child {
+            border-bottom: none;
+        }
+
+        .upload__sheet_item img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .upload__sheet_item_label {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .upload__sheet_item_sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.55);
+            margin-top: 2px;
+        }
+
+        /* ■ 업로드 방식 선택 액션시트 (문서 C3 — 업로드 5종 통합 동선) */
+        .method__sheet_backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 400;
+        }
+
+        .method__sheet_backdrop.is_open {
+            display: block;
+        }
+
+        .method__sheet {
+            position: fixed;
+            left: 50%;
+            bottom: 0;
+            transform: translate(-50%, 100%);
+            width: 100%;
+            max-width: 430px;
+            z-index: 401;
+            background-color: #1e1e1e;
+            border-radius: 18px 18px 0 0;
+            padding: 10px 20px 28px;
+            transition: transform 0.25s ease-out;
+        }
+
+        .method__sheet.is_open {
+            transform: translate(-50%, 0);
+        }
+
+        .method__sheet_handle {
+            width: 36px;
+            height: 4px;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.2);
+            margin: 6px auto 16px;
+        }
+
+        .method__sheet_title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 16px;
+        }
+
+        .method__sheet_item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+        }
+
+        .method__sheet_item:last-of-type {
+            border-bottom: none;
+        }
+
+        .method__sheet_icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .method__sheet_item_title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .method__sheet_item_desc {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 2px;
+        }
+
+        .method__sheet_cancel {
+            margin-top: 14px;
+            text-align: center;
+            padding: 14px;
+            border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.08);
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ 업로드 메인 — 갤러리 / 카메라
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__container_type_basic" id="upload-container" style="background-color: #ffffff;">
+    <header class="header">
+        <div class="upload__header">
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img id="close-icon" src="./assets/images/icon_close_32dp_dark.svg" width="24" height="24">
+            </button>
+        </div>
+
+        <div class="upload__tabs">
+            <div class="upload__tab upload__tab_active" id="tab-gallery" onclick="showTab('gallery');">갤러리</div>
+            <div class="upload__tab" id="tab-camera" onclick="showTab('camera');">카메라</div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic" style="position: relative;">
+        <div class="main__content_wrapper" style="position: static; height: 100%;">
+
+            <!-- 갤러리 패널 -->
+            <div id="panel-gallery" class="upload__panel upload__panel_active">
+                <!-- 칩(Chip) 필터 — 전체 / 동영상 / 사진 -->
+                <div class="upload__chip_container">
+                    <div class="upload__chip active" data-chip="all" onclick="filterGallery('all', this);">전체</div>
+                    <div class="upload__chip" data-chip="video" onclick="filterGallery('video', this);">동영상</div>
+                    <div class="upload__chip" data-chip="photo" onclick="filterGallery('photo', this);">사진</div>
+                </div>
+
+                <div class="upload__length_notice">⏱ 15초 ~ 3분 길이의 영상만 업로드할 수 있어요</div>
+
+                <!-- 임시저장(Draft) 재개 배너 — 작성 중 이탈한 게시물이 있을 때만 노출 (문서 C2) -->
+                <div id="draft-resume-banner" style="display:none; align-items:center; gap:12px; margin:0 16px 12px; padding:12px 14px; border-radius:12px; background:#f3f4f6; cursor:pointer;" onclick="resumeDraft();">
+                    <img src="./assets/images/icon_edit_32dp.svg" width="20" height="20" style="flex-shrink:0;">
+                    <div style="flex:1; min-width:0;">
+                        <div style="font-size:13px; font-weight:700; color:#000;">임시저장된 게시물이 있어요</div>
+                        <div id="draft-resume-desc" style="font-size:12px; color:#888; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
+                    </div>
+                    <span style="font-size:12px; font-weight:700; color:var(--color-primary-pink);">이어쓰기</span>
+                    <button onclick="event.stopPropagation(); discardDraft();" style="background:none; border:none; padding:4px; flex-shrink:0;">
+                        <img src="./assets/images/icon_close_32dp.svg" width="14" height="14" style="opacity:0.4;">
+                    </button>
+                </div>
+
+                <div class="upload__gallery_grid" id="gallery-grid">
+                    <!-- 동영상 — 탭하면 바로 상세 입력 화면으로 이동 -->
+                    <div class="upload__gallery_item" data-type="video" onclick="handleGalleryClick(this, 'video', null, './assets/images/sample_myvideo_1.png');">
+                        <img src="./assets/images/sample_myvideo_1.png">
+                        <div class="upload__gallery_duration">0:32</div>
+                    </div>
+                    <div class="upload__gallery_item" data-type="video" onclick="handleGalleryClick(this, 'video', null, './assets/images/sample_myvideo_2.png');">
+                        <img src="./assets/images/sample_myvideo_2.png">
+                        <div class="upload__gallery_duration">1:04</div>
+                    </div>
+                    <div class="upload__gallery_item" data-type="video" onclick="handleGalleryClick(this, 'video', null, './assets/images/sample_myvideo_3.png');">
+                        <img src="./assets/images/sample_myvideo_3.png">
+                        <div class="upload__gallery_duration">0:18</div>
+                    </div>
+
+                    <!-- 사진 — 최대 MAX_PHOTO_SELECT장까지 다중 선택 후 '동영상 만들기'로 이동 -->
+                    <div class="upload__gallery_item" data-type="photo" data-id="img_4" onclick="handleGalleryClick(this, 'photo', 'img_4');">
+                        <img src="./assets/images/sample_myvideo_4.png">
+                        <div class="upload__gallery_badge" style="display:none;"></div>
+                    </div>
+                    <div class="upload__gallery_item" data-type="photo" data-id="img_5" onclick="handleGalleryClick(this, 'photo', 'img_5');">
+                        <img src="./assets/images/sample_myvideo_5.png">
+                        <div class="upload__gallery_badge" style="display:none;"></div>
+                    </div>
+                    <div class="upload__gallery_item" data-type="photo" data-id="img_6" onclick="handleGalleryClick(this, 'photo', 'img_6');">
+                        <img src="./assets/images/sample_myvideo_6.png">
+                        <div class="upload__gallery_badge" style="display:none;"></div>
+                    </div>
+                    <div class="upload__gallery_item" data-type="photo" data-id="img_7" onclick="handleGalleryClick(this, 'photo', 'img_7');">
+                        <img src="./assets/images/sample_myvideo_7.png">
+                        <div class="upload__gallery_badge" style="display:none;"></div>
+                    </div>
+                    <div class="upload__gallery_item" data-type="photo" data-id="img_8" onclick="handleGalleryClick(this, 'photo', 'img_8');">
+                        <img src="./assets/images/sample_myvideo_8.png">
+                        <div class="upload__gallery_badge" style="display:none;"></div>
+                    </div>
+                    <div class="upload__gallery_item" data-type="photo" data-id="img_9" onclick="handleGalleryClick(this, 'photo', 'img_9');">
+                        <img src="./assets/images/sample_myvideo_9.png">
+                        <div class="upload__gallery_badge" style="display:none;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 갤러리 하단 플로팅 버튼 (사진 1장 이상 선택 시 노출) -->
+            <div id="gallery-fab" class="upload__fab" style="display:none;" onclick="goToSlideshow();">선택완료</div>
+
+            <!-- 동영상 선택 시 — 업로드 방식 선택 액션시트 (그대로 사용 / 직접 자르기 / AI 하이라이트) -->
+            <div class="method__sheet_backdrop" id="methodSheetBackdrop" onclick="closeMethodSheet();"></div>
+            <div class="method__sheet" id="methodSheet">
+                <div class="method__sheet_handle"></div>
+                <div class="method__sheet_title">이 영상을 어떻게 사용할까요?</div>
+
+                <div class="method__sheet_item" onclick="chooseMethod('asis');">
+                    <div class="method__sheet_icon">🎬</div>
+                    <div>
+                        <div class="method__sheet_item_title">그대로 사용</div>
+                        <div class="method__sheet_item_desc">선택한 영상을 그대로 게시합니다.</div>
+                    </div>
+                </div>
+                <div class="method__sheet_item" onclick="chooseMethod('trim');">
+                    <div class="method__sheet_icon">✂️</div>
+                    <div>
+                        <div class="method__sheet_item_title">직접 구간 자르기</div>
+                        <div class="method__sheet_item_desc">원하는 구간만 잘라서 게시합니다.</div>
+                    </div>
+                </div>
+                <div class="method__sheet_item" onclick="chooseMethod('ai');">
+                    <div class="method__sheet_icon">✨</div>
+                    <div>
+                        <div class="method__sheet_item_title">AI 하이라이트 자동 추출</div>
+                        <div class="method__sheet_item_desc">긴 영상에서 AI가 핵심 구간(최대 90초)을 자동으로 뽑아줘요.</div>
+                    </div>
+                </div>
+
+                <div class="method__sheet_cancel" onclick="closeMethodSheet();">취소</div>
+            </div>
+
+            <!-- 카메라 패널 -->
+            <div id="panel-camera" class="upload__panel">
+                <div class="upload__camera_preview" style="background-image: url('./assets/images/sample_details_a.jpg');">
+                    <canvas id="deepar-canvas" class="upload__camera_canvas"></canvas>
+                    <video id="uploaded-video" style="display:none;" loop playsinline crossorigin="anonymous" muted></video>
+                    <input type="file" id="video-upload" accept="video/*" style="display:none;" onchange="handleVideoUpload(event);">
+                    <div id="camera-status" class="upload__camera_status">카메라 준비 중...</div>
+                    <div class="upload__camera_length_notice">⏱ 15초 ~ 3분 길이로 촬영해주세요</div>
+
+                    <div class="upload__camera_tools">
+                        <div class="upload__tool_btn" onclick="flipCamera();">
+                            <img src="./assets/images/icon_cached_32dp.svg">
+                            <span>전환</span>
+                        </div>
+                        <div class="upload__tool_btn" id="beauty-btn" onclick="toggleBeauty();">
+                            <img src="./assets/images/icon_star_32dp.svg">
+                            <span>Beauty</span>
+                        </div>
+                        <div class="upload__tool_btn" onclick="toggleEffects();">
+                            <img src="./assets/images/icon_instant_mix_32dp_white.svg">
+                            <span>Effects</span>
+                        </div>
+                    </div>
+
+                    <div id="record-timer" class="upload__record_timer">00:00</div>
+
+                    <div class="upload__record_row">
+                        <!-- 파일 업로드 버튼 -->
+                        <div onclick="document.getElementById('video-upload').click();" style="cursor:pointer; opacity:0.8; padding:10px;">
+                            <img src="./assets/images/icon_photo_library_32dp_bold.svg" width="32" onerror="this.src='./assets/images/icon_photo_camera_32dp.svg'">
+                        </div>
+                        <button id="record-btn" class="upload__record_btn" onclick="toggleRecording();"></button>
+                        <!-- 좌우 대칭을 위한 빈 공간(기존 UI 유지) -->
+                        <div style="width: 52px;"></div>
+                    </div>
+
+                    <!-- Effects 하위 메뉴: Filter / DeepAR / 기타 테스트 기능들 -->
+                    <div class="upload__sheet_backdrop" id="effects-backdrop" onclick="toggleEffects();"></div>
+                    <div class="upload__sheet" id="effects-sheet" style="max-height: 60vh; overflow-y: auto;">
+                        <div class="upload__sheet_title">기본 효과</div>
+                        <div class="upload__sheet_item" onclick="applyEffect('filter');">
+                            <img src="./assets/images/icon_instant_mix_32dp_white.svg">
+                            <div>
+                                <div class="upload__sheet_item_label">Filter (우주)</div>
+                                <div class="upload__sheet_item_sub">배경 분할 기반 필터</div>
+                            </div>
+                        </div>
+                        <div class="upload__sheet_item" onclick="applyEffect('deepar');">
+                            <img src="./assets/images/icon_photo_camera_32dp.svg">
+                            <div>
+                                <div class="upload__sheet_item_label">DeepAR (선글라스)</div>
+                                <div class="upload__sheet_item_sub">기본 선글라스 렌즈</div>
+                            </div>
+                        </div>
+                        
+                        <div class="upload__sheet_title" style="margin-top:20px;">추가 테스트 효과</div>
+                        <div class="upload__sheet_item" onclick="applyEffect('lion');">
+                            <img src="./assets/images/icon_star_32dp.svg">
+                            <div>
+                                <div class="upload__sheet_item_label">사자 (Lion)</div>
+                                <div class="upload__sheet_item_sub">3D 사자 얼굴 AR 마스크</div>
+                            </div>
+                        </div>
+                        <div class="upload__sheet_item" onclick="applyEffect('dalmatian');">
+                            <img src="./assets/images/icon_star_32dp.svg">
+                            <div>
+                                <div class="upload__sheet_item_label">달마시안 (Dalmatian)</div>
+                                <div class="upload__sheet_item_sub">강아지 귀와 코 AR 마스크</div>
+                            </div>
+                        </div>
+                        <div class="upload__sheet_item" onclick="applyEffect('koala');">
+                            <img src="./assets/images/icon_star_32dp.svg">
+                            <div>
+                                <div class="upload__sheet_item_label">코알라 (Koala)</div>
+                                <div class="upload__sheet_item_sub">코알라 얼굴 AR 마스크</div>
+                            </div>
+                        </div>
+                        <div class="upload__sheet_item" onclick="applyEffect('bg_replace');">
+                            <img src="./assets/images/icon_star_32dp.svg">
+                            <div>
+                                <div class="upload__sheet_item_label">배경 제거 (누끼)</div>
+                                <div class="upload__sheet_item_sub">인물 배경을 투명하게 날림</div>
+                            </div>
+                        </div>
+                        <div class="upload__sheet_item" onclick="applyEffect('none');">
+                            <img src="./assets/images/icon_close_32dp.svg">
+                            <div>
+                                <div class="upload__sheet_item_label" style="color:var(--color-primary-pink);">효과 끄기</div>
+                                <div class="upload__sheet_item_sub">카메라 원본 화면으로 복구</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- ■□■□■ [SCRIPT] 'Javascript' Area -->
+<script>
+    /* =========================================================================
+       임시저장(Draft) 재개 배너 (문서 C2 — 업로드 이탈 시 Draft)
+       ========================================================================= */
+    (function () {
+        try {
+            var draft = JSON.parse(localStorage.getItem('bbm_uploadDraft') || 'null');
+            if (!draft) return;
+            var banner = document.getElementById('draft-resume-banner');
+            var desc = document.getElementById('draft-resume-desc');
+            desc.textContent = draft.title ? draft.title : '제목 없는 게시물';
+            banner.style.display = 'flex';
+        } catch (err) { /* 무시 */ }
+    })();
+
+    function resumeDraft() {
+        location.href = './upload_details.html?mode=draft';
+    }
+
+    function discardDraft() {
+        if (!confirm('임시저장된 게시물을 삭제하시겠어요?')) return;
+        try { localStorage.removeItem('bbm_uploadDraft'); } catch (err) { /* 무시 */ }
+        document.getElementById('draft-resume-banner').style.display = 'none';
+    }
+
+    function showTab(tab) {
+        document.getElementById('tab-gallery').classList.toggle('upload__tab_active', tab === 'gallery');
+        document.getElementById('tab-camera').classList.toggle('upload__tab_active', tab === 'camera');
+        document.getElementById('panel-gallery').classList.toggle('upload__panel_active', tab === 'gallery');
+        document.getElementById('panel-camera').classList.toggle('upload__panel_active', tab === 'camera');
+
+        var isCamera = tab === 'camera';
+        var container = document.getElementById('upload-container');
+        container.classList.toggle('upload__theme_dark', isCamera);
+        container.style.backgroundColor = isCamera ? '#000000' : '#ffffff';
+        document.getElementById('close-icon').src = isCamera
+            ? './assets/images/icon_close_32dp.svg'
+            : './assets/images/icon_close_32dp_dark.svg';
+
+        // 카메라 탭을 처음 열 때만 DeepAR을 초기화합니다 (갤러리 탭에서는 카메라 권한을 요청하지 않음).
+        if (isCamera) initDeepAR();
+    }
+
+    function toggleEffects() {
+        document.getElementById('effects-sheet').classList.toggle('upload__sheet_open');
+        document.getElementById('effects-backdrop').classList.toggle('upload__sheet_backdrop_open');
+    }
+
+    // applyEffect 내부에서만 사용 — 항상 닫기 (토글이 아님)
+    function closeEffects() {
+        document.getElementById('effects-sheet').classList.remove('upload__sheet_open');
+        document.getElementById('effects-backdrop').classList.remove('upload__sheet_backdrop_open');
+    }
+
+    /* =========================================================================
+       갤러리 — 칩 필터 / 동영상·사진 통합 표시 / 사진 다중 선택
+       ========================================================================= */
+    // 사진 다중 선택 최대 장수. 추후 서버/관리자 설정값으로 바꿔치기하기 쉽도록 상수로 분리.
+    var MAX_PHOTO_SELECT = 5;
+
+    var selectedGalleryItems = [];
+
+    // 칩 클릭 시 동영상/사진 종류로 썸네일 필터링, 선택 상태는 초기화
+    function filterGallery(type, chipElem) {
+        document.querySelectorAll('.upload__chip').forEach(function (c) {
+            c.classList.remove('active');
+        });
+        chipElem.classList.add('active');
+
+        document.querySelectorAll('.upload__gallery_item').forEach(function (item) {
+            var show = (type === 'all' || item.getAttribute('data-type') === type);
+            item.style.display = show ? '' : 'none';
+        });
+
+        selectedGalleryItems = [];
+        updateGalleryUI();
+    }
+
+    // 동영상은 방식 선택 액션시트로, 사진은 다중 선택(최대 MAX_PHOTO_SELECT장) 후 '동영상 만들기'로 이동
+    function handleGalleryClick(elem, type, id, previewImg) {
+        if (type === 'video') {
+            try {
+                sessionStorage.setItem('uploadPreviewImage', previewImg || '');
+                sessionStorage.setItem('uploadSourceType', 'video');
+            } catch (err) { /* 세션 스토리지 사용 불가 시 무시 */ }
+            openMethodSheet();
+            return;
+        }
+
+        var index = selectedGalleryItems.indexOf(id);
+        if (index > -1) {
+            selectedGalleryItems.splice(index, 1);
+        } else {
+            if (selectedGalleryItems.length >= MAX_PHOTO_SELECT) {
+                alert('최대 ' + MAX_PHOTO_SELECT + '장까지만 선택할 수 있습니다.');
+                return;
+            }
+            selectedGalleryItems.push(id);
+        }
+        updateGalleryUI();
+    }
+
+    function updateGalleryUI() {
+        var grid = document.getElementById('gallery-grid');
+        grid.classList.toggle('has_selection', selectedGalleryItems.length > 0);
+
+        var items = document.querySelectorAll('.upload__gallery_item[data-type="photo"]');
+        items.forEach(function (item) {
+            var id = item.getAttribute('data-id');
+            var badge = item.querySelector('.upload__gallery_badge');
+            var index = selectedGalleryItems.indexOf(id);
+
+            if (index > -1) {
+                item.classList.add('selected');
+                if (badge) {
+                    badge.style.display = 'flex';
+                    badge.innerText = (index + 1);
+                }
+            } else {
+                item.classList.remove('selected');
+                if (badge) badge.style.display = 'none';
+            }
+        });
+
+        var fab = document.getElementById('gallery-fab');
+        if (selectedGalleryItems.length > 0) {
+            fab.style.display = 'flex';
+            fab.innerText = selectedGalleryItems.length + '장으로 만들기';
+        } else {
+            fab.style.display = 'none';
+        }
+    }
+
+    // 선택한 사진들을 다음 화면(동영상 만들기)에 전달
+    function goToSlideshow() {
+        sessionStorage.setItem('selectedGalleryItems', JSON.stringify(selectedGalleryItems));
+        sessionStorage.setItem('uploadSourceType', 'slideshow');
+        location.href = './upload_slideshow.html';
+    }
+
+    /* =========================================================================
+       업로드 방식 선택 (문서 C3 — 갤러리 ①그대로 ②수동trim ③AI하이라이트 통합 동선)
+       ========================================================================= */
+    function openMethodSheet() {
+        document.getElementById('methodSheetBackdrop').classList.add('is_open');
+        document.getElementById('methodSheet').classList.add('is_open');
+    }
+
+    function closeMethodSheet() {
+        document.getElementById('methodSheetBackdrop').classList.remove('is_open');
+        document.getElementById('methodSheet').classList.remove('is_open');
+    }
+
+    function chooseMethod(method) {
+        closeMethodSheet();
+        if (method === 'asis') {
+            location.href = './upload_details.html';
+        } else if (method === 'trim') {
+            location.href = './upload_trim.html';
+        } else if (method === 'ai') {
+            location.href = './upload_ai_highlight.html';
+        }
+    }
+
+    /* =========================================================================
+       DeepAR 연동
+       - 라이선스 키는 deepar.ai 대시보드에서 발급받은 것을 그대로 사용합니다.
+       - 실제 AR 마스크/필터(.deepar 이펙트 파일)는 DeepAR Studio에서 내보낸 뒤
+         ./assets/deepar-effects/ 폴더에 넣고 아래 EFFECT_PATHS 값만 바꿔주면 됩니다.
+         지금은 파일이 없어서 "효과 없음(카메라 그대로)"으로만 동작합니다.
+       ========================================================================= */
+    var DEEPAR_LICENSE_KEY = '18ec124f43962fc36aeb12ce1a31f3a727bc5e1a9ccfeeae67b78f5a01d0a8e8db4c45f7bbf7c9ae';
+
+    // 지금은 DeepAR SDK에 기본 번들된 무료 데모 이펙트를 사용합니다 (CDN에서 바로 로드, 파일 준비 불필요).
+    // 실제 브랜드 전용 이펙트가 준비되면 아래 경로만 ./assets/deepar-effects/*.deepar 로 교체하면 됩니다.
+    // DeepAR npm 패키지(v5.6.22)에 실제 존재하는 이펙트 파일만 사용
+    var EFFECT_PATHS = {
+        none: null,
+        filter: 'https://cdn.jsdelivr.net/npm/deepar/effects/galaxy_background',
+        deepar: 'https://cdn.jsdelivr.net/npm/deepar/effects/aviators',
+        beauty: 'https://cdn.jsdelivr.net/npm/deepar/effects/background_blur.deepar',
+        lion: 'https://cdn.jsdelivr.net/npm/deepar/effects/lion',
+        dalmatian: 'https://cdn.jsdelivr.net/npm/deepar/effects/dalmatian',
+        koala: 'https://cdn.jsdelivr.net/npm/deepar/effects/koala',
+        bg_replace: 'https://cdn.jsdelivr.net/npm/deepar/effects/background_replacement.deepar'
+    };
+
+    var deepAR = null;
+    var deepARStarted = false;
+    var beautyOn = false;
+    var currentCameraFacing = 'user';
+    var mediaRecorder = null;
+    var recordedChunks = [];
+    var recordTimerHandle = null;
+    var recordSeconds = 0;
+
+    function setStatus(text) {
+        var el = document.getElementById('camera-status');
+        if (!el) return;
+        el.textContent = text;
+        // 상태 메시지가 있을 때 눈에 잘 띄도록 스타일 강조
+        el.style.fontSize = text ? '13px' : '12px';
+        el.style.backgroundColor = text ? 'rgba(255,70,70,0.85)' : 'rgba(0,0,0,0.5)';
+    }
+
+    // 캔버스의 실제 해상도(width/height 속성)를 미리보기 박스 크기에 맞춰줍니다.
+    // 이 속성을 지정하지 않으면 캔버스가 HTML 기본값(300x150)으로 그려진 뒤
+    // CSS로 억지로 늘어나면서 화면이 찌그러져 보이게 됩니다.
+    function fitCanvasToContainer() {
+        var canvas = document.getElementById('deepar-canvas');
+        var container = document.querySelector('.upload__camera_preview');
+        var rect = container.getBoundingClientRect();
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(rect.width * dpr);
+        canvas.height = Math.round(rect.height * dpr);
+        if (deepAR && typeof deepAR.resize === 'function') deepAR.resize();
+    }
+
+    async function initDeepAR() {
+        if (deepARStarted) return;
+        deepARStarted = true;
+
+        if (typeof deepar === 'undefined') {
+            setStatus('DeepAR SDK 로드 실패 (네트워크 확인)');
+            return;
+        }
+
+        try {
+            setStatus('카메라 권한 요청 중...');
+            fitCanvasToContainer();
+            deepAR = await deepar.initialize({
+                licenseKey: DEEPAR_LICENSE_KEY,
+                canvas: document.getElementById('deepar-canvas'),
+                effect: EFFECT_PATHS.none,
+                cameraConfig: { facingMode: currentCameraFacing },
+            });
+            document.querySelector('.upload__camera_preview').style.backgroundImage = 'none';
+            window.debugDeepAR = deepAR; // 콘솔에서 window.debugDeepAR 으로 직접 접근 가능
+            setStatus('LIVE');
+            setTimeout(function () { setStatus(''); }, 1200);
+            window.addEventListener('resize', fitCanvasToContainer);
+            window.addEventListener('orientationchange', function () {
+                setTimeout(fitCanvasToContainer, 300);
+            });
+        } catch (err) {
+            console.error('DeepAR init failed:', err);
+            setStatus('카메라를 사용할 수 없습니다 (권한 거부 또는 HTTPS 필요)');
+        }
+    }
+
+    async function flipCamera() {
+        if (!deepAR) return;
+        currentCameraFacing = currentCameraFacing === 'user' ? 'environment' : 'user';
+        try {
+            // DeepAR SDK 버전에 따라 startCamera / setCameraConfig 등 메서드명이 다를 수 있습니다.
+            // 아래는 재초기화 방식의 안전한 폴백입니다.
+            if (typeof deepAR.startCamera === 'function') {
+                await deepAR.startCamera({ facingMode: currentCameraFacing });
+            } else {
+                deepARStarted = false;
+                await initDeepAR();
+            }
+        } catch (err) {
+            console.error('flipCamera failed:', err);
+        }
+    }
+
+    async function handleVideoUpload(event) {
+        var file = event.target.files[0];
+        if (!file) return;
+
+        var videoUrl = URL.createObjectURL(file);
+        var videoEl = document.getElementById('uploaded-video');
+        videoEl.src = videoUrl;
+
+        setStatus('영상 로드 중...');
+        
+        videoEl.onloadedmetadata = async function() {
+            try {
+                await videoEl.play();
+                if (!deepAR) return;
+
+                // 실시간 카메라 중지
+                if (typeof deepAR.stopCamera === 'function') {
+                    deepAR.stopCamera();
+                }
+                
+                // DeepAR에 비디오 소스 연결
+                if (typeof deepAR.setVideoElement === 'function') {
+                    deepAR.setVideoElement(videoEl, true);
+                    setStatus('✅ 영상 재생 중 (필터 적용 가능)');
+                } else {
+                    setStatus('⚠ 버전 미지원 (setVideoElement 없음)');
+                }
+            } catch (err) {
+                console.error('Video upload error:', err);
+                setStatus('❌ 재생 오류');
+            }
+        };
+    }
+
+    function toggleBeauty() {
+        beautyOn = !beautyOn;
+        document.getElementById('beauty-btn').style.opacity = beautyOn ? '1' : '0.6';
+        applyEffect(beautyOn ? 'beauty' : 'none');
+    }
+
+    async function applyEffect(key) {
+        // deepAR 초기화 여부 먼저 확인
+        if (!deepAR) {
+            setStatus('⚠ deepAR 없음 — 카메라 탭 닫고 다시 열기');
+            closeEffects(); // 혼동 없이 시트만 닫기
+            return;
+        }
+        closeEffects(); // 항상 닫기 (토글 아님)
+
+        var path = EFFECT_PATHS[key];
+        console.log('[DeepAR] applyEffect key=', key, ' | deepAR=', !!deepAR, ' | path=', path);
+        setStatus('⏳ 로딩: ' + key);
+
+        try {
+            if (path) {
+                await deepAR.switchEffect(path);
+                setStatus('✅ 적용됨: ' + key); // 자동으로 사라지지 않음 — 사용자가 확인 가능
+            } else {
+                await deepAR.clearEffect();
+                setStatus('');
+            }
+        } catch (err) {
+            console.error('[DeepAR] switchEffect 오류:', key, err);
+            // 에러 내용 전체를 화면에 표시 (자동 사라짐 없음)
+            setStatus('❌ ' + (err.message || String(err)));
+        }
+    }
+
+    function toggleRecording() {
+        var btn = document.getElementById('record-btn');
+        var timer = document.getElementById('record-timer');
+
+        if (!mediaRecorder || mediaRecorder.state !== 'recording') {
+            // 녹화 시작
+            var canvas = document.getElementById('deepar-canvas');
+            var stream = canvas.captureStream ? canvas.captureStream(30) : null;
+            if (!stream) {
+                alert('이 브라우저는 캔버스 녹화(captureStream)를 지원하지 않습니다.');
+                return;
+            }
+            recordedChunks = [];
+            try {
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+            } catch (err) {
+                mediaRecorder = new MediaRecorder(stream);
+            }
+            mediaRecorder.ondataavailable = function (e) {
+                if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+            };
+            mediaRecorder.onstop = function () {
+                var blob = new Blob(recordedChunks, { type: 'video/webm' });
+                try {
+                    sessionStorage.setItem('lastRecordingUrl', URL.createObjectURL(blob));
+                    sessionStorage.setItem('uploadSourceType', 'camera');
+                    // 녹화 종료 시점의 캔버스 화면을 썸네일로 캡처해 상세 화면 미리보기에 사용
+                    sessionStorage.setItem('uploadPreviewImage', canvas.toDataURL('image/jpeg', 0.8));
+                } catch (err) { /* sessionStorage 사용 불가 시 무시 */ }
+                location.href = './upload_details.html';
+            };
+            mediaRecorder.start();
+
+            btn.classList.add('is_recording');
+            recordSeconds = 0;
+            timer.classList.add('is_active');
+            timer.textContent = '00:00';
+            recordTimerHandle = setInterval(function () {
+                recordSeconds++;
+                var m = String(Math.floor(recordSeconds / 60)).padStart(2, '0');
+                var s = String(recordSeconds % 60).padStart(2, '0');
+                timer.textContent = m + ':' + s;
+            }, 1000);
+        } else {
+            // 녹화 종료 → onstop에서 upload_details.html로 이동
+            mediaRecorder.stop();
+            btn.classList.remove('is_recording');
+            timer.classList.remove('is_active');
+            clearInterval(recordTimerHandle);
+        }
+    }
+</script>
+
+</body>
+</html>
+

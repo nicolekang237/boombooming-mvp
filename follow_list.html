@@ -1,0 +1,368 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>팔로워 / 팔로잉 — BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/main.css">
+
+    <style>
+        /*
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+        ▩ Follow List — 팔로워/팔로잉 페이지
+
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        */
+
+        /* ■ 탭 스위처
+        ---------------------------------------------------------------------- */
+        .tabs__switcher {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .tabs__item {
+            flex: 1;
+            padding: 13px 0;
+            text-align: center;
+            font-size: 14px;
+            color: #777;
+            cursor: pointer;
+        }
+
+        .tabs__item_active {
+            font-weight: 700;
+            color: var(--color-primary-pink);
+            border-bottom: 2px solid var(--color-primary-pink);
+            margin-bottom: -1px;
+        }
+
+        /* ■ 검색창
+        ---------------------------------------------------------------------- */
+        .follow__search {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: calc(100% - 32px);
+            height: 40px;
+            margin: 12px 16px;
+            padding: 0 14px;
+            border-radius: 100px;
+            background-color: rgba(255, 255, 255, 0.07);
+            box-sizing: border-box;
+        }
+
+        .follow__search input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: var(--color-text-primary);
+        }
+
+        .follow__search input::placeholder {
+            color: #666;
+        }
+
+        /* ■ 리스트 아이템
+        ---------------------------------------------------------------------- */
+        .follow__item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .follow__item:active {
+            background-color: rgba(255, 255, 255, 0.04);
+        }
+
+        .follow__avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .follow__avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .follow__info {
+            flex: 1;
+            min-width: 0; /* for truncation */
+        }
+
+        .follow__name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .follow__desc {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ■ 버튼
+        ---------------------------------------------------------------------- */
+        .follow__btn {
+            padding: 7px 16px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .btn__outline {
+            background: transparent;
+            border: 1px solid var(--color-primary-pink);
+            color: var(--color-primary-pink);
+        }
+
+        .btn__following {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid transparent;
+            color: #aaaaaa;
+        }
+
+        /* 뷰 토글용 */
+        .view-content {
+            display: none;
+        }
+        .view-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app__container app__bg_dark app__container_type_basic">
+
+    <!-- ■ Header -->
+    <header class="header header__bg_green header__type_basic">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+            </button>
+            <div class="title__main">
+                <span class="title__main_text">팔로워 / 팔로잉</span>
+            </div>
+            <div class="iconbox__topbar">
+                <!-- placeholder -->
+            </div>
+        </div>
+    </header>
+
+    <!-- ■ Body -->
+    <main class="main__container main__container_type_basic">
+
+        <!-- ▣ 탭 스위처 -->
+        <div class="tabs__switcher">
+            <div class="tabs__item tabs__item_active" id="tab-follower" onclick="switchTab('follower')">팔로워 (1.2k)</div>
+            <div class="tabs__item" id="tab-following" onclick="switchTab('following')">팔로잉 (254)</div>
+        </div>
+
+        <!-- ▣ 검색창 -->
+        <div class="follow__search">
+            <img src="./assets/images/icon_search_32dp.svg" width="20" height="20" style="opacity:0.4;">
+            <input type="text" placeholder="검색">
+        </div>
+
+        <!-- ▣ 팔로워 목록 뷰 -->
+        <div id="follower-view" class="view-content active">
+            
+            <div class="follow__item">
+                <div class="follow__avatar" onclick="location.href='./profile.html'">
+                    <img src="./assets/images/sample_avatar_rina.png">
+                </div>
+                <div class="follow__info" onclick="location.href='./profile.html'">
+                    <div class="follow__name">리나강 (Rina Kang)</div>
+                    <div class="follow__desc">Content Creator</div>
+                </div>
+                <button class="follow__btn btn__outline" onclick="toggleFollow(this, true)">맞팔로우</button>
+            </div>
+
+            <div class="follow__item">
+                <div class="follow__avatar" onclick="location.href='./profile.html'">
+                    <img src="./assets/images/sample_avatar_2.png">
+                </div>
+                <div class="follow__info" onclick="location.href='./profile.html'">
+                    <div class="follow__name">Elon Musk</div>
+                    <div class="follow__desc">CEO, Tesla</div>
+                </div>
+                <button class="follow__btn btn__outline" onclick="toggleFollow(this, true)">맞팔로우</button>
+            </div>
+
+            <div class="follow__item">
+                <div class="follow__avatar" onclick="location.href='./profile.html'">
+                    <img src="./assets/images/sample_avatar_3.png">
+                </div>
+                <div class="follow__info" onclick="location.href='./profile.html'">
+                    <div class="follow__name">Angelina Jolie</div>
+                    <div class="follow__desc">배우, UNHCR 친선대사</div>
+                </div>
+                <button class="follow__btn btn__outline" onclick="toggleFollow(this, true)">맞팔로우</button>
+            </div>
+
+            <div class="follow__item">
+                <div class="follow__avatar" onclick="location.href='./profile.html'">
+                    <img src="./assets/images/sample_avatar_4.png">
+                </div>
+                <div class="follow__info" onclick="location.href='./profile.html'">
+                    <div class="follow__name">Jennifer Lawrence</div>
+                    <div class="follow__desc">배우</div>
+                </div>
+                <button class="follow__btn btn__following" onclick="toggleFollow(this, false)">팔로잉</button>
+            </div>
+
+            <div class="follow__item">
+                <div class="follow__avatar" onclick="location.href='./profile.html'">
+                    <img src="./assets/images/sample_avatar_5.png">
+                </div>
+                <div class="follow__info" onclick="location.href='./profile.html'">
+                    <div class="follow__name">Billie Eilish</div>
+                    <div class="follow__desc">Singer</div>
+                </div>
+                <button class="follow__btn btn__following" onclick="toggleFollow(this, false)">팔로잉</button>
+            </div>
+
+        </div>
+
+        <!-- ▣ 팔로잉 목록 뷰 -->
+        <div id="following-view" class="view-content">
+
+            <div class="follow__item">
+                <div class="follow__avatar" onclick="location.href='./profile.html'">
+                    <img src="./assets/images/sample_avatar_4.png">
+                </div>
+                <div class="follow__info" onclick="location.href='./profile.html'">
+                    <div class="follow__name">Jennifer Lawrence</div>
+                    <div class="follow__desc">배우</div>
+                </div>
+                <button class="follow__btn btn__following" onclick="toggleFollow(this, false)">팔로잉</button>
+            </div>
+
+            <div class="follow__item">
+                <div class="follow__avatar" onclick="location.href='./profile.html'">
+                    <img src="./assets/images/sample_avatar_5.png">
+                </div>
+                <div class="follow__info" onclick="location.href='./profile.html'">
+                    <div class="follow__name">Billie Eilish</div>
+                    <div class="follow__desc">Singer</div>
+                </div>
+                <button class="follow__btn btn__following" onclick="toggleFollow(this, false)">팔로잉</button>
+            </div>
+
+            <div class="follow__item">
+                <div class="follow__avatar" onclick="location.href='./profile.html'">
+                    <img src="./assets/images/sample_avatar_rina.png">
+                </div>
+                <div class="follow__info" onclick="location.href='./profile.html'">
+                    <div class="follow__name">리나강 (Rina Kang)</div>
+                    <div class="follow__desc">Content Creator</div>
+                </div>
+                <button class="follow__btn btn__following" onclick="toggleFollow(this, false)">팔로잉</button>
+            </div>
+
+            <div class="follow__item">
+                <div class="follow__avatar" onclick="location.href='./profile.html'">
+                    <img src="./assets/images/sample_avatar_2.png">
+                </div>
+                <div class="follow__info" onclick="location.href='./profile.html'">
+                    <div class="follow__name">Elon Musk</div>
+                    <div class="follow__desc">CEO, Tesla</div>
+                </div>
+                <button class="follow__btn btn__following" onclick="toggleFollow(this, false)">팔로잉</button>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- ■ Footer -->
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+                    <div class="btn__text">홈</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+                    <div class="btn__text">메시지</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+                    <div class="btn__text">만들기</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+                    <div class="btn__text" style="color: var(--color-primary-pink);">마이 스위트</div>
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<script>
+    function switchTab(tabId) {
+        // 탭 스타일
+        document.getElementById('tab-follower').classList.remove('tabs__item_active');
+        document.getElementById('tab-following').classList.remove('tabs__item_active');
+        document.getElementById('tab-' + tabId).classList.add('tabs__item_active');
+
+        // 컨텐츠 뷰
+        document.getElementById('follower-view').classList.remove('active');
+        document.getElementById('following-view').classList.remove('active');
+        document.getElementById(tabId + '-view').classList.add('active');
+    }
+
+    function toggleFollow(btn, isFollowerTab) {
+        if (btn.classList.contains('btn__following')) {
+            // 언팔로우 (팔로잉 -> 맞팔로우/팔로우)
+            btn.classList.remove('btn__following');
+            btn.classList.add('btn__outline');
+            btn.innerText = isFollowerTab ? '맞팔로우' : '팔로우';
+        } else {
+            // 팔로우하기 (맞팔로우/팔로우 -> 팔로잉)
+            btn.classList.remove('btn__outline');
+            btn.classList.add('btn__following');
+            btn.innerText = '팔로잉';
+        }
+    }
+</script>
+
+</body>
+</html>
+

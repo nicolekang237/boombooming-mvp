@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>결제 수단 - BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/main.css">
+
+    <style>
+        /*
+        ▩ 결제 수단 관리 — rina_payment.html "결제 내역 관리" 하위 화면
+        */
+        .pm__section {
+            padding: 0 18px 24px;
+        }
+
+        .pm__card_item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background-color: var(--color-bg-dark-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 16px;
+            margin-top: 12px;
+        }
+
+        .pm__card_icon {
+            width: 42px;
+            height: 30px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #2d3a4f, #1a2333);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .pm__card_info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .pm__card_number {
+            font-size: 14px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .pm__card_default {
+            display: inline-block;
+            margin-left: 6px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(255, 61, 113, 0.18);
+            color: var(--color-primary-pink-active);
+            font-size: 10.5px;
+            font-weight: 700;
+            vertical-align: middle;
+        }
+
+        .pm__card_expiry {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 2px;
+        }
+
+        .pm__card_more {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            padding: 4px 8px;
+            flex-shrink: 0;
+        }
+
+        .pm__add_btn {
+            width: 100%;
+            padding: 15px;
+            border-radius: 14px;
+            border: 1px dashed rgba(255, 255, 255, 0.25);
+            background: transparent;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 18px;
+        }
+
+        /* ■ 더보기 액션시트 */
+        .more__sheet_backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.45);
+            z-index: 220;
+        }
+
+        .more__sheet_backdrop.is_open {
+            display: block;
+        }
+
+        .more__sheet {
+            position: fixed;
+            left: 50%;
+            bottom: 0;
+            transform: translate(-50%, 100%);
+            width: 100%;
+            max-width: 430px;
+            z-index: 221;
+            background-color: #1e1e1e;
+            border-radius: 16px 16px 0 0;
+            padding: 10px 16px 28px;
+            transition: transform 0.25s ease-out;
+        }
+
+        .more__sheet.is_open {
+            transform: translate(-50%, 0);
+        }
+
+        .more__sheet_handle {
+            width: 36px;
+            height: 4px;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.2);
+            margin: 6px auto 14px;
+        }
+
+        .more__sheet_item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 14px 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+        }
+
+        .more__sheet_item:last-of-type {
+            border-bottom: none;
+        }
+
+        .more__sheet_item_title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .more__sheet_item.is_danger .more__sheet_item_title {
+            color: var(--color-error);
+        }
+
+        .more__sheet_cancel {
+            margin-top: 12px;
+            text-align: center;
+            padding: 14px;
+            border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.08);
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        /* ■ 카드 추가 폼 시트 */
+        .add__sheet_backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 230;
+        }
+
+        .add__sheet_backdrop.is_open {
+            display: block;
+        }
+
+        .add__sheet {
+            position: fixed;
+            left: 50%;
+            bottom: 0;
+            transform: translate(-50%, 100%);
+            width: 100%;
+            max-width: 430px;
+            z-index: 231;
+            background-color: #1e1e1e;
+            border-radius: 16px 16px 0 0;
+            padding: 20px 20px 28px;
+            transition: transform 0.25s ease-out;
+        }
+
+        .add__sheet.is_open {
+            transform: translate(-50%, 0);
+        }
+
+        .add__sheet_title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 16px;
+        }
+
+        .add__sheet_input {
+            width: 100%;
+            padding: 13px 14px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #eee;
+            font-size: 14px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        .add__sheet_row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .add__sheet_submit {
+            width: 100%;
+            padding: 15px;
+            border-radius: 100px;
+            border: none;
+            background-color: var(--color-primary-pink-active);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app__container app__bg_dark app__container_type_basic">
+    <header class="header header__type_basic" style="background-color: #0a0a0a;">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="24" height="24">
+            </button>
+            <div class="title__main" style="font-size: 16px;">결제 수단</div>
+            <div class="iconbox__topbar" style="width: 40px;"></div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic" style="background-color: #0a0a0a;">
+        <div class="main__content_wrapper">
+            <div class="pm__section" id="pmList">
+
+                <div class="pm__card_item">
+                    <div class="pm__card_icon">💳</div>
+                    <div class="pm__card_info">
+                        <div class="pm__card_number">신한카드 **** 1234<span class="pm__card_default">기본</span></div>
+                        <div class="pm__card_expiry">유효기간 09/28</div>
+                    </div>
+                    <div class="pm__card_more" onclick="openMoreSheet('신한카드 **** 1234', true);">⋮</div>
+                </div>
+
+                <div class="pm__card_item">
+                    <div class="pm__card_icon">💳</div>
+                    <div class="pm__card_info">
+                        <div class="pm__card_number">국민카드 **** 5678</div>
+                        <div class="pm__card_expiry">유효기간 11/27</div>
+                    </div>
+                    <div class="pm__card_more" onclick="openMoreSheet('국민카드 **** 5678', false);">⋮</div>
+                </div>
+
+                <button class="pm__add_btn" onclick="openAddSheet();">+ 결제 수단 추가</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- ▣ 카드별 더보기 액션시트 -->
+    <div class="more__sheet_backdrop" id="moreSheetBackdrop" onclick="closeMoreSheet();"></div>
+    <div class="more__sheet" id="moreSheet">
+        <div class="more__sheet_handle"></div>
+        <div class="more__sheet_item" id="moreSheetDefaultItem" onclick="setAsDefault();">
+            <div class="more__sheet_item_title">기본 결제수단으로 설정</div>
+        </div>
+        <div class="more__sheet_item is_danger" onclick="removeCard();">
+            <div class="more__sheet_item_title">삭제하기</div>
+        </div>
+        <div class="more__sheet_cancel" onclick="closeMoreSheet();">취소</div>
+    </div>
+
+    <!-- ▣ 결제 수단 추가 시트 -->
+    <div class="add__sheet_backdrop" id="addSheetBackdrop" onclick="closeAddSheet();"></div>
+    <div class="add__sheet" id="addSheet">
+        <div class="add__sheet_title">결제 수단 추가</div>
+        <input class="add__sheet_input" type="text" inputmode="numeric" placeholder="카드 번호 (숫자만 입력)" maxlength="19">
+        <div class="add__sheet_row">
+            <input class="add__sheet_input" type="text" inputmode="numeric" placeholder="MM/YY" maxlength="5" style="flex:1;">
+            <input class="add__sheet_input" type="password" inputmode="numeric" placeholder="CVC" maxlength="3" style="flex:1;">
+        </div>
+        <button class="add__sheet_submit" onclick="submitAddCard();">카드 등록</button>
+    </div>
+</div>
+
+<script>
+    var activeCardLabel = null;
+
+    function openMoreSheet(cardLabel, isDefault) {
+        activeCardLabel = cardLabel;
+        document.getElementById('moreSheetDefaultItem').style.display = isDefault ? 'none' : 'flex';
+        document.getElementById('moreSheetBackdrop').classList.add('is_open');
+        document.getElementById('moreSheet').classList.add('is_open');
+    }
+
+    function closeMoreSheet() {
+        document.getElementById('moreSheetBackdrop').classList.remove('is_open');
+        document.getElementById('moreSheet').classList.remove('is_open');
+    }
+
+    function setAsDefault() {
+        closeMoreSheet();
+        alert(activeCardLabel + '(을)를 기본 결제수단으로 설정했습니다.');
+    }
+
+    function removeCard() {
+        var label = activeCardLabel;
+        closeMoreSheet();
+        if (!confirm(label + '을(를) 삭제하시겠어요?')) return;
+        alert('결제 수단이 삭제되었습니다.');
+    }
+
+    function openAddSheet() {
+        document.getElementById('addSheetBackdrop').classList.add('is_open');
+        document.getElementById('addSheet').classList.add('is_open');
+    }
+
+    function closeAddSheet() {
+        document.getElementById('addSheetBackdrop').classList.remove('is_open');
+        document.getElementById('addSheet').classList.remove('is_open');
+    }
+
+    function submitAddCard() {
+        var inputs = document.querySelectorAll('.add__sheet_input');
+        var cardNumber = inputs[0].value.trim();
+        if (!cardNumber) {
+            alert('카드 번호를 입력해주세요.');
+            return;
+        }
+        closeAddSheet();
+        alert('결제 수단이 등록되었습니다.');
+        inputs.forEach(function (i) { i.value = ''; });
+    }
+</script>
+
+</body>
+</html>

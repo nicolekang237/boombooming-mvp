@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>언어 설정 - BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/main.css">
+
+    <style>
+        .lang__list {
+            padding: 8px 16px;
+        }
+
+        .lang__item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+        }
+
+        .lang__label_row {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lang__name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .lang__native {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 2px;
+        }
+
+        .lang__check {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lang__item.is_selected .lang__check {
+            border-color: var(--color-primary-pink-active);
+            background: var(--color-primary-pink-active);
+        }
+
+        .lang__check_dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #fff;
+            display: none;
+        }
+
+        .lang__item.is_selected .lang__check_dot {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app__container app__bg_dark app__container_type_basic">
+    <header class="header header__bg_red header__type_basic">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+            </button>
+            <div class="title__main"><span class="title__main_name">언어 설정</span></div>
+            <div class="iconbox__topbar" style="visibility:hidden;"><button class="btn btn__size_medium"></button></div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic">
+        <div class="lang__list" id="langList">
+            <div class="lang__item is_selected" onclick="selectLanguage(this);">
+                <div class="lang__label_row">
+                    <div class="lang__name">한국어</div>
+                    <div class="lang__native">Korean</div>
+                </div>
+                <div class="lang__check"><div class="lang__check_dot"></div></div>
+            </div>
+            <div class="lang__item" onclick="selectLanguage(this);">
+                <div class="lang__label_row">
+                    <div class="lang__name">English</div>
+                    <div class="lang__native">영어</div>
+                </div>
+                <div class="lang__check"><div class="lang__check_dot"></div></div>
+            </div>
+            <div class="lang__item" onclick="selectLanguage(this);">
+                <div class="lang__label_row">
+                    <div class="lang__name">日本語</div>
+                    <div class="lang__native">일본어</div>
+                </div>
+                <div class="lang__check"><div class="lang__check_dot"></div></div>
+            </div>
+            <div class="lang__item" onclick="selectLanguage(this);">
+                <div class="lang__label_row">
+                    <div class="lang__name">中文</div>
+                    <div class="lang__native">중국어</div>
+                </div>
+                <div class="lang__check"><div class="lang__check_dot"></div></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    function selectLanguage(item) {
+        document.querySelectorAll('.lang__item').forEach(function (el) {
+            el.classList.remove('is_selected');
+        });
+        item.classList.add('is_selected');
+        try { localStorage.setItem('bbm_language', item.querySelector('.lang__name').textContent); } catch (e) { /* 무시 */ }
+        setTimeout(function () { history.back(); }, 250);
+    }
+</script>
+
+</body>
+</html>

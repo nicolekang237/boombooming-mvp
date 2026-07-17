@@ -1,0 +1,237 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        /*
+        ▩ 채팅 목록 — 신규 가입자 (대화상대 없음) 빈 상태
+        ▩ 공통으로 쓰이는 레이아웃, 헤더, 푸터 등을 제외하고 오직 이 페이지에서만 쓰이는 스타일은 이곳에만 기재.
+        */
+
+        /* ■ 리나 강 인사 히어로 — 새 인맥들 + 큰 상반신 사진 + 말풍선
+           chat_first_match.html과 동일한 구조/높이를 사용해서 두 화면의 히어로 카드
+           높이가 항상 같은 상태로 유지됨. */
+        .chat__rina_hero { /* 2026-07-07 사장님 지시 6a: 원래 채팅 리스트처럼 검정 바탕 + 얇은 사각 프레임 */
+            position: relative;
+            margin: 14px;
+            /* chat_first_match.html은 아바타 줄 아래 무료 질문 안내가 한 줄 더 있어서
+               그만큼 padding-bottom을 줄였음. 여기는 그 줄이 없는 대신 padding을 늘려서
+               두 히어로 카드의 전체 높이(170px)를 동일하게 맞춤. */
+            padding: 16px 20px 34px 20px;
+            background-color: #000000;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        /* 얼굴 위주로 크게, 어깨 정도까지만 자연스럽게 보이도록 배치
+           (원형 크롭/핑크 테두리 없음, 가슴 아래는 안 보임 — chat_first_match.html과 동일 크롭) */
+        .chat__rina_photo {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: calc(100% - 175px); /* 좌측 컬럼(140px) + 여백을 제외한 나머지 */
+            z-index: 0;
+            background-image: url(./assets/images/sample_rina_fullbody.png);
+            background-repeat: no-repeat;
+            background-size: 395px auto;
+            background-position: center -39px;
+        }
+
+        .chat__rina_left_col {
+            position: relative;
+            z-index: 1;
+            width: 140px;
+        }
+
+        .chat__rina_new_label {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #ffffff;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+
+        .chat__rina_new_avatar_row {
+            display: flex;
+            gap: 14px;
+            min-height: 94px; /* chat.html / chat_first_match.html과 동일한 높이 기준으로 고정 */
+        }
+
+        .chat__rina_new_avatar_row .avatar__name {
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+
+        .chat__rina_bubble {
+            position: absolute;
+            bottom: 14px;
+            right: 14px;
+            z-index: 2;
+            max-width: 150px;
+            background-color: #e3f5e6;
+            border-radius: 14px 14px 0 14px;
+            padding: 12px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.4;
+            color: var(--color-gray-900);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+            cursor: pointer;
+        }
+
+        /* ■ 채팅 목록 (최근 대화) — 매칭 전이라 항목 없이 비어있음, 앱 다크 테마에 맞춰 검정 배경 */
+        .chat__list_container {
+            background-color: #000000;
+            flex: 1;
+            min-height: 200px;
+        }
+
+        /* 아바타 위 우측의 접속중(온라인) 표시 */
+        .avatar__online_wrap {
+            position: relative;
+        }
+
+        .avatar__online_dot {
+            position: absolute;
+            right: 2px;
+            bottom: 2px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: var(--color-success-dark);
+            border: 2px solid var(--color-success);
+        }
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ 채팅 목록 — 신규 가입자 빈 상태
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_chat app__container_type_basic">
+    <header class="header header__bg_green header__type_basic">
+        <div class="topbar">
+            <button class="btn btn__size_medium">
+                <img src="./assets/images/logo_symbol_white.png" width="40" height="26">
+            </button>
+
+            <div class="title__main title__main_script">Messages</div>
+
+            <!-- 2026-07-16 사장님 수정지시 2-4: 초록 배너 우측 파일 아이콘 삭제. 레이아웃 균형을 위해 빈 스페이서만 유지 -->
+            <div class="iconbox__topbar"></div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic" style="display: flex; flex-direction: column;">
+        <div class="main__content_wrapper" style="display: flex; flex-direction: column; flex: 1;">
+
+            <!-- 리나 강 인사 히어로 — 가입 직후 누구에게나 자동으로 말을 거는 첫 인맥 -->
+            <div class="chat__rina_hero">
+                <div class="chat__rina_photo"></div>
+
+                <div class="chat__rina_left_col">
+                    <div class="chat__rina_new_label">새 인맥들</div>
+
+                    <div class="chat__rina_new_avatar_row">
+                        <div class="avatar__column" onclick="location.href='./chatroom_rina.html';" style="cursor: pointer;">
+                            <div class="avatar__online_wrap">
+                                <div class="avatar avatar__size_medium">
+                                    <img src="./assets/images/sample_avatar_rina.png">
+                                </div>
+                                <div class="avatar__online_dot"></div>
+                            </div>
+                            <div class="avatar__name">리나 강</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat__rina_bubble" onclick="location.href='./chatroom_rina.html';">
+                    <span id="user-nickname">철수</span>님~ 반가워요.<br>저와 대화해요
+                </div>
+            </div>
+
+            <!-- 채팅 목록 (최근 대화) — 아직 매칭 전이라 항목 없음 -->
+            <div class="chat__list_container"></div>
+        </div>
+    </main>
+
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+                    <div class="btn__text">홈</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp_fill.svg" width="26" height="26" style="margin-top: 2px;">
+                    <div class="btn__text" style="color: var(--color-primary-pink);">대화</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+                    <div class="btn__text">만들기</div>
+                </button>
+                <div class="btnbox__badge">필수</div>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<!-- ■□■□■ [SCRIPT] 'Javascript' Area -->
+<script>
+    // 리나 강의 인사 말풍선에는 실제 로그인한 유저의 닉네임이 들어갑니다.
+    // 데모에서는 임시로 '철수'를 사용 — 실제 서비스 연동 시 로그인 유저 닉네임으로 교체.
+    var currentUserNickname = '철수';
+    document.getElementById('user-nickname').textContent = currentUserNickname;
+
+    /* =========================================================================
+       리나 강의 인사 화면은 최초 가입 후 딱 3~5회 정도만 노출되는 기획입니다.
+       (실제로는 서버가 노출 횟수를 관리하겠지만, 데모에서는 localStorage로 흉내냄)
+       ========================================================================= */
+    var MAX_GREETING_VIEWS = 5; // 향후 정책에 따라 3~5 사이로 조정 가능
+    var viewCount = parseInt(localStorage.getItem('chatEmptyGreetingViews') || '0', 10) + 1;
+    localStorage.setItem('chatEmptyGreetingViews', String(viewCount));
+
+    if (viewCount > MAX_GREETING_VIEWS) {
+        // 노출 횟수를 다 채운 뒤에는 리나 강의 인사 없이 순수하게 빈 목록만 보여줌
+        document.querySelector('.chat__rina_hero').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
+

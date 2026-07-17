@@ -1,0 +1,424 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        /*
+        ▩ 채팅방 — 리나 강 (첫 인맥, 매칭 직후 첫 인사)
+        ▩ 공통으로 쓰이는 레이아웃, 헤더, 푸터 등을 제외하고 오직 이 페이지에서만 쓰이는 스타일은 이곳에만 기재.
+        */
+
+        .chatroom__container {
+            display: flex;
+            flex-direction: column-reverse;
+            width: 100%;
+            padding: 20px;
+            height: 50px;
+            overflow-y: scroll;
+            flex-grow: 1;
+        }
+
+        .chatroom__balloon_list {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            margin-top: 16px;
+        }
+
+        .chatroom__balloon_textbox {
+            display: flex;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .chatroom__balloon_header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            position: relative;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .chatroom__balloon_date {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .chatroom__balloon_body {
+            position: relative;
+            max-width: 80%;
+            padding: 12px 16px;
+        }
+
+        .chatroom__balloon_message {
+            position: relative;
+            width: 100%;
+            color: #444444;
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+
+        .icon__balloon_arrow_l {
+            position: absolute;
+            top: 0;
+            left: -16px;
+            width: 16px;
+            height: 16px;
+        }
+
+        .balloon__type_users .chatroom__balloon_body {
+            border-radius: 0 10px 10px 10px;
+            background-color: #ffffff;
+        }
+
+        .balloon__type_me {
+            justify-content: flex-end;
+        }
+
+        .balloon__type_me .chatroom__balloon_textbox {
+            justify-content: flex-end;
+        }
+
+        .balloon__type_me .chatroom__balloon_body {
+            border-radius: 10px 0 10px 10px;
+            background-color: #f2e68e;
+        }
+
+        .chatroom__writer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            width: 100%;
+            height: 80px;
+            max-height: 200px;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+        }
+
+        .textarea__chatroom_writer {
+            width: 100%;
+            height: 100%;
+        }
+
+        .textarea__chatroom_writer textarea {
+            width: 100%;
+            height: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            line-height: 1.4;
+            color: #ffffff;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        /* ■ 헤더 크레딧 뱃지 (2026-07-07 사장님 지시 3번) */
+        .rina__credit_badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px 6px 6px;
+            border-radius: 20px;
+            background-color: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .rina__credit_coin {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #ffe58a, #f4b400 70%);
+            color: #7a4d00;
+            font-size: 10px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .rina__credit_num {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        /* ■ 리나 강 이용 안내 카드 (무료체험 종료) */
+        .rina__paywall_card {
+            background-color: #0d1613;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 18px;
+            margin: 16px 0;
+            max-width: 88%;
+        }
+
+        .rina__paywall_title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .rina__paywall_meta {
+            font-size: 12.5px;
+            color: #6fcf97;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .rina__paywall_hr {
+            border: none;
+            border-top: 1px dashed rgba(255, 255, 255, 0.15);
+            margin-bottom: 12px;
+        }
+
+        .rina__paywall_desc {
+            font-size: 13.5px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.5;
+            margin-bottom: 14px;
+        }
+
+        .rina__paywall_btn_row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .rina__paywall_btn_primary {
+            flex: 1;
+            min-width: 0;
+            padding: 12px 4px;
+            border-radius: 100px;
+            border: none;
+            background-color: #1d8f5a;
+            color: #ffffff;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .rina__paywall_btn_outline {
+            flex: 1;
+            min-width: 0;
+            padding: 12px 4px;
+            border-radius: 100px;
+            border: 1px solid #1d8f5a;
+            background: none;
+            color: #6fcf97;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .rina__paywall_footnote {
+            font-size: 11.5px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* ■ 대화 횟수(Rate Limit) 안내 바 — 무료 10턴 소진 후 크레딧 안내 */
+        .rina__usage_bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.75);
+            background-color: rgba(0, 0, 0, 0.35);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .rina__usage_bar strong {
+            color: var(--color-primary-pink);
+        }
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ 채팅방 — 리나 강 (첫 인맥)
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_chatroom app__container_type_basic">
+    <header class="header header__bg_green header__type_basic">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="location.href='./chat_first_match.html';">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="24" height="24">
+            </button>
+
+            <div class="title__main">
+                <div class="unitbox__header_avatar avatar__row">
+                    <div class="avatar avatar__size_tiny">
+                        <img src="./assets/images/sample_avatar_rina.png">
+                    </div>
+
+                    <div class="avatar__name">리나 강</div>
+                </div>
+            </div>
+
+            <div class="iconbox__topbar">
+                <div class="rina__credit_badge" onclick="location.href='./rina_payment.html';" style="cursor: pointer;">
+                    <div class="rina__credit_coin">B</div>
+                    <div class="rina__credit_num">3</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="rina__usage_bar">오늘 남은 무료 질문 <strong>0회</strong> · 크레딧으로 계속 대화할 수 있어요</div>
+
+    <main class="main__container main__container_type_chatroom">
+        <div class="main__content_wrapper">
+            <div class="chatroom__container">
+                <div class="chatroom__container_inner">
+
+                    <!-- ▨ 리나 강의 첫 인사 — 매칭 직후 자동으로 온 메시지 -->
+                    <div class="chatroom__balloon_list balloon__type_users">
+                        <div class="chatroom__balloon_avatar">
+                            <div class="avatar avatar__size_medium">
+                                <img src="./assets/images/sample_avatar_rina.png">
+                            </div>
+                        </div>
+
+                        <div class="chatroom__balloon_textbox">
+                            <div class="chatroom__balloon_header">
+                                <div>리나 강</div>
+                                <div class="chatroom__balloon_date">방금</div>
+                            </div>
+
+                            <div class="chatroom__balloon_body">
+                                <img class="icon__balloon_arrow_l" src="./assets/images/balloon_arrow_l.svg">
+                                <div class="chatroom__balloon_message">오늘은 어떤 사람을
+만나고 싶으세요?</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ▨ 유저 응답 -->
+                    <div class="chatroom__balloon_list balloon__type_me">
+                        <div class="chatroom__balloon_textbox">
+                            <div class="chatroom__balloon_body">
+                                <div class="chatroom__balloon_message">관심사가 비슷한 사람을
+만나고 싶어요!</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ▨ 리나 강 — 무료체험 종료 안내 + 이용안내 카드 -->
+                    <div class="chatroom__balloon_list balloon__type_users">
+                        <div class="chatroom__balloon_avatar">
+                            <div class="avatar avatar__size_medium">
+                                <img src="./assets/images/sample_avatar_rina.png">
+                            </div>
+                        </div>
+
+                        <div class="chatroom__balloon_textbox">
+                            <div class="chatroom__balloon_header">
+                                <div>리나 강</div>
+                                <div class="chatroom__balloon_date">방금</div>
+                            </div>
+
+                            <div class="chatroom__balloon_body">
+                                <img class="icon__balloon_arrow_l" src="./assets/images/balloon_arrow_l.svg">
+                                <div class="chatroom__balloon_message">좋아요. 다만 무료체험이
+종료되어 대화를 계속하려면
+이용 방법을 선택해야 해요.</div>
+                            </div>
+
+                            <div class="rina__paywall_card">
+                                <div class="rina__paywall_title">리나 강 이용 안내</div>
+                                <div class="rina__paywall_meta">무료체험 종료 · 보유 크레딧 3</div>
+                                <hr class="rina__paywall_hr">
+                                <div class="rina__paywall_desc">구독하거나 크레딧을 충전하면<br>지금 대화를 바로 이어갈 수 있어요.</div>
+                                <div class="rina__paywall_btn_row">
+                                    <button class="rina__paywall_btn_primary" onclick="location.href='./rina_payment.html';">이용 및 결제</button>
+                                    <button class="rina__paywall_btn_outline" onclick="location.href='./booming_index_growth.html';">활동으로 받기</button>
+                                </div>
+                                <div class="rina__paywall_footnote">결제 완료 후 바로 리나 강 대화로 돌아옵니다.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="chatroom__writer">
+                <div class="textarea__chatroom_writer">
+                    <textarea placeholder="메시지를 입력하세요"></textarea>
+                </div>
+
+                <div class="btnbox__chatroom_writer">
+                    <button class="btn btn__circle btn__size_medium" style="background-color: var(--color-primary-pink-active);">
+                        <img src="./assets/images/icon_send_32dp.svg" width="26" height="26" style="margin-left: 3px;">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+                    <div class="btn__text">홈</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp_fill.svg" width="26" height="26" style="margin-top: 2px;">
+                    <div class="btn__text" style="color: var(--color-primary-pink);">대화</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+                    <div class="btn__text">만들기</div>
+                </button>
+                <div class="btnbox__badge">필수</div>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+</body>
+</html>
+

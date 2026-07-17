@@ -1,0 +1,471 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming - My Suite</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        /*
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+        ▩ My Suite — 1st/2nd Tier 구조 개편 (2026-07-07 사장님 지시 5번)
+
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        */
+
+        /* ■ 페이지 상단의 프로필 아바타 영역 (기존 레이아웃 유지)
+        ---------------------------------------------------------------------- */
+        .topinfo {
+            display: inline-flex;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            height: 70px;
+            padding: 0 20px 6px 170px;
+            background-position: center bottom;
+            background-size: 430px;
+        }
+
+        .topinfo__inner {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            width: auto;
+            height: 100%;
+        }
+
+        .topinfo__subs, .topinfo__posts, .topinfo__text_subs, .topinfo__text_posts {
+            text-align: center;
+            line-height: 1.15;
+            white-space: nowrap;
+        }
+
+        .topinfo__number_subs, .topinfo__number_posts {
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: -2px;
+        }
+
+        .topinfo__number_subs, .topinfo__unit_subs {
+            vertical-align: baseline;
+        }
+
+        .topinfo__number_subs {
+            color: var(--color-accent-gold-light);
+        }
+
+        .topinfo__unit_subs {
+            font-size: 18px;
+            font-weight: 100;
+        }
+
+        .btn__edit_photo {
+            position: absolute;
+            bottom: -58px;
+            left: 118px;
+        }
+
+        .main__username {
+            width: 100%;
+            padding: 14px 20px 18px 190px; /* 2026-07-16 사장님 수정지시 5-3: 프로필 사진과 이름이 겹치지 않도록 여백 확대 */
+        }
+
+        .main__username_text_row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .main__username_text {
+            display: inline-block;
+            width: auto;
+            min-width: 160px;
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        .main__username_job_row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 2px;
+        }
+
+        .main__username_job {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.55);
+        }
+
+        /* 2026-07-16 사장님 수정지시 5-1: 이름/짧은 소개/긴 소개 수정 표시 아이콘 */
+        .btn__inline_edit {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .btn__inline_edit img {
+            width: 12px;
+            height: 12px;
+            opacity: 0.65;
+        }
+
+        .btn__copy_link {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 6px;
+            color: #d8b978;
+            text-decoration: underline;
+        }
+
+        /* ■ 자기소개
+        ---------------------------------------------------------------------- */
+        .profile__bio {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 0 20px 22px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.75);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .profile__bio_text {
+            flex: 1;
+        }
+
+        /* ■ 섹션 공통 — 고급스러운 톤을 위한 골드 포인트
+        ---------------------------------------------------------------------- */
+        .section {
+            padding: 22px 20px 0;
+        }
+
+        .section__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .section__title {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #d8b978;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+        }
+
+        .section__edit_btn, .btn__more {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.45);
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .video__views {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 8px 8px 6px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #fff;
+        }
+
+        /* ■ 내가 올린 영상 — 릴스처럼 바둑판(그리드) 배열 (2026-07-16 사장님 수정지시 5-6) */
+        .myvideo__grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            margin-bottom: 22px;
+        }
+
+        .myvideo__cell {
+            position: relative;
+            aspect-ratio: 9 / 16;
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+        }
+
+        .myvideo__cell .video__views {
+            padding: 6px 6px 5px;
+            font-size: 10px;
+        }
+
+        /* ■ 기타 메뉴
+        ---------------------------------------------------------------------- */
+        .etc__menu {
+            padding: 6px 20px 26px;
+        }
+
+        .etc__item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            cursor: pointer;
+        }
+
+        .etc__item:last-child {
+            border-bottom: none;
+        }
+
+        .etc__icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .etc__text {
+            flex: 1;
+        }
+
+        .etc__title {
+            font-size: 14px;
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .etc__sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 1px;
+        }
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ My Suite — 1st/2nd Tier 재구성
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_dark app__container_type_basic">
+    <header class="header header__bg_red header__type_basic">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+            </button>
+
+            <div class="title__main title__main_script">My Suite</div>
+
+            <div class="iconbox__topbar">
+                <button class="btn btn__size_medium" onclick="location.href='./edit_profile.html';">
+                    <img src="./assets/images/icon_edit_32dp.svg" width="26" height="26">
+                </button>
+
+                <button class="btn btn__size_medium" onclick="location.href='./settings.html';">
+                    <img src="./assets/images/icon_settings_32dp.svg" width="28" height="28">
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic">
+
+        <!-- ▣ 상단 프로필 아바타 영역 (기존 레이아웃 유지) -->
+        <div class="topinfo header__bg_red">
+            <div class="topinfo__inner">
+                <div class="topinfo__container_a" onclick="location.href='./follow_list.html'" style="cursor:pointer;">
+                    <div class="topinfo__subs">
+                        <span class="topinfo__number_subs">12.3</span>
+                        <span class="topinfo__unit_subs">M</span>
+                    </div>
+                    <div class="topinfo__text_subs">Subscribers</div>
+                </div>
+
+                <div class="topinfo__container_b">
+                    <div class="topinfo__posts">
+                        <span class="topinfo__number_posts">254</span>
+                    </div>
+                    <div class="topinfo__text_posts">Posts</div>
+                </div>
+            </div>
+
+            <div class="avatar avatar__size_max">
+                <img src="./assets/images/sample_avatar_1.png">
+            </div>
+
+            <button class="btn btn__circle btn__size_medium btn__edit_photo" style="border: 2px solid #ffffff; background-color: #1d8f87;">
+                <img src="./assets/images/icon_photo_camera_32dp.svg" width="24" height="24">
+            </button>
+        </div>
+
+        <div class="main__username">
+            <div class="main__username_text_row">
+                <div class="main__username_text">Whitney Johns</div>
+                <button class="btn__inline_edit" onclick="location.href='./edit_profile.html';">
+                    <img src="./assets/images/icon_edit_32dp.svg">
+                </button>
+            </div>
+            <div class="main__username_job_row">
+                <div class="main__username_job">구글 X팀 팀장 · 서울</div>
+                <button class="btn__inline_edit" onclick="location.href='./edit_profile.html';">
+                    <img src="./assets/images/icon_edit_32dp.svg">
+                </button>
+            </div>
+            <button class="btn__copy_link">
+                <img src="./assets/images/icon_link_32dp.svg" width="28" height="28">
+                <div>링크 복사</div>
+            </button>
+        </div>
+
+        <!-- ▣ 자기소개 (2026-07-16 사장님 수정지시 5-1: 수정 표시 추가) -->
+        <div class="profile__bio">
+            <div class="profile__bio_text">
+                안녕하세요. 미쿡서 온 인플루언서 휘트니 존스라고 합니다. IT와 예술을 사랑하고 멘토링을 즐기는 사람입니다. 반갑습니다 :)
+            </div>
+            <button class="btn__inline_edit" onclick="location.href='./edit_profile.html';">
+                <img src="./assets/images/icon_edit_32dp.svg">
+            </button>
+        </div>
+
+        <!-- ▣ 내가 올린 영상 — 릴스처럼 바둑판(그리드) 배열 (2026-07-16 사장님 수정지시 5-6, 5-4/5-5/5-7/5-8/5-9 삭제 반영) -->
+        <div class="section">
+            <div class="section__header">
+                <div class="section__title">내가 올린 영상</div>
+                <button class="btn__more" onclick="location.href='./mychannel.html';">전체보기 <img src="./assets/images/icon_arrow_forward_32dp.svg" width="14" height="14" style="opacity:0.6;"></button>
+            </div>
+
+            <div class="myvideo__grid">
+                <div class="myvideo__cell" onclick="location.href='./mychannel.html';" style="cursor:pointer; background-image: url(./assets/images/sample_myvideo_1.png);">
+                    <div class="video__views">
+                        <img src="./assets/images/icon_visibility_32dp.svg" width="12" height="12">
+                        <span>6,225</span>
+                    </div>
+                </div>
+                <div class="myvideo__cell" onclick="location.href='./mychannel.html';" style="cursor:pointer; background-image: url(./assets/images/sample_myvideo_2.png);">
+                    <div class="video__views">
+                        <img src="./assets/images/icon_visibility_32dp.svg" width="12" height="12">
+                        <span>327</span>
+                    </div>
+                </div>
+                <div class="myvideo__cell" onclick="location.href='./mychannel.html';" style="cursor:pointer; background-image: url(./assets/images/sample_myvideo_3.png);">
+                    <div class="video__views">
+                        <img src="./assets/images/icon_visibility_32dp.svg" width="12" height="12">
+                        <span>4,126</span>
+                    </div>
+                </div>
+                <div class="myvideo__cell" onclick="location.href='./mychannel.html';" style="cursor:pointer; background-image: url(./assets/images/sample_bg_manual_1.png);">
+                    <div class="video__views">
+                        <img src="./assets/images/icon_visibility_32dp.svg" width="12" height="12">
+                        <span>1,842</span>
+                    </div>
+                </div>
+                <div class="myvideo__cell" onclick="location.href='./mychannel.html';" style="cursor:pointer; background-image: url(./assets/images/sample_bg_manual_2.png);">
+                    <div class="video__views">
+                        <img src="./assets/images/icon_visibility_32dp.svg" width="12" height="12">
+                        <span>953</span>
+                    </div>
+                </div>
+                <div class="myvideo__cell" onclick="location.href='./mychannel.html';" style="cursor:pointer; background-image: url(./assets/images/sample_bg_manual_3.png);">
+                    <div class="video__views">
+                        <img src="./assets/images/icon_visibility_32dp.svg" width="12" height="12">
+                        <span>2,410</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ▣ 기타 메뉴 — 고객센터/로그아웃/회원탈퇴는 상단 설정 아이콘 안으로 이전 (2026-07-16 사장님 수정지시 5-10) -->
+        <div class="etc__menu">
+            <div class="etc__item" onclick="location.href='./saved_videos.html';">
+                <div class="etc__icon">
+                    <img src="./assets/images/icon_add_bookmark_32dp.svg" width="20" height="20">
+                </div>
+                <div class="etc__text">
+                    <div class="etc__title">저장한 영상</div>
+                    <div class="etc__sub">북마크한 영상을 모아봅니다.</div>
+                </div>
+                <img src="./assets/images/icon_arrow_forward_32dp.svg" width="18" height="18" style="opacity: 0.3;">
+            </div>
+
+            <div class="etc__item" onclick="location.href='./settings.html';">
+                <div class="etc__icon">
+                    <img src="./assets/images/icon_settings_32dp.svg" width="20" height="20">
+                </div>
+                <div class="etc__text">
+                    <div class="etc__title">설정</div>
+                    <div class="etc__sub">캐시 삭제, 데이터 삭제 등.</div>
+                </div>
+                <img src="./assets/images/icon_arrow_forward_32dp.svg" width="18" height="18" style="opacity: 0.3;">
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+                    <div class="btn__text">홈</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+                    <div class="btn__text">메시지</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+                    <div class="btn__text">만들기</div>
+                </button>
+                <div class="btnbox__badge">필수</div>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp_fill.svg" width="29" height="29">
+                    <div class="btn__text" style="color: var(--color-primary-pink);">마이 스위트</div>
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming - Onboarding</title>
+
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/main.css">
+
+    <style>
+        /* ■ 온보딩 안내 (2026-07-07 사장님 지시 4번 — mod/4-3.jpg 시안) */
+        body {
+            margin: 0;
+            background-color: #0f6b63;
+        }
+
+        .onboarding__wrapper {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: radial-gradient(120% 60% at 50% 0%, #14867c 0%, #0f6b63 55%, #0a4d47 100%);
+            box-sizing: border-box;
+            padding: 48px 28px 32px;
+        }
+
+        .onboarding__logo_img {
+            display: block;
+            width: 168px;
+            height: auto;
+            margin: 0 auto;
+        }
+
+        .onboarding__title {
+            font-size: 21px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-top: 28px;
+            line-height: 1.3;
+        }
+
+        .onboarding__subtitle {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.75);
+            margin-top: 8px;
+        }
+
+        .onboarding__bullets {
+            margin-top: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .onboarding__bullet_row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .onboarding__bullet_icon {
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .onboarding__bullet_text {
+            font-size: 14.5px;
+            font-weight: 600;
+            color: #ffffff;
+            line-height: 1.4;
+        }
+
+        .onboarding__tip {
+            margin-top: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .onboarding__btn {
+            width: 100%;
+            padding: 17px;
+            border-radius: 100px;
+            border: none;
+            background-color: #ffffff;
+            color: #0f6b63;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ 온보딩 안내
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="onboarding__wrapper">
+    <div>
+        <img class="onboarding__logo_img" src="./assets/images/logo_type_kr_white.png" alt="BoomBooming 붐부밍">
+
+        <div class="onboarding__title">붐부밍에 오신 것을 환영합니다.</div>
+        <div class="onboarding__subtitle">붐부밍과 함께 새로운 인맥을 만들어보세요.</div>
+
+        <div class="onboarding__bullets">
+            <div class="onboarding__bullet_row">
+                <div class="onboarding__bullet_icon">💡</div>
+                <div class="onboarding__bullet_text">진짜 도움되는 정보를<br>얻고 싶다면?</div>
+            </div>
+            <div class="onboarding__bullet_row">
+                <div class="onboarding__bullet_icon">🤝</div>
+                <div class="onboarding__bullet_text">진정으로 도움되는 인맥을<br>만나고 싶다면?</div>
+            </div>
+            <div class="onboarding__bullet_row">
+                <div class="onboarding__bullet_icon">🎥</div>
+                <div class="onboarding__bullet_text">붐부밍에서 영상으로<br>나를 보여주세요.</div>
+            </div>
+            <div class="onboarding__bullet_row">
+                <div class="onboarding__bullet_icon">🙋</div>
+                <div class="onboarding__bullet_text">보여주는 만큼<br>정보와 인맥을 얻을 수 있어요.</div>
+            </div>
+        </div>
+
+        <div class="onboarding__tip">🔄 영상을 시청하고 오른쪽으로 스와이프!</div>
+    </div>
+
+    <button class="onboarding__btn" onclick="goToNext();">다음</button>
+</div>
+
+<script>
+    function goToNext() {
+        location.href = './email_verify.html';
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,591 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>설정 - BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        /*
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+        ▩ Settings (설정)
+
+        ▩ 공통으로 쓰이는 레이아웃, 헤더, 푸터 등을 제외하고 오직 이 페이지에서만 쓰이는 스타일은 이곳에만 기재.
+
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        */
+
+        /* ■ 설정 페이지 배경
+        ---------------------------------------------------------------------- */
+        .settings__page {
+            background-color: var(--color-gray-900);
+            min-height: 100%;
+        }
+
+        /* ■ 섹션 구분선 및 레이블
+        ---------------------------------------------------------------------- */
+        .settings__section {
+            margin-top: 8px;
+        }
+
+        .settings__section:first-child {
+            margin-top: 0;
+        }
+
+        .settings__section_label {
+            font-size: 12px;
+            color: #666666;
+            padding: 20px 16px 8px;
+            letter-spacing: 0.02em;
+            text-transform: none;
+        }
+
+        /* ■ 설정 행(row) 공통
+        ---------------------------------------------------------------------- */
+        .settings__row {
+            display: flex;
+            align-items: center;
+            height: 54px;
+            padding: 0 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            background-color: #1e1e1e;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .settings__row:active {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .settings__row_icon {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+            opacity: 0.7;
+            margin-right: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings__row_icon img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+
+        .settings__row_label {
+            flex: 1;
+            font-size: 15px;
+            color: #dddddd;
+            font-weight: 400;
+            letter-spacing: -0.01em;
+        }
+
+        .settings__row_value {
+            font-size: 13px;
+            color: #888888;
+            margin-right: 4px;
+            letter-spacing: -0.01em;
+        }
+
+        .settings__row_chevron {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            opacity: 0.35;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings__row_chevron img {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* ■ 로그아웃 / 회원탈퇴 전용
+        ---------------------------------------------------------------------- */
+        .settings__row_label--danger {
+            color: var(--color-error);
+        }
+
+        .settings__row_label--secondary {
+            color: #555555;
+            font-size: 13px;
+        }
+
+        .settings__row--no-icon .settings__row_label {
+            padding-left: 0;
+        }
+
+        /* ■ 토글 스위치 (CSS 커스텀)
+        ---------------------------------------------------------------------- */
+        .settings__toggle_wrap {
+            position: relative;
+            width: 46px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+
+        .settings__toggle_input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+            pointer-events: none;
+        }
+
+        .settings__toggle_slider {
+            position: absolute;
+            inset: 0;
+            border-radius: 13px;
+            background-color: #444444;
+            transition: background-color 0.25s ease;
+            cursor: pointer;
+        }
+
+        .settings__toggle_slider::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            left: 3px;
+            top: 3px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+        }
+
+        .settings__toggle_input:checked + .settings__toggle_slider {
+            background-color: var(--color-primary-pink);
+        }
+
+        .settings__toggle_input:checked + .settings__toggle_slider::before {
+            transform: translateX(20px);
+        }
+
+        /* ■ 섹션 구분 공백
+        ---------------------------------------------------------------------- */
+        .settings__divider {
+            height: 8px;
+            background-color: var(--color-gray-900);
+        }
+
+        /* ■ 하단 여백 (footer 가림 방지)
+        ---------------------------------------------------------------------- */
+        .settings__bottom_spacer {
+            height: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ Settings
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_dark app__container_type_basic">
+
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Header - 상단바 영역.(고정 영역)
+    ▨ 인클루드를 위해 별도의 파일로 만들어서 Import시켜야 하는 하는 영역.
+    ▨ 단, 내부의 버튼이나 구성 등이 페이지마다 다름.
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <header class="header header__bg_red header__type_basic">
+        <div class="topbar">
+
+            <!-- ▨ NOTE - 여기서부터의 내용은 페이지마다 다를 수 있음 -->
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+            </button>
+
+            <div class="title__main">
+                <span class="title__main_name">설정</span>
+            </div>
+
+            <!-- 우측 빈 영역 (균형 유지) -->
+            <div class="iconbox__topbar" style="visibility: hidden;">
+                <button class="btn btn__size_medium">
+                    <img src="./assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Body - 메인 컨텐츠 영역(스크롤 영역)
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <main class="main__container main__container_type_basic">
+        <div class="settings__page">
+
+            <!-- ▣▣▣▣▣ 섹션 1: 계정 -->
+            <div class="settings__section">
+                <div class="settings__section_label">계정</div>
+
+                <!-- 이메일 변경 -->
+                <div class="settings__row" onclick="location.href='./change_email.html';">
+                    <div class="settings__row_icon">
+                        <img src="./assets/images/icon_email_20dp_gray.svg" alt="">
+                    </div>
+                    <span class="settings__row_label">이메일 변경</span>
+                    <div class="settings__row_chevron">
+                        <img src="./assets/images/icon_chevron_right_32dp.svg" alt="">
+                    </div>
+                </div>
+
+                <!-- 비밀번호 변경 -->
+                <div class="settings__row" onclick="location.href='./change_password.html';">
+                    <div class="settings__row_icon">
+                        <img src="./assets/images/icon_lock_32dp.svg" alt="">
+                    </div>
+                    <span class="settings__row_label">비밀번호 변경</span>
+                    <div class="settings__row_chevron">
+                        <img src="./assets/images/icon_chevron_right_32dp.svg" alt="">
+                    </div>
+                </div>
+
+                <!-- 연결된 소셜 계정 -->
+                <div class="settings__row" onclick="location.href='./connected_accounts.html';">
+                    <div class="settings__row_icon">
+                        <img src="./assets/images/icon_link_32dp.svg" alt="">
+                    </div>
+                    <span class="settings__row_label">연결된 소셜 계정</span>
+                    <div class="settings__row_chevron">
+                        <img src="./assets/images/icon_chevron_right_32dp.svg" alt="">
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings__divider"></div>
+
+            <!-- ▣▣▣▣▣ 섹션 2: 알림 -->
+            <div class="settings__section">
+                <div class="settings__section_label">알림</div>
+
+                <!-- 인맥 신청 알림 (ON 기본) -->
+                <div class="settings__row" style="cursor: default;">
+                    <div class="settings__row_icon" style="visibility: hidden;">
+                        <img src="./assets/images/icon_notifications_32dp.svg" alt="">
+                    </div>
+                    <span class="settings__row_label">인맥 신청 알림</span>
+                    <label class="settings__toggle_wrap">
+                        <input type="checkbox" class="settings__toggle_input" id="toggle_friend_request" checked>
+                        <span class="settings__toggle_slider" onclick="handleToggle(event, 'toggle_friend_request')"></span>
+                    </label>
+                </div>
+
+                <!-- 채팅 메시지 알림 (ON 기본) -->
+                <div class="settings__row" style="cursor: default;">
+                    <div class="settings__row_icon" style="visibility: hidden;">
+                        <img src="./assets/images/icon_notifications_32dp.svg" alt="">
+                    </div>
+                    <span class="settings__row_label">채팅 메시지 알림</span>
+                    <label class="settings__toggle_wrap">
+                        <input type="checkbox" class="settings__toggle_input" id="toggle_chat_msg" checked>
+                        <span class="settings__toggle_slider" onclick="handleToggle(event, 'toggle_chat_msg')"></span>
+                    </label>
+                </div>
+
+                <!-- 마케팅 알림 (OFF 기본) -->
+                <div class="settings__row" style="cursor: default;">
+                    <div class="settings__row_icon" style="visibility: hidden;">
+                        <img src="./assets/images/icon_notifications_32dp.svg" alt="">
+                    </div>
+                    <span class="settings__row_label">마케팅 알림</span>
+                    <label class="settings__toggle_wrap">
+                        <input type="checkbox" class="settings__toggle_input" id="toggle_marketing">
+                        <span class="settings__toggle_slider" onclick="handleToggle(event, 'toggle_marketing')"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="settings__divider"></div>
+
+            <!-- ▣▣▣▣▣ 섹션 2-1: 개인정보 및 안전 -->
+            <div class="settings__section">
+                <div class="settings__section_label">개인정보 및 안전</div>
+
+                <!-- 차단 관리 -->
+                <div class="settings__row" onclick="location.href='./blocked_users.html';">
+                    <div class="settings__row_icon">
+                        <img src="./assets/images/icon_no_accounts_32dp.svg" alt="">
+                    </div>
+                    <span class="settings__row_label">차단 관리</span>
+                    <span class="settings__row_value" id="blockedCountValue"></span>
+                    <div class="settings__row_chevron">
+                        <img src="./assets/images/icon_chevron_right_32dp.svg" alt="">
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings__divider"></div>
+
+            <!-- ▣▣▣▣▣ 섹션 3: 앱 설정 -->
+            <div class="settings__section">
+                <div class="settings__section_label">앱 설정</div>
+
+                <!-- 언어 설정 -->
+                <div class="settings__row" onclick="location.href='./language_settings.html';">
+                    <div class="settings__row_icon">
+                        <img src="./assets/images/icon_global_32dp.svg" alt="">
+                    </div>
+                    <span class="settings__row_label">언어 설정</span>
+                    <span class="settings__row_value" id="languageValue">한국어</span>
+                    <div class="settings__row_chevron">
+                        <img src="./assets/images/icon_chevron_right_32dp.svg" alt="">
+                    </div>
+                </div>
+
+                <!-- 화면 모드 -->
+                <div class="settings__row" onclick="location.href='./display_mode.html';">
+                    <div class="settings__row_icon">
+                        <img src="./assets/images/icon_instant_mix_32dp_white.svg" alt="">
+                    </div>
+                    <span class="settings__row_label">화면 모드</span>
+                    <span class="settings__row_value" id="displayModeValue">다크 모드</span>
+                    <div class="settings__row_chevron">
+                        <img src="./assets/images/icon_chevron_right_32dp.svg" alt="">
+                    </div>
+                </div>
+
+                <!-- 캐시 지우기 -->
+                <div class="settings__row" onclick="clearCache();">
+                    <div class="settings__row_icon">
+                        <img src="./assets/images/icon_cleaning_services_32dp.svg" alt="">
+                    </div>
+                    <span class="settings__row_label">캐시 지우기</span>
+                    <div class="settings__row_chevron">
+                        <img src="./assets/images/icon_chevron_right_32dp.svg" alt="">
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings__divider"></div>
+
+            <!-- ▣▣▣▣▣ 섹션 4: 법적 고지 -->
+            <div class="settings__section">
+                <div class="settings__section_label">법적 고지</div>
+
+                <!-- 이용약관 -->
+                <div class="settings__row" onclick="location.href='./terms.html'">
+                    <div class="settings__row_icon" style="visibility: hidden;">
+                        <img src="./assets/images/icon_info_32dp_dark.svg" alt="">
+                    </div>
+                    <span class="settings__row_label">이용약관</span>
+                    <div class="settings__row_chevron">
+                        <img src="./assets/images/icon_chevron_right_32dp.svg" alt="">
+                    </div>
+                </div>
+
+                <!-- 개인정보처리방침 -->
+                <div class="settings__row" onclick="location.href='./privacy.html'">
+                    <div class="settings__row_icon" style="visibility: hidden;">
+                        <img src="./assets/images/icon_info_32dp_dark.svg" alt="">
+                    </div>
+                    <span class="settings__row_label">개인정보처리방침</span>
+                    <div class="settings__row_chevron">
+                        <img src="./assets/images/icon_chevron_right_32dp.svg" alt="">
+                    </div>
+                </div>
+
+                <!-- 오픈소스 라이선스 -->
+                <div class="settings__row" onclick="location.href='./open_source_licenses.html';">
+                    <div class="settings__row_icon" style="visibility: hidden;">
+                        <img src="./assets/images/icon_info_32dp_dark.svg" alt="">
+                    </div>
+                    <span class="settings__row_label">오픈소스 라이선스</span>
+                    <div class="settings__row_chevron">
+                        <img src="./assets/images/icon_chevron_right_32dp.svg" alt="">
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings__divider"></div>
+
+            <!-- ▣▣▣▣▣ 섹션 5: 기타 -->
+            <div class="settings__section">
+                <div class="settings__section_label">기타</div>
+
+                <!-- 고객센터 (2026-07-16 사장님 수정지시 5-10: 마이스위트에서 이전) -->
+                <div class="settings__row" onclick="location.href='./support.html'">
+                    <div class="settings__row_icon">
+                        <img src="./assets/images/icon_support_agent_32dp.svg" alt="">
+                    </div>
+                    <span class="settings__row_label">고객센터</span>
+                    <div class="settings__row_chevron">
+                        <img src="./assets/images/icon_chevron_right_32dp.svg" alt="">
+                    </div>
+                </div>
+
+                <!-- 로그아웃 -->
+                <div class="settings__row" onclick="handleLogout();">
+                    <div class="settings__row_icon">
+                        <img src="./assets/images/icon_logout_32dp.svg" alt="">
+                    </div>
+                    <span class="settings__row_label settings__row_label--danger">로그아웃</span>
+                </div>
+
+                <!-- 회원 탈퇴 -->
+                <div class="settings__row" onclick="handleWithdraw();">
+                    <div class="settings__row_icon" style="visibility: hidden;">
+                        <img src="./assets/images/icon_no_accounts_32dp.svg" alt="">
+                    </div>
+                    <span class="settings__row_label settings__row_label--secondary">회원 탈퇴</span>
+                </div>
+            </div>
+
+            <div class="settings__bottom_spacer"></div>
+
+        </div><!-- /.settings__page -->
+    </main>
+
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Footer - 하단 툴바 영역.(고정 영역)
+    ▨ mysuite.html과 동일한 구조.
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+                    <div class="btn__text">홈</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+                    <div class="btn__text">메시지</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+                    <div class="btn__text">만들기</div>
+                </button>
+                <div class="btnbox__badge">필수</div>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp_fill.svg" width="29" height="29">
+                    <div class="btn__text" style="color: var(--color-primary-pink);">마이 스위트</div>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+</div><!-- /.app__container -->
+
+
+
+<!-- ■□■□■ [SCRIPT] 'Javascript' Area -->
+<script>
+    /**
+     * 토글 클릭 시 ON/OFF 상태 전환
+     * @param {Event} e - 클릭 이벤트 (슬라이더 클릭 시 체크박스 이중 트리거 방지)
+     * @param {string} id - 연결된 input[checkbox]의 id
+     */
+    function handleToggle(e, id) {
+        e.preventDefault();
+        var input = document.getElementById(id);
+        if (!input) return;
+        input.checked = !input.checked;
+    }
+
+    /**
+     * 차단 인원 수 배지 표시
+     */
+    (function () {
+        try {
+            var list = JSON.parse(localStorage.getItem('bbm_blockedUsers') || '[]');
+            var el = document.getElementById('blockedCountValue');
+            if (el && list.length > 0) el.textContent = list.length + '명';
+        } catch (e) { /* 무시 */ }
+    })();
+
+    /**
+     * 언어 설정 / 화면 모드 선택값 반영
+     */
+    (function () {
+        try {
+            var lang = localStorage.getItem('bbm_language');
+            if (lang) document.getElementById('languageValue').textContent = lang;
+            var mode = localStorage.getItem('bbm_displayMode');
+            if (mode) document.getElementById('displayModeValue').textContent = mode;
+        } catch (e) { /* 무시 */ }
+    })();
+
+    /**
+     * 캐시 지우기
+     */
+    function clearCache() {
+        if (confirm('캐시를 지우시겠습니까?\n앱 속도가 일시적으로 느려질 수 있습니다.')) {
+            // 실제 구현: 캐시 스토리지 클리어
+            if ('caches' in window) {
+                caches.keys().then(function (names) {
+                    names.forEach(function (name) { caches.delete(name); });
+                });
+            }
+            localStorage.removeItem('bbm_cache');
+            alert('캐시가 삭제되었습니다.');
+        }
+    }
+
+    /**
+     * 로그아웃
+     */
+    function handleLogout() {
+        if (confirm('로그아웃 하시겠습니까?')) {
+            localStorage.clear();
+            location.href = './login.html';
+        }
+    }
+
+    /**
+     * 회원 탈퇴
+     */
+    function handleWithdraw() {
+        if (confirm('정말 탈퇴하시겠습니까?\n탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.')) {
+            // 실제 구현: 서버 측 탈퇴 API 호출
+            localStorage.clear();
+            location.href = './login.html';
+        }
+    }
+</script>
+
+</body>
+</html>
+

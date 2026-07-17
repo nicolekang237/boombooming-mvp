@@ -1,0 +1,206 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        /* ■ 결제 진행 (2026-07-07 사장님 지시 3번 — mod/2-1.png 시안) */
+        .checkout__title_area {
+            text-align: center;
+            padding: 8px 0 24px;
+        }
+
+        .checkout__title {
+            font-size: 19px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .checkout__subtitle {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 4px;
+        }
+
+        .checkout__card {
+            background-color: var(--color-bg-dark-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .checkout__card_label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-primary-pink);
+            margin-bottom: 14px;
+        }
+
+        .checkout__product_row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .checkout__coin_badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #ffe58a, #f4b400 70%);
+            color: #7a4d00;
+            font-size: 15px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .checkout__product_name {
+            font-size: 22px;
+            font-weight: 800;
+            color: #ffffff;
+            flex: 1;
+        }
+
+        .checkout__tag_recommend {
+            background-color: var(--color-primary-pink-active);
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+
+        .checkout__card_desc {
+            margin-top: 14px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        .checkout__amount {
+            font-size: 34px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .checkout__pay_method_row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #ffffff;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .checkout__notice {
+            margin-top: 14px;
+            font-size: 12.5px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        .checkout__pay_btn {
+            width: 100%;
+            padding: 18px;
+            border-radius: 100px;
+            border: none;
+            background-color: var(--color-primary-pink-active);
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .checkout__pay_footnote {
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ 결제 진행 — 리나 강 크레딧 충전
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_dark app__container_type_basic">
+    <header class="header header__type_basic" style="background-color: #0a0a0a;">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="24" height="24">
+            </button>
+            <div class="title__main" style="font-size: 16px;">결제 진행</div>
+            <div class="iconbox__topbar" style="width: 40px;"></div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic" style="background-color: #0a0a0a;">
+        <div class="main__content_wrapper" style="padding: 4px 18px 24px;">
+
+            <div class="checkout__title_area">
+                <div class="checkout__subtitle" id="checkoutSubtitle">리나 강 크레딧 충전</div>
+            </div>
+
+            <div class="checkout__card">
+                <div class="checkout__card_label">선택한 상품</div>
+                <div class="checkout__product_row">
+                    <div class="checkout__coin_badge">B</div>
+                    <div class="checkout__product_name" id="checkoutProductName">300 크레딧</div>
+                    <div class="checkout__tag_recommend">추천</div>
+                </div>
+                <div class="checkout__card_desc">결제 완료 후 바로 충전됩니다.</div>
+            </div>
+
+            <div class="checkout__card">
+                <div class="checkout__card_label">결제 금액</div>
+                <div class="checkout__amount" id="checkoutAmount">₩4,300</div>
+                <div class="checkout__card_desc">크레딧은 리나 강 대화와 AI 편집에 사용할 수 있어요.</div>
+            </div>
+
+            <div class="checkout__card">
+                <div class="checkout__card_label">결제 정보</div>
+                <div class="checkout__pay_method_row">
+                    <span style="font-size: 18px;">💳</span>
+                    <span>카드 결제로 진행됩니다.</span>
+                </div>
+                <div class="checkout__notice">결제 완료 후 크레딧이 바로 반영되고,<br>리나 강 대화로 돌아갈 수 있어요.</div>
+            </div>
+
+            <button class="checkout__pay_btn" onclick="completePayment();">결제하기</button>
+            <div class="checkout__pay_footnote">결제를 계속 진행합니다</div>
+        </div>
+    </main>
+</div>
+
+<script>
+    /* 이전 페이지(rina_payment.html)에서 선택한 상품 정보를 쿼리스트링으로 전달받아 반영 */
+    (function () {
+        var params = new URLSearchParams(location.search);
+        var name = params.get('name');
+        var amount = params.get('amount');
+        if (name) document.getElementById('checkoutProductName').textContent = name;
+        if (amount) document.getElementById('checkoutAmount').textContent = '₩' + amount;
+    })();
+
+    function completePayment() {
+        alert('결제가 완료되었습니다. 리나 강 대화로 돌아갑니다.');
+        location.href = './chatroom_rina.html';
+    }
+</script>
+
+</body>
+</html>
+

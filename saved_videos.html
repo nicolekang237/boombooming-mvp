@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>저장한 영상 - BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/main.css">
+
+    <style>
+        /*
+        ▩ 저장한 영상(북마크) 보관함 — video_detail.html "저장" 버튼의 결과물 모아보기
+        */
+        .saved__grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            padding: 2px;
+        }
+
+        .saved__cell {
+            position: relative;
+            aspect-ratio: 9 / 16;
+            background-size: cover;
+            background-position: center;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .saved__cell_info {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 8px 8px 6px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+        }
+
+        .saved__cell_author {
+            font-size: 11px;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .saved__unsave_btn {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ■ 빈 상태 */
+        .saved__empty {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 100px 32px;
+        }
+
+        .saved__empty.is_visible {
+            display: flex;
+        }
+
+        .saved__empty_icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+        }
+
+        .saved__empty_title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #dddddd;
+            margin-bottom: 8px;
+        }
+
+        .saved__empty_desc {
+            font-size: 13px;
+            color: #777777;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app__container app__bg_dark app__container_type_basic">
+
+    <header class="header header__bg_red header__type_basic">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+            </button>
+            <div class="title__main">
+                <span class="title__main_name">저장한 영상</span>
+            </div>
+            <div class="iconbox__topbar" style="visibility: hidden;">
+                <button class="btn btn__size_medium">
+                    <img src="./assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic">
+        <div class="saved__grid" id="savedGrid"></div>
+
+        <div class="saved__empty" id="savedEmpty">
+            <div class="saved__empty_icon">
+                <img src="./assets/images/icon_add_bookmark_32dp.svg" width="28" height="28" style="opacity: 0.5;">
+            </div>
+            <div class="saved__empty_title">저장한 영상이 없습니다</div>
+            <div class="saved__empty_desc">영상 상세 화면에서 저장 버튼을 누르면<br>이곳에서 모아볼 수 있어요.</div>
+        </div>
+    </main>
+
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+                    <div class="btn__text">홈</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+                    <div class="btn__text">메시지</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+                    <div class="btn__text">만들기</div>
+                </button>
+                <div class="btnbox__badge">필수</div>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<script>
+    function bbmLoadSaved() {
+        try { return JSON.parse(localStorage.getItem('bbm_savedVideos') || '[]'); } catch (e) { return []; }
+    }
+    function bbmSaveSaved(list) {
+        try { localStorage.setItem('bbm_savedVideos', JSON.stringify(list)); } catch (e) { /* 무시 */ }
+    }
+
+    function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+    }
+    function escapeAttr(str) {
+        return escapeHtml(str).replace(/"/g, '&quot;');
+    }
+
+    function renderSavedGrid() {
+        var list = bbmLoadSaved();
+        var grid = document.getElementById('savedGrid');
+        var empty = document.getElementById('savedEmpty');
+
+        if (list.length === 0) {
+            grid.style.display = 'none';
+            empty.classList.add('is_visible');
+            grid.innerHTML = '';
+            return;
+        }
+
+        grid.style.display = 'grid';
+        empty.classList.remove('is_visible');
+
+        grid.innerHTML = list.map(function (v) {
+            return '' +
+                '<div class="saved__cell" data-id="' + escapeAttr(v.id) + '" style="background-image:url(\'' + escapeAttr(v.thumbnail) + '\');" onclick="location.href=\'./video_detail.html\';">' +
+                    '<div class="saved__unsave_btn" onclick="event.stopPropagation(); unsaveVideo(\'' + escapeAttr(v.id) + '\');">' +
+                        '<img src="./assets/images/icon_close_32dp.svg" width="14" height="14">' +
+                    '</div>' +
+                    '<div class="saved__cell_info"><div class="saved__cell_author">' + escapeHtml(v.author || '') + '</div></div>' +
+                '</div>';
+        }).join('');
+    }
+
+    function unsaveVideo(id) {
+        var list = bbmLoadSaved().filter(function (v) { return v.id !== id; });
+        bbmSaveSaved(list);
+        renderSavedGrid();
+    }
+
+    renderSavedGrid();
+</script>
+
+</body>
+</html>

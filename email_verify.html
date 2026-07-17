@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        /* ■ 이메일 인증 (2026-07-07 사장님 지시 4번 — mod/4-4.jpg 시안) */
+        .verify__teal_btn {
+            width: 100%;
+            padding: 17px;
+            border-radius: 100px;
+            border: none;
+            background-color: #1d8f87;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .verify__teal_btn:disabled {
+            background-color: #b7cfcd;
+            cursor: not-allowed;
+        }
+
+        .verify__resend {
+            text-align: center;
+            font-size: 13px;
+            color: var(--color-text-muted);
+            margin-top: 16px;
+        }
+
+        .verify__resend a {
+            color: #1d8f87;
+            font-weight: 700;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ 이메일 인증
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_white app__container_type_basic">
+    <header class="header header__bg_red header__type_basic">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="26" height="26">
+            </button>
+
+            <div class="title__main" style="color: #ffffff; font-size: 17px; font-weight: 700;">회원 가입</div>
+
+            <div class="iconbox__topbar" style="width: 42px;"></div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic">
+        <div class="main__content_wrapper">
+            <div class="form__body">
+                <div class="form__group">
+                    <div class="form__heading">이메일 인증</div>
+                    <div class="form__desc" id="verifyDesc">회원가입을 위해 이메일 인증이 필요합니다.<br>입력하신 이메일로 인증코드가 발송됩니다.</div>
+                </div>
+
+                <div class="form__group">
+                    <input class="form__input" type="email" id="verifyEmail" placeholder="이메일" style="padding-left: 41px; background-image: url('./assets/images/icon_email_20dp_gray.svg'); background-repeat: no-repeat; background-position: 12px center;">
+                    <div class="form__desc" id="verifyEmailError" style="display:none; color: var(--color-error); margin-top: 6px;">올바른 이메일 형식을 입력해주세요.</div>
+                </div>
+
+                <!-- 인증코드 입력 (전송 전에는 숨김) -->
+                <div class="form__group" id="verifyCodeGroup" style="display:none;">
+                    <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 8px;">
+                        <label class="form__label" style="margin-bottom: 0;">인증코드</label>
+                        <span class="form__timer" id="verifyTimer">05:00</span>
+                    </div>
+                    <input class="form__input" type="text" id="verifyCodeInput" placeholder="인증코드 6자리 입력" maxlength="6" oninput="updateVerifyEmailButton()">
+                    <div class="form__desc" id="verifyCodeError" style="display:none; color: var(--color-error); margin-top: 6px;"></div>
+                </div>
+
+                <button class="verify__teal_btn" id="verifyActionBtn" onclick="handleVerifyEmailAction();">인증 코드 전송</button>
+
+                <div class="verify__resend" id="verifyResendRow" style="display:none;">
+                    코드를 못 받으셨나요? <a onclick="sendVerifyCode(true);">재전송</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    var VERIFY_DEMO_CODE = '123456'; // 데모용 고정 인증코드 (실제로는 서버에서 발급)
+    var verifyCodeSent = false;
+    var verifyTimerHandle = null;
+    var verifySecondsLeft = 300;
+
+    function handleVerifyEmailAction() {
+        if (!verifyCodeSent) {
+            sendVerifyCode(false);
+        } else {
+            confirmVerifyCode();
+        }
+    }
+
+    function sendVerifyCode(isResend) {
+        var email = document.getElementById('verifyEmail').value.trim();
+        var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        var errorEl = document.getElementById('verifyEmailError');
+
+        if (!emailPattern.test(email)) {
+            errorEl.style.display = 'block';
+            return;
+        }
+        errorEl.style.display = 'none';
+
+        verifyCodeSent = true;
+        document.getElementById('verifyEmail').disabled = true;
+        document.getElementById('verifyDesc').innerHTML = '<strong>' + email + '</strong>로 인증코드를 보냈습니다.<br>메일함에서 6자리 코드를 확인해주세요.';
+        document.getElementById('verifyCodeGroup').style.display = 'block';
+        document.getElementById('verifyResendRow').style.display = 'block';
+        document.getElementById('verifyActionBtn').textContent = '인증 확인';
+        document.getElementById('verifyCodeInput').value = '';
+        document.getElementById('verifyCodeInput').focus();
+        updateVerifyEmailButton();
+
+        if (!isResend) {
+            alert('인증코드가 발송되었습니다.\n(데모 환경 안내: 인증번호 ' + VERIFY_DEMO_CODE + ')');
+        }
+
+        verifySecondsLeft = 300;
+        clearInterval(verifyTimerHandle);
+        verifyTimerHandle = setInterval(function () {
+            verifySecondsLeft--;
+            var m = String(Math.floor(verifySecondsLeft / 60)).padStart(2, '0');
+            var s = String(verifySecondsLeft % 60).padStart(2, '0');
+            document.getElementById('verifyTimer').textContent = m + ':' + s;
+            if (verifySecondsLeft <= 0) {
+                clearInterval(verifyTimerHandle);
+                var codeError = document.getElementById('verifyCodeError');
+                codeError.textContent = '인증 시간이 만료되었습니다. 재전송해주세요.';
+                codeError.style.display = 'block';
+            }
+        }, 1000);
+    }
+
+    function updateVerifyEmailButton() {
+        if (!verifyCodeSent) return;
+        var code = document.getElementById('verifyCodeInput').value;
+        document.getElementById('verifyActionBtn').disabled = code.length !== 6;
+    }
+
+    function confirmVerifyCode() {
+        var code = document.getElementById('verifyCodeInput').value;
+        var errorEl = document.getElementById('verifyCodeError');
+
+        if (code !== VERIFY_DEMO_CODE) {
+            errorEl.textContent = '인증코드가 일치하지 않습니다.';
+            errorEl.style.display = 'block';
+            return;
+        }
+
+        clearInterval(verifyTimerHandle);
+        location.href = './signup.html';
+    }
+</script>
+
+</body>
+</html>

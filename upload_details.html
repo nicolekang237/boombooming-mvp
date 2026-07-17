@@ -1,0 +1,611 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        /*
+        ▩ 업로드 상세 (영상 정보 입력 + AI 자동편집)
+        ▩ 공통 레이아웃/헤더/푸터를 제외하고, 이 페이지에서만 쓰이는 스타일.
+        ▩ 공용 폼 스타일(.form__*)은 main.css 맨 아래 섹션 참고 (로그인/회원가입 등과 공유).
+        */
+
+        .upload__preview {
+            width: 120px;
+            aspect-ratio: 9 / 16;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 0 auto 24px auto;
+        }
+
+        .upload__preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ■ 화면 사이즈 선택 (2026-07-16 사장님 수정지시, 누락 화면 8번) */
+        .size__picker {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: -12px auto 24px auto;
+        }
+
+        .size__option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .size__option_box {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            border: 2px solid #dddddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .size__option_box_inner {
+            background-color: #cccccc;
+            border-radius: 2px;
+        }
+
+        .size__option.active .size__option_box {
+            border-color: var(--color-primary-pink);
+        }
+
+        .size__option.active .size__option_box_inner {
+            background-color: var(--color-primary-pink);
+        }
+
+        .size__option.active .size__option_label {
+            color: var(--color-primary-pink);
+            font-weight: 700;
+        }
+
+        .size__option_label {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        /* ■ AI 자동편집 박스 */
+        .ai_box {
+            border: 1px solid #f0e3ff;
+            background: linear-gradient(180deg, #faf5ff 0%, #ffffff 60%);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .ai_box_header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .ai_box_icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background-color: #8b1fd6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ai_box_icon img {
+            width: 15px;
+            height: 15px;
+        }
+
+        .ai_box_title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #000000;
+        }
+
+        .ai_box_desc {
+            font-size: 12px;
+            color: var(--color-text-muted);
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .ai_box_state {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f0e3ff;
+        }
+
+        .ai_box_locked_text {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-text-muted);
+        }
+
+        .ai_box_preview_btn {
+            font-size: 12px;
+            font-weight: 700;
+            color: #8b1fd6;
+            border: 1px solid #8b1fd6;
+            border-radius: 20px;
+            padding: 6px 12px;
+            background: none;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .ai_box_active_text {
+            font-size: 13px;
+            font-weight: 700;
+            color: #000000;
+        }
+
+        /* 토글 스위치 */
+        .toggle_switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+
+        .toggle_switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle_slider {
+            position: absolute;
+            inset: 0;
+            background-color: var(--color-gray-200);
+            border-radius: 26px;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .toggle_slider::before {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            left: 3px;
+            top: 3px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            transition: 0.2s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .toggle_switch input:checked + .toggle_slider {
+            background-color: #8b1fd6;
+        }
+
+        .toggle_switch input:checked + .toggle_slider::before {
+            transform: translateX(18px);
+        }
+
+        /* ■ 공개범위 */
+        .visibility__row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .visibility__pill {
+            flex: 1;
+            text-align: center;
+            padding: 9px 0;
+            border-radius: 8px;
+            border: 1px solid var(--color-gray-200);
+            background-color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+            color: #000000;
+            cursor: pointer;
+        }
+
+        .visibility__pill_active {
+            background-color: #000000;
+            border-color: #000000;
+            color: #ffffff;
+        }
+
+        .upload__bottom_bar {
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ 업로드 상세 — 영상 정보 + AI 자동편집
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_white app__container_type_basic">
+    <header class="header header__bg_black header__type_basic">
+        <div class="topbar">
+            <button class="btn btn__size_medium" id="upload-back-btn" onclick="handleLeaveClick();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="24" height="24">
+            </button>
+
+            <div class="title__main" id="upload-page-title" style="color: #eee; font-size: 16px;">새 게시물</div>
+
+            <div class="iconbox__topbar" style="width: 42px;"></div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic">
+        <div class="main__content_wrapper">
+            <div class="form__body" style="padding-bottom: 16px;">
+
+                <div class="upload__preview" id="upload-preview">
+                    <img id="preview-img" src="./assets/images/sample_myvideo_1.png">
+                </div>
+                <div id="preview-source-badge" style="display:none; margin-top:-16px; margin-bottom:24px; font-size:12px; font-weight:600; color:#8b1fd6;"></div>
+                <div style="text-align: center; margin-top: -16px; margin-bottom: 24px; font-size: 12px; color: #9ca3af;">⏱ 영상은 15초 ~ 3분 길이여야 게시할 수 있어요</div>
+
+                <!-- ▣ 화면 사이즈 선택 (2026-07-16 사장님 수정지시, 누락 화면 8번) -->
+                <div class="size__picker">
+                    <div class="size__option active" data-ratio="9 / 16" onclick="selectSize(this)">
+                        <div class="size__option_box"><div class="size__option_box_inner" style="width:14px; height:22px;"></div></div>
+                        <div class="size__option_label">9:16</div>
+                    </div>
+                    <div class="size__option" data-ratio="1 / 1" onclick="selectSize(this)">
+                        <div class="size__option_box"><div class="size__option_box_inner" style="width:20px; height:20px;"></div></div>
+                        <div class="size__option_label">1:1</div>
+                    </div>
+                    <div class="size__option" data-ratio="4 / 5" onclick="selectSize(this)">
+                        <div class="size__option_box"><div class="size__option_box_inner" style="width:17px; height:21px;"></div></div>
+                        <div class="size__option_label">4:5</div>
+                    </div>
+                    <div class="size__option" data-ratio="16 / 9" onclick="selectSize(this)">
+                        <div class="size__option_box"><div class="size__option_box_inner" style="width:22px; height:13px;"></div></div>
+                        <div class="size__option_label">16:9</div>
+                    </div>
+                </div>
+
+                <div class="form__group">
+                    <label class="form__label">제목</label>
+                    <input class="form__input" type="text" id="upload-title-input" placeholder="영상 제목을 입력하세요">
+                </div>
+
+                <div class="form__group">
+                    <label class="form__label">내용</label>
+                    <textarea class="form__input" id="upload-desc-input" rows="3" placeholder="내용을 입력하세요..." style="resize: none; font-family: inherit;"></textarea>
+                </div>
+
+                <div class="form__group">
+                    <label class="form__label">해시태그</label>
+                    <input class="form__input" type="text" id="upload-hashtag-input" placeholder="#해시태그 #쉼표없이 #띄어쓰기로 구분">
+                </div>
+
+                <!-- ✨ AI 자동편집 영역 — 항상 노출 -->
+                <div class="ai_box">
+                    <div class="ai_box_header">
+                        <div class="ai_box_icon">
+                            <img src="./assets/images/icon_instant_mix_32dp_white.svg">
+                        </div>
+                        <div class="ai_box_title">AI 자동편집</div>
+                    </div>
+                    <div class="ai_box_desc">5분 영상을 자동으로 1분 숏폼 제작, AI 자막 생성, 제목 추천, 해시태그 추천까지 한 번에.</div>
+
+                    <!-- 비활성 상태 (조건 미충족) -->
+                    <div id="ai-locked" class="ai_box_state">
+                        <div class="ai_box_locked_text">
+                            <img src="./assets/images/icon_lock_32dp.svg" width="16" height="16" style="filter: invert(50%);">
+                            게시글 3개 작성 후 사용 가능
+                        </div>
+                        <button class="ai_box_preview_btn" onclick="previewAiEdit();">미리보기</button>
+                    </div>
+
+                    <!-- 활성 상태 (조건 충족, 기본 숨김) -->
+                    <div id="ai-active" class="ai_box_state" style="display: none;">
+                        <div class="ai_box_active_text">AI 자동편집 사용</div>
+                        <label class="toggle_switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle_slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form__group">
+                    <label class="form__label" style="margin-bottom: 12px;">공개범위</label>
+                    <div class="visibility__row">
+                        <div class="visibility__pill visibility__pill_active" onclick="selectVisibility(this);">전체공개</div>
+                        <div class="visibility__pill" onclick="selectVisibility(this);">친구만</div>
+                        <div class="visibility__pill" onclick="selectVisibility(this);">비공개</div>
+                    </div>
+                </div>
+
+                <div class="upload__bottom_bar">
+                    <button class="form__button" id="upload-publish-btn" onclick="handlePublish();">게시하기</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+                    <div class="btn__text">홈</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+                    <div class="btn__text">메시지</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp_fill.svg" width="28" height="28">
+                    <div class="btn__text" style="color: var(--color-primary-pink);">업로드</div>
+                </button>
+                <div class="btnbox__badge">필수</div>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ▣ 게시/수정 완료 팝업 -->
+    <div id="publish-success-overlay" style="display:none; position:fixed; inset:0; z-index:300; background:rgba(0,0,0,0.55); align-items:center; justify-content:center;">
+        <div style="background:#1e1e1e; border-radius:16px; padding:32px 28px; width:calc(100% - 64px); max-width:300px; text-align:center;">
+            <div style="width:56px; height:56px; border-radius:50%; background:rgba(80,200,140,0.15); display:flex; align-items:center; justify-content:center; margin:0 auto 18px;">
+                <img src="./assets/images/icon_check_32dp_bold.svg" width="28" height="28" style="filter: invert(68%) sepia(51%) saturate(464%) hue-rotate(97deg) brightness(93%) contrast(85%);">
+            </div>
+            <div id="publish-success-title" style="font-size:16px; font-weight:800; color:#fff; margin-bottom:24px;">게시되었습니다</div>
+            <button onclick="goAfterPublish();" style="width:100%; padding:13px; border-radius:12px; border:none; background:var(--color-primary-pink); color:#fff; font-size:14px; font-weight:800; cursor:pointer;">확인</button>
+        </div>
+    </div>
+
+    <!-- ▣ 업로드 진행 오버레이 (문서 C2 — 진행률 + 실패 + 재시도) -->
+    <div id="publish-progress-overlay" style="display:none; position:fixed; inset:0; z-index:300; background:rgba(0,0,0,0.75); align-items:center; justify-content:center;">
+        <div style="width:calc(100% - 64px); max-width:300px; text-align:center;">
+            <div style="width:44px; height:44px; margin:0 auto 20px; border-radius:50%; border:4px solid rgba(255,255,255,0.2); border-top-color:var(--color-primary-pink); animation:uploadSpin 0.9s linear infinite;"></div>
+            <div style="font-size:15px; font-weight:800; color:#fff; margin-bottom:8px;" id="publish-progress-title">업로드하는 중...</div>
+            <div style="font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:20px;" id="publish-progress-percent">0%</div>
+            <div style="width:100%; height:4px; border-radius:2px; background:rgba(255,255,255,0.15); overflow:hidden;">
+                <div id="publish-progress-fill" style="height:100%; width:0%; background:var(--color-primary-pink); transition:width 0.3s linear;"></div>
+            </div>
+        </div>
+    </div>
+    <style>@keyframes uploadSpin { to { transform: rotate(360deg); } }</style>
+
+    <!-- ▣ 업로드 실패 오버레이 -->
+    <div id="publish-fail-overlay" style="display:none; position:fixed; inset:0; z-index:300; background:rgba(0,0,0,0.75); align-items:center; justify-content:center;">
+        <div style="background:#1e1e1e; border-radius:16px; padding:32px 28px; width:calc(100% - 64px); max-width:300px; text-align:center;">
+            <div style="font-size:36px; margin-bottom:14px;">⚠️</div>
+            <div style="font-size:15px; font-weight:800; color:#fff; margin-bottom:8px;">업로드에 실패했어요</div>
+            <div style="font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:22px; line-height:1.6;">네트워크 상태를 확인하고 다시 시도해주세요.<br>작성한 내용은 임시저장되어 있어요.</div>
+            <button onclick="retryPublish();" style="width:100%; padding:13px; border-radius:12px; border:none; background:var(--color-primary-pink); color:#fff; font-size:14px; font-weight:800; cursor:pointer; margin-bottom:10px;">다시 시도</button>
+            <button onclick="handleLeaveClick();" style="width:100%; padding:13px; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:transparent; color:rgba(255,255,255,0.7); font-size:13px; font-weight:700; cursor:pointer;">나중에 게시하기</button>
+        </div>
+    </div>
+</div>
+
+<!-- ■□■□■ [SCRIPT] 'Javascript' Area -->
+<script>
+    // 수정 모드 여부 확인 (mychannel.html에서 '수정하기'로 진입한 경우)
+    var uploadParams = new URLSearchParams(location.search);
+    var isEditMode = uploadParams.get('mode') === 'edit';
+    var editingVideoId = uploadParams.get('videoId');
+
+    if (isEditMode) {
+        document.getElementById('upload-page-title').textContent = '게시물 수정';
+        document.getElementById('upload-publish-btn').textContent = '저장하기';
+        // 데모: 실제로는 서버에서 videoId로 기존 값을 조회해 아래 필드에 채워야 함
+        document.getElementById('upload-title-input').value = '내가 올린 영상 #' + editingVideoId;
+        document.getElementById('upload-desc-input').value = '';
+        document.getElementById('upload-hashtag-input').value = '';
+    }
+
+    // 임시저장(Draft) 이어쓰기 — upload_main.html의 배너에서 진입 (문서 C2)
+    var isDraftMode = uploadParams.get('mode') === 'draft';
+    if (isDraftMode) {
+        try {
+            var draft = JSON.parse(localStorage.getItem('bbm_uploadDraft') || 'null');
+            if (draft) {
+                document.getElementById('upload-title-input').value = draft.title || '';
+                document.getElementById('upload-desc-input').value = draft.desc || '';
+                document.getElementById('upload-hashtag-input').value = draft.hashtags || '';
+                if (draft.previewImg) document.getElementById('preview-img').src = draft.previewImg;
+                var badge = document.getElementById('preview-source-badge');
+                badge.textContent = '📝 임시저장된 게시물을 이어서 작성 중';
+                badge.style.display = 'block';
+            }
+        } catch (err) { /* 무시 */ }
+    }
+
+    // 뒤로가기 목적지 (일반 업로드 / 수정 모드에 따라 분기)
+    var LEAVE_DESTINATION = isEditMode ? './mychannel.html' : './upload_main.html';
+
+    // 나가기 시 작성 중인 내용이 있으면 임시저장 여부를 묻는다 (문서 C2 — 업로드 실패/이탈 시 Draft)
+    function hasUnsavedInput() {
+        return document.getElementById('upload-title-input').value.trim().length > 0 ||
+               document.getElementById('upload-desc-input').value.trim().length > 0 ||
+               document.getElementById('upload-hashtag-input').value.trim().length > 0;
+    }
+
+    function handleLeaveClick() {
+        if (!hasUnsavedInput()) {
+            location.href = LEAVE_DESTINATION;
+            return;
+        }
+        var choice = confirm('작성 중인 내용이 있어요.\n확인: 임시저장 후 나가기\n취소: 계속 작성하기');
+        if (choice) {
+            saveDraft();
+            location.href = LEAVE_DESTINATION;
+        }
+        // 취소를 누르면 아무 동작 없이 계속 작성
+    }
+
+    function saveDraft() {
+        try {
+            var draft = {
+                title: document.getElementById('upload-title-input').value,
+                desc: document.getElementById('upload-desc-input').value,
+                hashtags: document.getElementById('upload-hashtag-input').value,
+                previewImg: document.getElementById('preview-img').src,
+                savedAt: Date.now()
+            };
+            localStorage.setItem('bbm_uploadDraft', JSON.stringify(draft));
+        } catch (err) { /* 무시 */ }
+    }
+
+    // 데모: 강제 실패 테스트용 플래그 — 콘솔에서 window.FORCE_UPLOAD_FAIL = true 실행 후 게시 시도하면 실패 케이스 확인 가능
+    window.FORCE_UPLOAD_FAIL = false;
+    var progressTimer = null;
+
+    function handlePublish() {
+        var title = document.getElementById('upload-title-input').value.trim();
+        if (!title) {
+            alert('제목을 입력해주세요.');
+            return;
+        }
+        saveDraft(); // 업로드 시작 시점에도 임시저장 — 실패해도 내용 유실 방지
+        startUploadProgress();
+    }
+
+    function startUploadProgress() {
+        document.getElementById('publish-fail-overlay').style.display = 'none';
+        document.getElementById('publish-progress-title').textContent = isEditMode ? '저장하는 중...' : '업로드하는 중...';
+        document.getElementById('publish-progress-overlay').style.display = 'flex';
+
+        var pct = 0;
+        var fill = document.getElementById('publish-progress-fill');
+        var label = document.getElementById('publish-progress-percent');
+        clearInterval(progressTimer);
+        progressTimer = setInterval(function () {
+            pct += Math.random() * 18 + 7;
+            if (pct >= 100) {
+                pct = 100;
+                fill.style.width = '100%';
+                label.textContent = '100%';
+                clearInterval(progressTimer);
+                setTimeout(finishUpload, 300);
+                return;
+            }
+            fill.style.width = pct + '%';
+            label.textContent = Math.floor(pct) + '%';
+        }, 250);
+    }
+
+    function finishUpload() {
+        document.getElementById('publish-progress-overlay').style.display = 'none';
+
+        if (window.FORCE_UPLOAD_FAIL) {
+            document.getElementById('publish-fail-overlay').style.display = 'flex';
+            return;
+        }
+
+        try { localStorage.removeItem('bbm_uploadDraft'); } catch (err) { /* 무시 */ }
+        document.getElementById('publish-success-title').textContent = isEditMode ? '수정이 완료되었습니다' : '게시되었습니다';
+        document.getElementById('publish-success-overlay').style.display = 'flex';
+    }
+
+    function retryPublish() {
+        document.getElementById('publish-fail-overlay').style.display = 'none';
+        startUploadProgress();
+    }
+
+    function goAfterPublish() {
+        location.href = isEditMode ? './mychannel.html' : './home.html';
+    }
+
+    // 이전 화면(카메라 녹화 / 갤러리 동영상 선택 / 사진→동영상 만들기)에서 넘어온 결과물을 미리보기에 반영
+    (function () {
+        try {
+            var previewImg = sessionStorage.getItem('uploadPreviewImage');
+            if (previewImg) document.getElementById('preview-img').src = previewImg;
+
+            var sourceType = sessionStorage.getItem('uploadSourceType');
+            var badge = document.getElementById('preview-source-badge');
+            if (sourceType === 'slideshow') {
+                var count = sessionStorage.getItem('uploadPhotoCount') || '0';
+                badge.textContent = '🖼 사진 ' + count + '장으로 만든 동영상';
+                badge.style.display = 'block';
+            } else if (sourceType === 'trim') {
+                var range = JSON.parse(sessionStorage.getItem('uploadTrimRange') || 'null');
+                if (range) {
+                    var fmt = function (s) { return Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0'); };
+                    badge.textContent = '✂️ 직접 자른 구간 (' + fmt(range.start) + ' - ' + fmt(range.end) + ')';
+                    badge.style.display = 'block';
+                }
+            } else if (sourceType === 'ai_highlight') {
+                badge.textContent = '✨ AI가 자동 추출한 하이라이트';
+                badge.style.display = 'block';
+
+                var aiTitle = sessionStorage.getItem('uploadAiTitle');
+                var aiHashtags = sessionStorage.getItem('uploadAiHashtags');
+                if (aiTitle) document.getElementById('upload-title-input').value = aiTitle;
+                if (aiHashtags) document.getElementById('upload-hashtag-input').value = aiHashtags;
+            }
+        } catch (err) { /* 세션 스토리지 사용 불가 시 기본값 유지 */ }
+    })();
+
+    // 화면 사이즈 선택 (2026-07-16 사장님 수정지시, 누락 화면 8번)
+    function selectSize(el) {
+        document.querySelectorAll('.size__option').forEach(function (opt) {
+            opt.classList.remove('active');
+        });
+        el.classList.add('active');
+        document.getElementById('upload-preview').style.aspectRatio = el.getAttribute('data-ratio');
+        try { sessionStorage.setItem('uploadAspectRatio', el.getAttribute('data-ratio')); } catch (err) { /* 무시 */ }
+    }
+
+    // 데모용: "미리보기" 클릭 시 조건 충족(활성) 상태를 보여줍니다.
+    // 실제로는 서버에서 내려주는 게시글 수(작성 조건) 값에 따라 ai-locked / ai-active 표시를 분기하면 됩니다.
+    function previewAiEdit() {
+        document.getElementById('ai-locked').style.display = 'none';
+        document.getElementById('ai-active').style.display = 'flex';
+    }
+
+    function selectVisibility(el) {
+        document.querySelectorAll('.visibility__pill').forEach(function (p) {
+            p.classList.remove('visibility__pill_active');
+        });
+        el.classList.add('visibility__pill_active');
+    }
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,460 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        /*
+        ▩ 업로드 - 사진으로 동영상 만들기 (슬라이드쇼 에디터)
+        ▩ 공통 레이아웃/헤더를 제외하고, 이 페이지에서만 쓰이는 스타일.
+        ▩ 하단 네비게이션 없음 (카메라/업로드 상세 화면과 동일하게 몰입형 전체 화면 사용).
+        */
+
+        .main__container_type_basic.slideshow__main {
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background-color: #000000;
+        }
+
+        /* ■ 슬라이드쇼 뷰어 */
+        .slideshow__viewer_area {
+            position: relative;
+            flex: 1;
+            min-height: 0;
+            background-color: #000000;
+            overflow: hidden;
+        }
+
+        .slideshow__viewer {
+            position: absolute;
+            inset: 0;
+        }
+
+        .slideshow__slide {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+        }
+
+        .slideshow__slide.is_active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* 전환 효과 — 밀어내기 */
+        .slideshow__slide.fx_slide {
+            transform: translateX(100%);
+        }
+        .slideshow__slide.fx_slide.is_active {
+            transform: translateX(0);
+        }
+        .slideshow__slide.fx_slide.is_prev {
+            transform: translateX(-100%);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* 전환 효과 — 줌 인 */
+        .slideshow__slide.fx_zoom {
+            transform: scale(0.85);
+        }
+        .slideshow__slide.fx_zoom.is_active {
+            transform: scale(1);
+        }
+
+        /* 상단 진행 바 (인스타 스토리 형태) */
+        .slideshow__progress_row {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            gap: 4px;
+            z-index: 3;
+        }
+
+        .slideshow__progress_track {
+            flex: 1;
+            height: 3px;
+            border-radius: 2px;
+            background-color: rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+        }
+
+        .slideshow__progress_fill {
+            height: 100%;
+            width: 0%;
+            background-color: #ffffff;
+        }
+
+        .slideshow__progress_track.is_done .slideshow__progress_fill {
+            width: 100%;
+        }
+
+        .slideshow__count_badge {
+            position: absolute;
+            left: 12px;
+            bottom: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffffff;
+            background-color: rgba(0, 0, 0, 0.55);
+            padding: 4px 10px;
+            border-radius: 12px;
+            z-index: 3;
+        }
+
+        /* ■ 하단 편집 도구 패널 */
+        .slideshow__tools {
+            background-color: var(--color-gray-900);
+            border-radius: 16px 16px 0 0;
+            padding: 20px 20px 0 20px;
+            max-height: 46vh;
+            overflow-y: auto;
+        }
+
+        .tools__section {
+            margin-bottom: 20px;
+        }
+
+        .tools__section_title {
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.55);
+            margin-bottom: 10px;
+        }
+
+        .tools__scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .tools__scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tool__chip {
+            flex-shrink: 0;
+            padding: 8px 16px;
+            border-radius: 18px;
+            background-color: rgba(255, 255, 255, 0.1);
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.75);
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .tool__chip.active {
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        .slideshow__bottom_bar {
+            padding: 16px 20px 24px 20px;
+            background-color: var(--color-gray-900);
+        }
+
+        /* ■ '동영상 생성 중' 시뮬레이션 오버레이 */
+        .generating__overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.92);
+            z-index: 50;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            text-align: center;
+            padding: 0 40px;
+        }
+
+        .generating__overlay.is_open {
+            display: flex;
+        }
+
+        .generating__spinner {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #ffffff;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .generating__title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .generating__desc {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.55);
+            line-height: 1.5;
+        }
+
+        .generating__progress_track {
+            width: 100%;
+            max-width: 220px;
+            height: 4px;
+            border-radius: 2px;
+            background-color: rgba(255, 255, 255, 0.15);
+            overflow: hidden;
+        }
+
+        .generating__progress_fill {
+            height: 100%;
+            width: 0%;
+            background-color: #ffffff;
+            transition: width 1.6s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ 업로드 — 사진으로 동영상 만들기 (슬라이드쇼 에디터)
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_white app__container_type_basic">
+    <header class="header header__bg_black header__type_basic">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="location.href='./upload_main.html';">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="24" height="24">
+            </button>
+
+            <div class="title__main" style="color: #eee; font-size: 16px;">동영상 만들기</div>
+
+            <div class="iconbox__topbar" style="width: 42px;"></div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic slideshow__main">
+
+        <!-- 슬라이드쇼 미리보기 -->
+        <div class="slideshow__viewer_area">
+            <div class="slideshow__viewer" id="slideshow-viewer"></div>
+
+            <div class="slideshow__progress_row" id="progress-row"></div>
+            <div class="slideshow__count_badge" id="count-badge">사진 0장</div>
+        </div>
+
+        <!-- 편집 도구 -->
+        <div class="slideshow__tools">
+            <div class="tools__section">
+                <div class="tools__section_title">전환 효과</div>
+                <div class="tools__scroll">
+                    <div class="tool__chip active" onclick="selectTransition(this, 'fx_fade');">부드럽게 (페이드)</div>
+                    <div class="tool__chip" onclick="selectTransition(this, 'fx_slide');">밀어내기 (슬라이드)</div>
+                    <div class="tool__chip" onclick="selectTransition(this, 'fx_zoom');">튀어오르기 (줌 인)</div>
+                </div>
+            </div>
+
+            <div class="tools__section">
+                <div class="tools__section_title">배경 음악 추천 (AI)</div>
+                <div class="tools__scroll">
+                    <div class="tool__chip active" onclick="selectChip(this);">무음 (원본)</div>
+                    <div class="tool__chip" onclick="selectChip(this);">트렌디 팝</div>
+                    <div class="tool__chip" onclick="selectChip(this);">신나는 댄스</div>
+                    <div class="tool__chip" onclick="selectChip(this);">차분한 감성</div>
+                </div>
+            </div>
+
+            <div class="tools__section">
+                <div class="tools__section_title">전환 속도</div>
+                <div class="tools__scroll">
+                    <div class="tool__chip active" onclick="selectSpeed(this, 2200);">보통</div>
+                    <div class="tool__chip" onclick="selectSpeed(this, 1200);">빠르게</div>
+                    <div class="tool__chip" onclick="selectSpeed(this, 3200);">느리게</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slideshow__bottom_bar">
+            <button class="form__button" onclick="startGenerating();">다음</button>
+        </div>
+    </main>
+
+    <!-- '동영상 생성 중' 시뮬레이션 오버레이 -->
+    <div class="generating__overlay" id="generating-overlay">
+        <div class="generating__spinner"></div>
+        <div class="generating__title">AI가 영상을 만들고 있어요</div>
+        <div class="generating__desc" id="generating-desc">선택한 사진에 전환 효과와 음악을 입혀 하나의 영상으로 합치는 중입니다.</div>
+        <div class="generating__progress_track">
+            <div class="generating__progress_fill" id="generating-progress"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ■□■□■ [SCRIPT] 'Javascript' Area -->
+<script>
+    /* =========================================================================
+       선택된 사진 불러오기 (upload_main.html에서 sessionStorage로 전달)
+       ========================================================================= */
+    var itemsStr = sessionStorage.getItem('selectedGalleryItems');
+    var selectedIds = itemsStr ? JSON.parse(itemsStr) : [];
+    var imageUrls = selectedIds.map(function (id) {
+        var num = id.replace('img_', '');
+        return './assets/images/sample_myvideo_' + num + '.png';
+    });
+
+    if (imageUrls.length === 0) {
+        alert('선택된 사진이 없습니다.');
+        location.href = './upload_main.html';
+    }
+
+    document.getElementById('count-badge').textContent = '사진 ' + imageUrls.length + '장';
+
+    var viewer = document.getElementById('slideshow-viewer');
+    var progressRow = document.getElementById('progress-row');
+    var currentTransition = 'fx_fade';
+
+    imageUrls.forEach(function (url, index) {
+        var img = document.createElement('img');
+        img.src = url;
+        img.className = 'slideshow__slide ' + currentTransition;
+        if (index === 0) img.classList.add('is_active');
+        viewer.appendChild(img);
+
+        var track = document.createElement('div');
+        track.className = 'slideshow__progress_track';
+        track.innerHTML = '<div class="slideshow__progress_fill"></div>';
+        progressRow.appendChild(track);
+    });
+
+    var currentIndex = 0;
+    var slideInterval = null;
+    var slideDuration = 2200;
+
+    function paintProgress() {
+        var tracks = document.querySelectorAll('.slideshow__progress_track');
+        tracks.forEach(function (track, idx) {
+            track.classList.toggle('is_done', idx < currentIndex);
+            var fill = track.querySelector('.slideshow__progress_fill');
+            if (idx === currentIndex) {
+                fill.style.transition = 'none';
+                fill.style.width = '0%';
+                setTimeout(function () {
+                    fill.style.transition = 'width ' + slideDuration + 'ms linear';
+                    fill.style.width = '100%';
+                }, 30);
+            } else if (idx > currentIndex) {
+                fill.style.transition = 'none';
+                fill.style.width = '0%';
+            }
+        });
+    }
+
+    function startSlideshow() {
+        var slides = document.querySelectorAll('.slideshow__slide');
+        clearInterval(slideInterval);
+        paintProgress();
+        if (slides.length <= 1) return;
+
+        slideInterval = setInterval(function () {
+            slides.forEach(function (s) { s.classList.remove('is_prev'); });
+            slides[currentIndex].classList.remove('is_active');
+            if (currentTransition === 'fx_slide') {
+                slides[currentIndex].classList.add('is_prev');
+            }
+
+            currentIndex = (currentIndex + 1) % slides.length;
+            slides[currentIndex].classList.add('is_active');
+            paintProgress();
+        }, slideDuration);
+    }
+
+    startSlideshow();
+
+    /* =========================================================================
+       편집 도구 — 전환 효과 / 음악(모의) / 속도
+       ========================================================================= */
+    function selectChip(elem) {
+        var siblings = elem.parentElement.querySelectorAll('.tool__chip');
+        siblings.forEach(function (s) { s.classList.remove('active'); });
+        elem.classList.add('active');
+    }
+
+    function selectTransition(elem, transitionClass) {
+        selectChip(elem);
+        currentTransition = transitionClass;
+
+        var slides = document.querySelectorAll('.slideshow__slide');
+        slides.forEach(function (slide, idx) {
+            slide.className = 'slideshow__slide ' + currentTransition;
+            if (idx === currentIndex) slide.classList.add('is_active');
+        });
+    }
+
+    function selectSpeed(elem, speed) {
+        selectChip(elem);
+        slideDuration = speed;
+        startSlideshow();
+    }
+
+    /* =========================================================================
+       '동영상 생성' 시뮬레이션 — 실제 인코딩 없이 진행률 애니메이션만 보여준 뒤
+       상세 입력 화면으로 이동합니다 (합성 로직은 서버/네이티브 파이프라인 붙는 자리).
+       ========================================================================= */
+    function startGenerating() {
+        clearInterval(slideInterval);
+        var overlay = document.getElementById('generating-overlay');
+        var fill = document.getElementById('generating-progress');
+        var desc = document.getElementById('generating-desc');
+        overlay.classList.add('is_open');
+
+        var steps = [
+            '선택한 사진 ' + imageUrls.length + '장을 정렬하는 중...',
+            '전환 효과와 배경음악을 입히는 중...',
+            '영상 파일로 합성하는 중...'
+        ];
+        var stepIndex = 0;
+        desc.textContent = steps[0];
+
+        requestAnimationFrame(function () {
+            fill.style.width = '100%';
+        });
+
+        var stepTimer = setInterval(function () {
+            stepIndex++;
+            if (stepIndex < steps.length) desc.textContent = steps[stepIndex];
+        }, 550);
+
+        setTimeout(function () {
+            clearInterval(stepTimer);
+            try {
+                sessionStorage.setItem('uploadPreviewImage', imageUrls[0]);
+                sessionStorage.setItem('uploadPhotoCount', String(imageUrls.length));
+                sessionStorage.setItem('uploadSourceType', 'slideshow');
+            } catch (err) { /* 세션 스토리지 사용 불가 시 무시 */ }
+            location.href = './upload_details.html';
+        }, 1700);
+    }
+</script>
+
+</body>
+</html>
+

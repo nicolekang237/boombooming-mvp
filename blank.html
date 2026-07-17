@@ -1,0 +1,460 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        /*
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+        ▩ Blank - 다용도로 쓸 수 있는 빈 페이지
+
+        ▩ 공통으로 쓰이는 레이아웃, 헤더, 푸터 등을 제외하고 오직 이 페이지에서만 쓰이는 스타일은 이곳에만 기재.
+
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        */
+
+        /* ■ 페이지 상단의 헤더 영역
+        ---------------------------------------------------------------------- */
+        .topinfo {
+            display: inline-flex;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            height: 70px;
+            padding: 0 20px 6px 170px;
+            background-position: center bottom;
+            background-size: 430px;
+        }
+
+        .topinfo__inner {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            width: auto;
+            height: 100%;
+        }
+
+        .topinfo__subs, .topinfo__posts, .topinfo__text_subs, .topinfo__text_posts {
+            text-align: center;
+            line-height: 1.15;
+            white-space: nowrap;
+        }
+
+        .topinfo__number_subs, .topinfo__number_posts {
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: -2px;
+        }
+
+        .topinfo__number_subs, .topinfo__unit_subs {
+            vertical-align: baseline;
+        }
+
+        .topinfo__number_subs {
+            color: var(--color-accent-gold-light);
+        }
+
+        .topinfo__unit_subs {
+            font-size: 18px;
+            font-weight: 100;
+        }
+
+        .btn__edit_photo {
+            position: absolute;
+            bottom: -58px;
+            left: 118px;
+        }
+
+        .main__username {
+            width: 100%;
+            padding: 14px 20px 20px 176px;
+        }
+
+        .main__username_text {
+            display: inline-block;
+            width: auto;
+            min-width: 160px;
+            font-size: 18px;
+            font-weight: 700;
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        .btn__copy_link {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 4px;
+            color: #2defff;
+            text-decoration: underline;
+        }
+
+
+        /* ■ 메인 컨텐츠 영역
+        ---------------------------------------------------------------------- */
+        .main__content_container {
+            width: 100%;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        /* 메인 컨텐츠의 Header 영역 */
+        .main__content_container_header {
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            min-height: 50px;
+            padding: 0 14px 0 20px;
+        }
+
+        .main__content_menu_etc {
+            display: flex;
+            gap: 10px;
+        }
+
+        .main__content_menu_etc img {
+            margin-top: -3px;
+        }
+
+        .main__content_title {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .main__content_title_sub {
+            width: 100%;
+            margin-top: 8px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .expand-icon { /* 타이틀 오른쪽의 '펼침 아이콘'' 영역 */
+            display: flex;
+            line-height: 1;
+        }
+
+        .btn__more { /* 타이틀 오른쪽의 '더 보기' 버튼 영역 */
+            font-size: 13px;
+            font-weight: 700;
+            color: #35b4ce;
+        }
+
+        /* 메인 컨텐츠의 Body 영역 */
+        .main__content_container_body {
+            width: 100%;
+            padding: 0 20px 20px 20px;
+        }
+
+        .main__content_container_body_s {
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        .container__body_type_row_a {
+            display: flex;
+            gap: 12px;
+        }
+
+        .container__body_type_grid_b {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+            justify-content: start;
+        }
+
+        .main__content_vod_thumb { /* 동영상 썸네일 */
+            width: 120px;
+            aspect-ratio: 7 / 13;
+            padding: 4px 8px;
+            border-radius: 14px;
+            background-color: rgba(255, 255, 255, 0.2);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .views__vod_thumb { /* 동영상 조회수 표시 영역 */
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            text-shadow: 0 0 6px rgba(0, 0, 0, 1);
+        }
+
+        .views__iconbox {
+            display: flex;
+        }
+
+        .main__content_avatar { /* 인맥 전용 아바타 */
+            /* */
+        }
+
+        .main__content_listbox { /* '마이 프로필' 개별 목록 박스 */
+            width: 100%;
+        }
+
+        .listbox__title { /* '마이 프로필' 목록의 타이틀 */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin: 26px 0 16px 0;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .listbox__textbox { /* '마이 프로필' 목록 박스 */
+            width: 100%;
+        }
+
+        .listbox__textbox_s {
+            width: 100%;
+            padding-bottom: 14px;
+        }
+
+        .textbox__body { /* '마이 프로필' 목록의 테스트 보기 영역 */
+            width: 100%;
+            line-height: 1.6;
+            color: var(--color-accent-gold);
+            white-space: pre-wrap;
+        }
+
+        .textbox__preview { /* '마이 프로필' 목록의 테스트 쓰기 영역 - <textarea> */
+            width: 100%;
+            min-height: 30px;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            line-height: 1.6;
+            white-space: pre-wrap;
+            font-style: italic;
+            color: #999;
+            background-color: transparent;
+        }
+
+        .listbox__type_row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .conbox__Interest { /* 선택된 주제어 박스 */
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 32px;
+            padding: 6px 10px 4px 10px;
+            border-radius: 4px;
+            line-height: 1;
+            background-color: rgba(220, 190, 70, 0.2);
+            overflow: hidden;
+        }
+
+        .conbox__Interest span {
+            margin-top: -3px;
+        }
+
+        .listbox__type_unitbox { /* '붐부밍 지수' 목록 박스 */
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .unitbox__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            width: 100%;
+            padding: 12px 12px 4px 12px;
+        }
+
+        .unitbox__header_avatar {
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .unitbox__body {
+            width: 100%;
+            padding: 10px 12px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            color: var(--color-accent-gold);
+        }
+
+        .unitbox__footer {
+            width: 100%;
+            padding: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 13px;
+            text-align: right;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ My Suite
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_dark app__container_type_basic">
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Header - 상단바 영역.(고정 영역)
+    ▨ 인클루드를 위해 별도의 파일로 만들어서 Import시켜야 하는 하는 영역.
+    ▨ 단, 내부의 버튼이나 구성 등이 페이지마다 다름.
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <header class="header header__bg_red header__type_basic">
+        <div class="topbar">
+
+            <!-- ▨ NOTE - 여기서부터의 내용은 페이지마다 다를 수 있음 -->
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+            </button>
+
+            <div class="title__main">
+                <span class="title__main_name">Title</span>
+            </div>
+
+            <div class="iconbox__topbar">
+                <button class="btn btn__size_medium">
+                    <img src="./assets/images/icon_edit_32dp.svg" width="26" height="26">
+                </button>
+
+                <button class="btn btn__size_medium">
+                    <img src="./assets/images/icon_settings_32dp.svg" width="28" height="28">
+                </button>
+            </div>
+
+        </div>        
+    </header>
+
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Body - 메인 컨텐츠 영역(스크롤 영역)
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <main class="main__container main__container_type_basic">
+
+        <!-- ▣▣▣▣▣ 메뉴 컨텐츠 -->
+        <div class="main__content_wrapper">
+
+
+        </div>
+
+    </main>
+
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Footer - 하단 툴바 영역.(고정 영역)
+    ▨ 인클루드를 위해 별도의 파일로 만들어서 Import시켜야 하는 하는 영역.
+    ▨ 단, 내부의 버튼이나 구성 등이 페이지마다 다름.
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+
+                    <div class="btn__text">홈</div>
+                </button>
+
+                <!-- Active Button - '홈' -->
+                <!--
+                <button class="btn__full">
+                    <img src="./assets/images/icon_home_32dp_fill.svg" width="28" height="28">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">홈</div>
+                </button>
+                -->
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+
+                    <div class="btn__text">메시지</div>
+                </button>
+
+                <!-- Active Button - '대화' -->
+                <!--
+                <button class="btn__full">
+                    <img src="./assets/images/icon_chat_32dp_fill.svg" width="26" height="26" style="margin-top: 2px;">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">대화</div>
+                </button>
+                -->
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+
+                    <div class="btn__text">만들기</div>
+                </button>
+
+                <!-- Active Button - '업로드' -->
+                <!--
+                <button class="btn__full">
+                    <img src="./assets/images/icon_add_32dp_fill.svg" width="28" height="28">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">업로드</div>
+                </button>
+                -->
+
+                <div class="btnbox__badge">필수</div>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <!--
+                <button class="btn__full">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+                -->
+
+                <!-- Active Button - 'My Suite' -->
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+
+<!-- ■□■□■ [SCRIPT] 'Javascript' Area -->
+
+</body>
+</html>

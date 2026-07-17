@@ -1,0 +1,505 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        /*
+        ▩ 채팅방 — 매칭 성사 직후 소개 (리나 강의 1회성 시스템 소개 메시지)
+        ▩ 실제 사용자끼리(예: 김순이 ↔ 이철수) 인맥 신청이 상호 성사되면,
+        ▩ 채팅방이 처음 열릴 때 딱 한 번 이 소개 카드 + 리나 강의 안내 메시지가 표시됨.
+        ▩ 공통으로 쓰이는 레이아웃, 헤더, 푸터 등을 제외하고 오직 이 페이지에서만 쓰이는 스타일은 이곳에만 기재.
+        */
+
+        .chatroom__container {
+            display: flex;
+            flex-direction: column-reverse;
+            width: 100%;
+            padding: 20px;
+            height: 50px;
+            overflow-y: scroll;
+            flex-grow: 1;
+        }
+
+        .chatroom__balloon_list {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            margin-top: 16px;
+        }
+
+        .chatroom__balloon_textbox {
+            display: flex;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .chatroom__balloon_header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            position: relative;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .chatroom__balloon_date {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .chatroom__balloon_body {
+            position: relative;
+            max-width: 85%;
+            padding: 12px 16px;
+        }
+
+        .chatroom__balloon_message {
+            position: relative;
+            width: 100%;
+            color: #444444;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        .icon__balloon_arrow_l {
+            position: absolute;
+            top: 0;
+            left: -16px;
+            width: 16px;
+            height: 16px;
+        }
+
+        .balloon__type_users .chatroom__balloon_body {
+            border-radius: 0 10px 10px 10px;
+            background-color: #ffffff;
+        }
+
+        /* ■ 오늘 구분선 */
+        .chatroom__date_divider {
+            display: flex;
+            justify-content: center;
+            margin: 8px 0 20px 0;
+        }
+
+        .chatroom__date_divider span {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 5px 14px;
+            border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* ■ 새로운 인맥 연결 카드 — 매칭된 두 사람을 소개 */
+        .chatroom__intro_card {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: 20px 16px;
+            margin-bottom: 20px;
+        }
+
+        .chatroom__intro_label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0.85;
+            margin-bottom: 20px;
+        }
+
+        .chatroom__intro_people {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .chatroom__intro_person {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chatroom__intro_person_name {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .chatroom__intro_person_role {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .chatroom__intro_link_icon {
+            width: 20px;
+            height: 20px;
+            opacity: 0.8;
+        }
+
+        .chatroom__writer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            width: 100%;
+            height: 80px;
+            max-height: 200px;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+        }
+
+        .textarea__chatroom_writer {
+            width: 100%;
+            height: 100%;
+        }
+
+        .textarea__chatroom_writer textarea {
+            width: 100%;
+            height: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            line-height: 1.4;
+            color: #ffffff;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        /* ■ 더보기 액션시트 — 신고하기 / 차단하기 / 채팅방 나가기 */
+        .more__sheet_backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.45);
+            z-index: 220;
+        }
+
+        .more__sheet_backdrop.is_open {
+            display: block;
+        }
+
+        .more__sheet {
+            position: fixed;
+            left: 50%;
+            bottom: 0;
+            transform: translate(-50%, 100%);
+            width: 100%;
+            max-width: 430px;
+            z-index: 221;
+            background-color: #1e1e1e;
+            border-radius: 16px 16px 0 0;
+            padding: 10px 16px 28px;
+            transition: transform 0.25s ease-out;
+        }
+
+        .more__sheet.is_open {
+            transform: translate(-50%, 0);
+        }
+
+        .more__sheet_handle {
+            width: 36px;
+            height: 4px;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.2);
+            margin: 6px auto 14px;
+        }
+
+        .more__sheet_item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 14px 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+        }
+
+        .more__sheet_item:last-of-type {
+            border-bottom: none;
+        }
+
+        .more__sheet_item_title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .more__sheet_item.is_danger .more__sheet_item_title {
+            color: var(--color-error);
+        }
+
+        .more__sheet_item_desc {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        .more__sheet_cancel {
+            margin-top: 12px;
+            text-align: center;
+            padding: 14px;
+            border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.08);
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ 채팅방 — 매칭 성사 직후 소개 (예시: 김순이 ↔ 이철수)
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_chatroom app__container_type_basic">
+    <header class="header header__bg_green header__type_basic">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="location.href='./chat.html';">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="24" height="24">
+            </button>
+
+            <div class="title__main">
+                <div class="unitbox__header_avatar avatar__row">
+                    <div class="avatar avatar__size_tiny">
+                        <img src="./assets/images/sample_avatar_3.png">
+                    </div>
+
+                    <div class="avatar__name">이철수</div>
+                </div>
+            </div>
+
+            <div class="iconbox__topbar">
+                <button class="btn btn__size_medium" onclick="location.href='./chat_directory.html';">
+                    <img src="./assets/images/icon_add_folder_32dp.svg" width="30" height="30">
+                </button>
+                <button class="btn btn__size_medium" onclick="openMoreSheet();">
+                    <img src="./assets/images/icon_more_vert_32dp.svg" width="26" height="26">
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_chatroom">
+        <div class="main__content_wrapper">
+            <div class="chatroom__container">
+                <div class="chatroom__container_inner">
+
+                    <div class="chatroom__date_divider"><span>오늘</span></div>
+
+                    <!-- ▨ 새로운 인맥 연결 카드 — 매칭 직후 딱 한 번만 노출 -->
+                    <div class="chatroom__intro_card">
+                        <div class="chatroom__intro_label">
+                            <img class="chatroom__intro_link_icon" src="./assets/images/icon_link_32dp.svg">
+                            새로운 인맥 연결
+                        </div>
+
+                        <div class="chatroom__intro_people">
+                            <div class="chatroom__intro_person">
+                                <div class="avatar avatar__size_big">
+                                    <img src="./assets/images/sample_avatar_2.png">
+                                </div>
+                                <div class="chatroom__intro_person_name">김순이</div>
+                                <div class="chatroom__intro_person_role">화가</div>
+                            </div>
+
+                            <div class="chatroom__intro_person">
+                                <div class="avatar avatar__size_big">
+                                    <img src="./assets/images/sample_avatar_3.png">
+                                </div>
+                                <div class="chatroom__intro_person_name">이철수</div>
+                                <div class="chatroom__intro_person_role">갤러리 관장</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ▨ 리나 강 — 매칭 성사 직후 1회성 시스템 소개 메시지 -->
+                    <div class="chatroom__balloon_list balloon__type_users">
+                        <div class="chatroom__balloon_avatar">
+                            <div class="avatar avatar__size_medium">
+                                <img src="./assets/images/sample_avatar_rina.png">
+                            </div>
+                        </div>
+
+                        <div class="chatroom__balloon_textbox">
+                            <div class="chatroom__balloon_header">
+                                <div>리나 강</div>
+                                <div class="chatroom__balloon_date">오전 10:30</div>
+                            </div>
+
+                            <div class="chatroom__balloon_body">
+                                <img class="icon__balloon_arrow_l" src="./assets/images/balloon_arrow_l.svg">
+                                <div class="chatroom__balloon_message">안녕하세요, 김순이님. 안녕하세요, 이철수님.
+
+김순이님은 자신만의 색과 시선으로
+작품 세계를 만들어가고 계신 화가이시고,
+이철수님은 좋은 작가와 작품을 발굴해
+소개해오신 갤러리 관장님이세요.
+
+두 분 모두 '작품이 사람에게 어떻게
+전해지는가'에 관심이 있으실 것 같아요.
+
+저는 여기까지 소개드리고 물러날게요.
+두 분 편하게 인사 나눠보세요.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="chatroom__writer">
+                <div class="textarea__chatroom_writer">
+                    <textarea placeholder="메시지를 입력하세요"></textarea>
+                </div>
+
+                <div class="btnbox__chatroom_writer">
+                    <button class="btn btn__circle btn__size_medium" style="background-color: var(--color-primary-pink-active);">
+                        <img src="./assets/images/icon_send_32dp.svg" width="26" height="26" style="margin-left: 3px;">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer footer__type_basic">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+                    <div class="btn__text">홈</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp_fill.svg" width="26" height="26" style="margin-top: 2px;">
+                    <div class="btn__text" style="color: var(--color-primary-pink);">대화</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+                    <div class="btn__text">만들기</div>
+                </button>
+                <div class="btnbox__badge">필수</div>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ▣ 더보기 액션시트 — 신고하기 / 차단하기 / 채팅방 나가기 -->
+    <div class="more__sheet_backdrop" id="moreSheetBackdrop" onclick="closeMoreSheet();"></div>
+    <div class="more__sheet" id="moreSheet">
+        <div class="more__sheet_handle"></div>
+
+        <div class="more__sheet_item" onclick="reportChatPartner();">
+            <div class="more__sheet_item_title">신고하기</div>
+            <div class="more__sheet_item_desc">부적절한 대화 또는 활동을 운영팀에 알립니다.</div>
+        </div>
+
+        <div class="more__sheet_item is_danger" onclick="blockChatPartner();">
+            <div class="more__sheet_item_title">차단하기</div>
+            <div class="more__sheet_item_desc">더 이상 추천되지 않고, 서로 채팅도 할 수 없게 됩니다.</div>
+        </div>
+
+        <div class="more__sheet_item is_danger" onclick="leaveChatRoom();">
+            <div class="more__sheet_item_title">채팅방 나가기</div>
+            <div class="more__sheet_item_desc">대화 목록에서 이 채팅방이 삭제됩니다.</div>
+        </div>
+
+        <div class="more__sheet_cancel" onclick="closeMoreSheet();">취소</div>
+    </div>
+</div>
+
+<script>
+    const CHAT_PARTNER = {
+        id: 'lee_chulsoo',
+        name: '이철수',
+        avatar: './assets/images/sample_avatar_3.png'
+    };
+
+    function bbmLoadBlocked() {
+        try { return JSON.parse(localStorage.getItem('bbm_blockedUsers') || '[]'); } catch (e) { return []; }
+    }
+    function bbmSaveBlocked(list) {
+        try { localStorage.setItem('bbm_blockedUsers', JSON.stringify(list)); } catch (e) { /* 무시 */ }
+    }
+    function bbmBlockUser(user) {
+        const list = bbmLoadBlocked();
+        if (!list.some(function (u) { return u.id === user.id; })) {
+            list.push({ id: user.id, name: user.name, avatar: user.avatar, blockedAt: Date.now() });
+            bbmSaveBlocked(list);
+        }
+    }
+
+    function openMoreSheet() {
+        document.getElementById('moreSheetBackdrop').classList.add('is_open');
+        document.getElementById('moreSheet').classList.add('is_open');
+    }
+
+    function closeMoreSheet() {
+        document.getElementById('moreSheetBackdrop').classList.remove('is_open');
+        document.getElementById('moreSheet').classList.remove('is_open');
+    }
+
+    // 신고하기 — 대상 정보를 report.html에 전달
+    function reportChatPartner() {
+        closeMoreSheet();
+        const params = new URLSearchParams({
+            targetType: 'user',
+            targetId: CHAT_PARTNER.id,
+            targetName: CHAT_PARTNER.name,
+            targetAvatar: CHAT_PARTNER.avatar,
+            targetDesc: '채팅방에서 신고됨'
+        });
+        location.href = './report.html?' + params.toString();
+    }
+
+    // 차단하기 — 추천/채팅에서 서로 영구 배제
+    function blockChatPartner() {
+        closeMoreSheet();
+        if (confirm(CHAT_PARTNER.name + '님을 차단하시겠어요?\n차단하면 서로 추천에 노출되지 않고, 채팅도 더 이상 할 수 없습니다.\n이 설정은 마이 스위트 > 설정 > 차단 관리에서 해제할 수 있습니다.')) {
+            bbmBlockUser(CHAT_PARTNER);
+            alert('차단되었습니다. 이제 이 사용자는 추천 및 채팅에서 제외됩니다.');
+            location.href = './chat.html';
+        }
+    }
+
+    // 채팅방 나가기
+    function leaveChatRoom() {
+        closeMoreSheet();
+        if (confirm('이 채팅방을 나가시겠어요?\n대화 목록에서 삭제되며, 되돌릴 수 없습니다.')) {
+            alert('채팅방을 나갔습니다.');
+            location.href = './chat.html';
+        }
+    }
+</script>
+
+</body>
+</html>
+

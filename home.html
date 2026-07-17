@@ -1,0 +1,1363 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css"><!-- Common CSS -->
+    <link rel="stylesheet" href="./css/main.css"><!-- Main CSS -->
+
+    <style>
+        /*
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+        ▩ 뉴스피드가 있는 Home
+
+        ▩ 공통으로 쓰이는 레이아웃, 헤더, 푸터 등을 제외하고 오직 이 페이지에서만 쓰이는 스타일은 이곳에만 기재.
+
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        */
+
+        /* ■ 메인 컨텐츠 영역
+        ---------------------------------------------------------------------- */
+        .conbox__menual {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+        }
+
+        .conbox__menual_text {
+            width: 100%;
+            padding: 80px 25px 40px 25px;
+            font-size: 18px;
+            white-space: pre-wrap;
+            line-height: 1.4;
+            color: #444444;
+        }
+
+        .conbox__menual_text strong {
+            font-size: 20px;
+        }
+
+        .conbox__menual_link {
+            position: relative;
+            width: 200px;
+            margin: 0 auto;
+            aspect-ratio: 7 / 13;
+            border-radius: 16px;
+            border: 6px solid #ffffff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        .conbox__menual_link button {
+            width: 100%;
+            height: 100%;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+            background-size: cover;
+        }
+
+        .conbox__menual_link .btnbox__play_video {
+            pointer-events: none;
+        }
+    </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+</head>
+<body>
+
+<!--
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+
+▩ My Suite
+
+▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨▨
+-->
+<div class="app__container app__bg_dark app__container_type_newsfeed">
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Header - 상단바 영역.(고정 영역)
+    ▨ 인클루드를 위해 별도의 파일로 만들어서 Import시켜야 하는 하는 영역.
+    ▨ 단, 내부의 버튼이나 구성 등이 페이지마다 다름.
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <!-- 2026-07-16 사장님 수정지시 1-1/1-2: 상단 붉은 배너 삭제. 기본은 투명 상태로 숨어 있다가
+         영상을 탭하면 잠깐 내려와 흰 아이콘(서치/새로고침/알림)을 보여주고 다시 사라짐 (유튜브 쇼츠 참고) -->
+    <header class="header header__type_newsfeed header__type_reel" id="home-header">
+        <div class="topbar">
+
+            <!-- ▨ NOTE - 여기서부터의 내용은 페이지마다 다를 수 있음 -->
+            <button class="btn btn__size_medium">
+                <img src="./assets/images/logo_symbol_white.png" width="40" height="26">
+            </button>
+
+            <div class="title__main">
+            </div>
+
+            <div class="iconbox__topbar">
+                <button class="btn btn__size_medium" onclick="location.href='./search.html';">
+                    <img src="./assets/images/icon_search_32dp.svg" width="26" height="26">
+                </button>
+
+                <button class="btn btn__size_medium">
+                    <img src="./assets/images/icon_refresh_32dp.svg" width="27" height="27">
+                </button>
+
+                <button class="btn btn__size_medium" onclick="location.href='./notifications.html';">
+                    <img src="./assets/images/icon_notifications_32dp.svg" width="24" height="24">
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Body - 메인 컨텐츠 영역(게시물 영역)
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <main class="main__container main__container_type_newsfeed">
+
+        <!-- ▨ NOTE - 설명 카드 -->
+        <div class="card__container">
+            <div class="conbox__menual" style="background-image: url(./assets/images/sample_bg_manual_1.png);">
+                <div class="conbox__menual_text"><strong>나</strong>의 <strong>일</strong>과 <strong>활동</strong>을 <strong>블로그</strong>로 담아보세요.
+<strong>좋은 인맥</strong>을 끌어옵니다.</div>
+
+                <div class="conbox__menual_link">
+                    <button style="background-image: url(./assets/images/sample_link_video_1.png);"></button>
+
+                    <div class="btnbox__play_video">
+                        <button style="background-image: url(./assets/images/bg_play_button.png);"></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel__gradient gradient__type_b"></div><!-- 텍스트 가독성을 위한 그래디언트 배경 -->
+        </div>
+
+        <div class="card__container">
+            <div class="conbox__menual" style="background-image: url(./assets/images/sample_bg_manual_2.png);">
+                <div class="conbox__menual_text"><strong>나</strong>의 <strong>경험</strong>과 <strong>에피소드</strong>를 들려주세요.
+<strong>진짜 이야기</strong>가 <strong>공감</strong>을 만듭니다.</div>
+
+                <div class="conbox__menual_link">
+                    <button style="background-image: url(./assets/images/sample_link_video_2.png);"></button>
+
+                    <div class="btnbox__play_video">
+                        <button style="background-image: url(./assets/images/bg_play_button.png);"></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel__gradient gradient__type_b"></div><!-- 텍스트 가독성을 위한 그래디언트 배경 -->
+        </div>
+
+        <div class="card__container">
+            <div class="conbox__menual" style="background-image: url(./assets/images/sample_bg_manual_3.png);">
+                <div class="conbox__menual_text"><strong>나</strong>의 <strong>지식</strong>과 <strong>노하우</strong>를 나눠보세요.
+누군가에게는<strong>길잡이</strong>가 됩니다.</div>
+
+                <div class="conbox__menual_link">
+                    <button style="background-image: url(./assets/images/sample_link_video_3.png);"></button>
+
+                    <div class="btnbox__play_video">
+                        <button style="background-image: url(./assets/images/bg_play_button.png);"></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel__gradient gradient__type_b"></div><!-- 텍스트 가독성을 위한 그래디언트 배경 -->
+        </div>
+
+        <div class="card__container">
+            <div class="conbox__menual" style="background-image: url(./assets/images/sample_bg_manual_4.png);">
+                <div class="conbox__menual_text"><strong>일상</strong>을 <strong>콩트</strong>처럼 표현해보세요.
+<strong>웃음</strong>속에 <strong>매력</strong>이 담깁니다.</div>
+
+                <div class="conbox__menual_link">
+                    <button style="background-image: url(./assets/images/sample_link_video_4.png);"></button>
+
+                    <div class="btnbox__play_video">
+                        <button style="background-image: url(./assets/images/bg_play_button.png);"></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel__gradient gradient__type_b"></div><!-- 텍스트 가독성을 위한 그래디언트 배경 -->
+        </div>
+
+        <!-- ▨ NOTE - <video> 태그를 포함한 카드 | <video> 태그 안에 'autoplay'와 'loop' 적용됨. 음소거로 시작하려면 'muted' 적용. -->
+        <div class="card__container">
+            <video class="main__video_wrapper" muted autoplay loop poster="./assets/images/sample_poster_vod3.png">
+                <source src="./assets/data/sample_vod_3.mp4" type="video/mp4">
+                죄송합니다. 귀하의 브라우저는 비디오 태그를 지원하지 않습니다.
+            </video>
+
+            <div class="panel__gradient gradient__type_a"></div><!-- 텍스트 가독성을 위한 그래디언트 배경 -->
+
+            <div class="btnbox__play_video">
+                <button style="background-image: url(./assets/images/bg_play_button.png);"></button>
+            </div>
+
+            <div class="card__user_wrapper">
+                <div class="user__wrapper_avatar avatar__row" onclick="location.href='./profile.html';" style="cursor:pointer;">
+                    <div class="avatar avatar__size_small">
+                        <img src="./assets/images/sample_avatar_1.png">
+                    </div>
+                    
+                    <div class="avatar__name">
+                        Whitney Johns
+                        <div class="avatar__name_sub">Influencer, Google</div>
+                    </div>
+                </div>
+
+                <div class="user__wrapper_description">
+                    패션 모델 인터뷰용 화보 모음
+                </div>
+
+                <div class="user__wrapper_views">
+                    <div class="views__iconbox">
+                        <img src="./assets/images/icon_visibility_32dp.svg" width="16" height="16">
+                    </div>
+
+                    <div class="views__count">6225</div>
+                </div>
+            </div>
+
+            <div class="card__option_wrapper">
+                <div class="card__option_inner">
+                    <div class="btnbox__card_option">
+                        <button class="btn btn__circle btn__size_medium">
+                            <img src="./assets/images/icon_favorite_32dp.svg" width="24" height="24" style="margin-top: 2px;">
+                        </button>
+
+                        <div class="card__option--text">128</div>
+                    </div>
+
+                    <!-- Active Button - '좋아요' (탭하여 활성화됐을 때 위 버튼 대신 표시) -->
+                    <!--
+                    <div class="btnbox__card_option">
+                        <button class="btn btn__circle btn__size_medium" style="background-color: var(--color-primary-pink-active);">
+                            <img src="./assets/images/icon_favorite_32dp_fill.svg" width="24" height="24" style="margin-top: 2px;">
+                        </button>
+
+                        <div class="card__option--text">128</div>
+                    </div>
+                    -->
+
+                    <div class="btnbox__card_option" onclick="location.href='./video_detail.html'">
+                        <button class="btn btn__circle btn__size_medium">
+                            <img src="./assets/images/icon_chat_32dp.svg" width="22" height="22">
+                        </button>
+
+                        <div class="card__option--text">6</div>
+                    </div>
+
+                    <div class="btnbox__card_option">
+                        <button class="btn btn__circle btn__size_medium" onclick="openShareSheet()">
+                            <img src="./assets/images/icon_share_32dp.svg" width="22" height="22">
+                        </button>
+
+                        <div class="card__option--text">공유</div>
+                    </div>
+
+                    <div class="btnbox__card_option">
+                        <button class="btn btn__circle btn__size_medium" onclick="blockCardUser(4)">
+                            <img src="./assets/images/icon_settings_32dp.svg" width="24" height="24">
+                        </button>
+
+                        <div class="card__option--text">설정</div>
+                    </div>
+
+                    <div class="btnbox__card_option">
+                        <button class="btn btn__circle btn__size_medium" onclick="reportCardUser(4)">
+                            <img src="./assets/images/icon_campaign_32dp.svg" width="26" height="26">
+                        </button>
+
+                        <div class="card__option--text">신고</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card__container">
+            <video class="main__video_wrapper" muted autoplay loop poster="썸네일_이미지_주소.jpg">
+                <source src="./assets/data/sample_vod_2.mp4" type="video/mp4">
+                죄송합니다. 귀하의 브라우저는 비디오 태그를 지원하지 않습니다.
+            </video>
+
+            <div class="panel__gradient gradient__type_a"></div><!-- 텍스트 가독성을 위한 그래디언트 배경 -->
+
+            <div class="btnbox__play_video">
+                <button style="background-image: url(./assets/images/bg_play_button.png);"></button>
+            </div>
+
+            <div class="card__user_wrapper">
+                <div class="user__wrapper_avatar avatar__row" onclick="location.href='./profile.html';" style="cursor:pointer;">
+                    <div class="avatar avatar__size_small">
+                        <img src="./assets/images/sample_avatar_1.png">
+                    </div>
+                    
+                    <div class="avatar__name">
+                        Whitney Johns
+                        <div class="avatar__name_sub">Influencer, Google</div>
+                    </div>
+                </div>
+
+                <div class="user__wrapper_description">
+                    패션 모델 인터뷰용 화보 모음
+                </div>
+
+                <div class="user__wrapper_views">
+                    <div class="views__iconbox">
+                        <img src="./assets/images/icon_visibility_32dp.svg" width="16" height="16">
+                    </div>
+
+                    <div class="views__count">6225</div>
+                </div>
+            </div>
+
+            <div class="card__option_wrapper">
+                <div class="card__option_inner">
+                    <div class="btnbox__card_option">
+                        <button class="btn btn__circle btn__size_medium">
+                            <img src="./assets/images/icon_favorite_32dp.svg" width="24" height="24" style="margin-top: 2px;">
+                        </button>
+
+                        <div class="card__option--text">128</div>
+                    </div>
+
+                    <!-- Active Button - '좋아요' (탭하여 활성화됐을 때 위 버튼 대신 표시) -->
+                    <!--
+                    <div class="btnbox__card_option">
+                        <button class="btn btn__circle btn__size_medium" style="background-color: var(--color-primary-pink-active);">
+                            <img src="./assets/images/icon_favorite_32dp_fill.svg" width="24" height="24" style="margin-top: 2px;">
+                        </button>
+
+                        <div class="card__option--text">128</div>
+                    </div>
+                    -->
+
+                    <div class="btnbox__card_option" onclick="location.href='./video_detail.html'">
+                        <button class="btn btn__circle btn__size_medium">
+                            <img src="./assets/images/icon_chat_32dp.svg" width="22" height="22">
+                        </button>
+
+                        <div class="card__option--text">6</div>
+                    </div>
+
+                    <div class="btnbox__card_option">
+                        <button class="btn btn__circle btn__size_medium" onclick="openShareSheet()">
+                            <img src="./assets/images/icon_share_32dp.svg" width="22" height="22">
+                        </button>
+
+                        <div class="card__option--text">공유</div>
+                    </div>
+
+                    <div class="btnbox__card_option">
+                        <button class="btn btn__circle btn__size_medium" onclick="blockCardUser(5)">
+                            <img src="./assets/images/icon_settings_32dp.svg" width="24" height="24">
+                        </button>
+
+                        <div class="card__option--text">설정</div>
+                    </div>
+
+                    <div class="btnbox__card_option">
+                        <button class="btn btn__circle btn__size_medium" onclick="reportCardUser(5)">
+                            <img src="./assets/images/icon_campaign_32dp.svg" width="26" height="26">
+                        </button>
+
+                        <div class="card__option--text">신고</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!--
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    ▨ Footer - 하단 툴바 영역(고정 영역)
+    ▨ 인클루드를 위해 별도의 파일로 만들어서 Import시켜야 하는 하는 영역
+    ▨ 단, 내부의 버튼이나 구성 등이 페이지마다 다름.
+
+    ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    -->
+    <footer class="footer footer__type_newsfeed">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <!--
+                <button class="btn__full">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+
+                    <div class="btn__text">홈</div>
+                </button>
+                -->
+
+                <!-- Active Button - '홈' -->
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp_fill.svg" width="28" height="28">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">홈</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+
+                    <div class="btn__text">메시지</div>
+                </button>
+
+                <!-- Active Button - '대화' -->
+                <!--
+                <button class="btn__full">
+                    <img src="./assets/images/icon_chat_32dp_fill.svg" width="26" height="26" style="margin-top: 2px;">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">대화</div>
+                </button>
+                -->
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+
+                    <div class="btn__text">만들기</div>
+                </button>
+
+                <!-- Active Button - '업로드' -->
+                <!--
+                <button class="btn__full">
+                    <img src="./assets/images/icon_add_32dp_fill.svg" width="28" height="28">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">업로드</div>
+                </button>
+                -->
+
+                <div class="btnbox__badge">필수</div>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+
+                <!-- Active Button - 'My Suite' -->
+                <!--
+                <button class="btn__full">
+                    <img src="./assets/images/icon_person_32dp_fill.svg" width="29" height="29">
+
+                    <div class="btn__text" style="color: var(--color-primary-pink);">마이 스위트</div>
+                </button>
+                -->
+            </div>
+        </div>
+    </footer>
+</div>
+
+
+<!-- ■□■□■ [SCRIPT] 'Javascript' Area -->
+<script>
+    // 첫 진입 시 5번째 카드(동영상 재생 카드 - 좋아요/댓글/보관 등 옵션 버튼 포함)가 바로 보이도록 스크롤 위치를 설정.
+    // 카드 순서가 바뀌면 인덱스(4)를 함께 수정할 것.
+    window.addEventListener('DOMContentLoaded', function () {
+        var main = document.querySelector('.main__container_type_newsfeed');
+        var cards = main ? main.querySelectorAll('.card__container') : [];
+        if (cards.length >= 5) {
+            main.scrollTop = cards[4].offsetTop;
+        }
+    });
+</script>
+
+
+<!-- Tinder Swipe Styles & Scripts -->
+<style>
+    /* 기존 뉴스피드 컨테이너의 스크롤을 막고 겹침 레이아웃(Stack)으로 강제 변환 */
+    .main__container_type_newsfeed {
+        position: relative !important;
+        overflow: hidden !important;
+        display: block !important;
+        height: 100vh !important; /* 헤더 영역을 고려해서 조금 수정 필요할 수도 있음 */
+    }
+
+    .main__container_type_newsfeed .card__container {
+        position: absolute !important;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        transform-origin: 50% 100%;
+        will-change: transform, opacity;
+        transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        background-color: #000; /* 뒤 배경색 */
+    }
+
+    .main__container_type_newsfeed .card__container.moving {
+        transition: none; /* 드래그 중엔 트랜지션 해제 */
+    }
+    
+    /* 카드보다 헤더와 푸터가 위로 올라오도록 강제 처리 */
+    header {
+        position: relative !important;
+        z-index: 9999 !important;
+    }
+    footer {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        z-index: 9999 !important;
+    }
+
+    /* 스와이프 방향 안내 토스트 — '인맥신청'(우) / '다음에'(좌) */
+    .swipe__toast {
+        position: fixed;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.85);
+        background-color: rgba(0, 0, 0, 0.8);
+        color: #ffffff;
+        font-size: 18px;
+        font-weight: 700;
+        padding: 14px 32px;
+        border-radius: 14px;
+        z-index: 10000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .swipe__toast.is_visible {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    .swipe__toast.like {
+        border: 2px solid var(--color-success);
+    }
+
+    .swipe__toast.pass {
+        border: 2px solid #ffffff;
+    }
+
+    /* 상호 인맥신청 성사 — 연결 완료 */
+    .swipe__toast.connect {
+        border: 2px solid var(--color-success);
+        background-color: rgba(7, 148, 74, 0.92);
+    }
+
+    /* 같은 상대에게 중복 인맥신청 */
+    .swipe__toast.dup {
+        border: 2px solid #f5c518;
+    }
+
+    /* 인맥연결 알림 배너 — 상단에서 내려오는 푸시 알림 형태 */
+    .match__notification {
+        position: fixed;
+        top: 16px;
+        left: 50%;
+        transform: translate(-50%, -80px);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: 320px;
+        background-color: rgba(20, 20, 20, 0.95);
+        border: 1px solid var(--color-success);
+        border-radius: 14px;
+        padding: 12px 18px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #ffffff;
+        z-index: 10001;
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .match__notification.is_visible {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+
+    .match__notification .match__notification_avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex-shrink: 0;
+        border: 2px solid var(--color-success);
+    }
+
+    .match__notification .match__notification_avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* ■ 홈 우상단 리나 강 바로가기 (2026-07-07 사장님 지시 1번)
+       신규 가입자에게 리나 강과 대화할 수 있음을 알리는 링크 — 클릭 시 리나 강 채팅방 이동.
+       두 장의 미소 사진을 크로스페이드로 순환 (향후 AI 생성 동영상으로 교체 예정). */
+    .rina__quick_link {
+        position: fixed;
+        top: 64px;
+        right: 12px;
+        width: 88px;
+        height: 88px;
+        border-radius: 50%;
+        border: 3px solid rgba(255, 175, 185, 0.95);
+        box-shadow: 0 0 18px rgba(255, 140, 157, 0.75), 0 0 4px rgba(255, 255, 255, 0.6);
+        overflow: hidden;
+        cursor: pointer;
+        z-index: 10050;
+        background-color: var(--color-gray-900);
+    }
+
+    .rina__quick_link .rina__face {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .rina__quick_link .rina__face_b {
+        animation: rinaCrossfade 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes rinaCrossfade {
+        0%, 35%  { opacity: 0; }
+        65%, 100% { opacity: 1; }
+    }
+
+    /* ■ 매칭 성공 팝업 (2026-07-07 사장님 지시 3번 + 3-1 시안)
+       상호 인맥신청 성사 시 토스트 대신 풀스크린 팝업 노출 → 닫으면 다음 영상으로 진행 */
+    .match__popup {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 10001;
+        background: linear-gradient(100deg, #0f6b63 0%, #0f6b63 50%, #b03040 50%, #b03040 100%);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        padding: 32px;
+        text-align: center;
+    }
+
+    .match__popup.is_open {
+        display: flex;
+    }
+
+    .match__popup_logo {
+        font-family: 'Lobster', cursive;
+        font-size: 26px;
+        color: #ffd9c9;
+    }
+
+    .match__popup_avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 5px solid #ffffff;
+        overflow: hidden;
+        background-color: #222222;
+    }
+
+    .match__popup_avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .match__popup_name {
+        font-size: 24px;
+        font-weight: 800;
+        color: #ffffff;
+    }
+
+    .match__popup_title {
+        font-size: 24px;
+        font-weight: 800;
+        color: #ffffff;
+        line-height: 1.4;
+    }
+
+    .match__popup_subtitle {
+        font-size: 17px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.75);
+        margin-top: -12px;
+    }
+
+    .match__popup_input {
+        width: 100%;
+        max-width: 320px;
+        height: 96px;
+        border-radius: 14px;
+        border: none;
+        padding: 14px;
+        font-size: 15px;
+        color: #333333;
+        background-color: #ffffff;
+        resize: none;
+        font-family: inherit;
+    }
+
+    .match__popup_send {
+        width: 100%;
+        max-width: 320px;
+        padding: 15px;
+        border-radius: 10px;
+        border: none;
+        background-color: var(--color-error);
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .match__popup_close {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.7);
+        cursor: pointer;
+        text-decoration: underline;
+    }
+
+    /* ■ 2026-07-16 사장님 수정지시 1-1/1-2: 홈 상단 헤더 — 기본 숨김, 탭하면 잠깐 나타났다 사라짐
+       (유튜브 쇼츠 참고). 상단 붉은 배너 삭제 — 배경 없이 아이콘만 살짝 뜨는 형태로 대체 */
+    .header__type_reel {
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0) 100%);
+        opacity: 0;
+        transform: translateY(-8px);
+        transition: opacity 0.25s ease, transform 0.25s ease;
+        pointer-events: none;
+    }
+
+    .header__type_reel.is_revealed {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+
+    .header__type_reel img {
+        filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8));
+    }
+
+    /* ■ 2026-07-16 사장님 수정지시 1-1/1-2: 하단 네비게이션 — 불투명 배경 삭제.
+       영상이 가려지지 않도록 옅은 그라데이션 위에 아이콘만 떠 있는 형태로 변경 */
+    .footer__type_newsfeed {
+        border-top: none;
+        box-shadow: none;
+        backdrop-filter: none;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0) 100%);
+    }
+
+    .footer__type_newsfeed img {
+        filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8));
+    }
+
+    .footer__type_newsfeed .btn__text {
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+    }
+
+    /* ■ 2026-07-16 사장님 수정지시 1-3/1-4/1-5: 우측 아이콘 컬럼 — 부밍지수/보관 삭제(HTML에서 제거),
+       검정 원 배경 삭제, 아이콘은 순백색 + 그림자로 밝은 영상 위에서도 또렷하게 보이도록 처리 */
+    .card__option_wrapper .btn__circle {
+        background-color: transparent;
+    }
+
+    .card__option_wrapper img {
+        filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8));
+    }
+
+    /* ■ 공유 시트 (2026-07-16 사장님 수정지시, 누락 화면 5번) — support.html 문의 시트와 동일한 패턴 */
+    .share__sheet_overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 10060;
+    }
+
+    .share__sheet_overlay.is_open {
+        display: block;
+    }
+
+    .share__sheet {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 400px;
+        background: #1e1e1e;
+        border-radius: 20px 20px 0 0;
+        padding: 14px 20px 34px 20px;
+        z-index: 10061;
+        box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .share__handle {
+        width: 40px;
+        height: 4px;
+        border-radius: 2px;
+        background: rgba(255, 255, 255, 0.2);
+        margin: 0 auto 18px auto;
+    }
+
+    .share__title {
+        font-size: 16px;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 18px;
+    }
+
+    .share__options {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px 8px;
+        margin-bottom: 20px;
+    }
+
+    .share__option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+
+    .share__option_icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .share__option_label {
+        font-size: 11.5px;
+        color: rgba(255, 255, 255, 0.8);
+        text-align: center;
+    }
+
+    .share__link_row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        border-radius: 12px;
+        background-color: rgba(255, 255, 255, 0.06);
+        margin-bottom: 14px;
+    }
+
+    .share__link_text {
+        flex: 1;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.55);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .share__link_copy_btn {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--color-primary-pink);
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .share__cancel_btn {
+        width: 100%;
+        padding: 13px;
+        border-radius: 12px;
+        border: none;
+        background-color: rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    /* 공유 완료/링크 복사 토스트 (기존 swipe__toast 재사용) */
+
+    /* ■ 가입정보 입력 촉구 팝업 (2026-07-16 사장님 수정지시, 누락 화면 16번) */
+    .profile__nudge_overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        z-index: 10055;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .profile__nudge_overlay.is_open {
+        display: flex;
+    }
+
+    .profile__nudge_card {
+        width: calc(100% - 64px);
+        max-width: 320px;
+        background: linear-gradient(155deg, rgba(255, 140, 157, 0.14), #1e1e1e 55%);
+        border: 1px solid rgba(255, 140, 157, 0.3);
+        border-radius: 18px;
+        padding: 26px 22px 22px;
+        text-align: center;
+    }
+
+    .profile__nudge_icon {
+        font-size: 34px;
+        margin-bottom: 10px;
+    }
+
+    .profile__nudge_title {
+        font-size: 17px;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 8px;
+    }
+
+    .profile__nudge_desc {
+        font-size: 13px;
+        line-height: 1.55;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 20px;
+    }
+
+    .profile__nudge_cta {
+        width: 100%;
+        padding: 13px;
+        border-radius: 12px;
+        border: none;
+        background-color: var(--color-primary-pink);
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 800;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+
+    .profile__nudge_dismiss {
+        font-size: 12.5px;
+        color: rgba(255, 255, 255, 0.45);
+        cursor: pointer;
+    }
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var stack = document.querySelector('.main__container_type_newsfeed');
+    var cards = document.querySelectorAll('.card__container');
+    
+    // Header 높이 분만큼 보정하기 위한 설정 (헤더가 있다면)
+    var header = document.querySelector('header');
+    if(header && stack) {
+        stack.style.height = 'calc(100vh - ' + header.offsetHeight + 'px)';
+    }
+
+    var cardArray = Array.from(cards);
+
+    // Z-index 설정: 먼저 선언된 HTML 카드가 맨 위에 올라오도록 역순 지정
+    cardArray.forEach(function(card, index) {
+        card.style.zIndex = cards.length - index;
+    });
+
+    /* ──────────────────────────────────────────────
+     ▩ 상단 헤더 탭하면 잠깐 나타났다 사라짐 (2026-07-16 사장님 수정지시 1-1/1-2, 유튜브 쇼츠 참고)
+    ────────────────────────────────────────────── */
+    var reelHeader = document.getElementById('home-header');
+    var headerHideTimer = null;
+    function revealHeader() {
+        if (!reelHeader) return;
+        reelHeader.classList.add('is_revealed');
+        clearTimeout(headerHideTimer);
+        headerHideTimer = setTimeout(function () {
+            reelHeader.classList.remove('is_revealed');
+        }, 2600);
+    }
+    cardArray.forEach(function (card) {
+        card.addEventListener('click', function (ev) {
+            // 옵션 버튼(좋아요/댓글 등)이나 재생 버튼을 탭했을 때는 헤더를 토글하지 않음
+            if (ev.target.closest('.btnbox__card_option') || ev.target.closest('.btnbox__play_video')) return;
+            revealHeader();
+        });
+    });
+
+    // 스와이프 방향 토스트 — transform 있는 카드의 자식이 아니라 body 바로 아래 붙여서
+    // position:fixed가 항상 뷰포트 기준으로 동작하도록 함
+    var swipeToast = document.createElement('div');
+    swipeToast.className = 'swipe__toast';
+    document.body.appendChild(swipeToast);
+
+    var swipeToastTimer = null;
+    function showSwipeToast(text, type) {
+        clearTimeout(swipeToastTimer);
+        swipeToast.textContent = text;
+        swipeToast.className = 'swipe__toast is_visible ' + type;
+        swipeToastTimer = setTimeout(function () {
+            swipeToast.classList.remove('is_visible');
+        }, 900);
+    }
+
+    /* ──────────────────────────────────────────────
+     ▩ 인맥 매칭 상태 (데모용 시뮬레이션)
+       - 실제 서비스에서는 서버가 신청/수락 상태를 관리하지만, 데모에서는 localStorage로 흉내냅니다.
+       - CARD_USERS: 카드 순서(위→아래)대로 영상 주인 정보 지정. 카드 순서를 바꾸면 함께 수정할 것.
+       - INCOMING_REQUESTS: "상대가 먼저 나에게 인맥신청해 둔" 유저. 이 유저에게 신청하면 즉시 상호 연결.
+       - 데모 초기화: 개발자도구 콘솔에서 localStorage.clear() 실행.
+    ────────────────────────────────────────────── */
+    var CARD_USERS = [
+        { id: 'park_soyeon', name: '박소연',        avatar: './assets/images/sample_avatar_3.png' },
+        { id: 'lee_junho',   name: '이준호',        avatar: './assets/images/sample_avatar_2.png' },
+        { id: 'park_soyeon', name: '박소연',        avatar: './assets/images/sample_avatar_3.png' }, // 같은 사람의 두 번째 영상
+        { id: 'kim_haneul',  name: '김하늘',        avatar: './assets/images/sample_avatar_4.png' },
+        { id: 'whitney',     name: 'Whitney Johns', avatar: './assets/images/sample_avatar_1.png' },
+        { id: 'whitney',     name: 'Whitney Johns', avatar: './assets/images/sample_avatar_1.png' }  // 같은 사람의 두 번째 영상
+    ];
+
+    var INCOMING_REQUESTS = ['lee_junho'];
+
+    function loadState(key) {
+        try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) { return []; }
+    }
+    function saveState(key, value) {
+        try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* 저장 불가 시 무시 */ }
+    }
+
+    /* ──────────────────────────────────────────────
+     ▩ 차단 / 신고 (마이 스위트 > 설정 > 차단 관리에서 조회/해제)
+    ────────────────────────────────────────────── */
+    function bbmLoadBlocked() {
+        try { return JSON.parse(localStorage.getItem('bbm_blockedUsers') || '[]'); } catch (e) { return []; }
+    }
+    function bbmSaveBlocked(list) {
+        try { localStorage.setItem('bbm_blockedUsers', JSON.stringify(list)); } catch (e) { /* 무시 */ }
+    }
+    function bbmIsBlocked(id) {
+        return bbmLoadBlocked().some(function (u) { return u.id === id; });
+    }
+    function bbmBlockUser(user) {
+        var list = bbmLoadBlocked();
+        if (!list.some(function (u) { return u.id === user.id; })) {
+            list.push({ id: user.id, name: user.name, avatar: user.avatar, blockedAt: Date.now() });
+            bbmSaveBlocked(list);
+        }
+    }
+
+    // 이미 차단한 사용자의 카드는 진입 시점부터 숨김 (추천에서 배제)
+    cardArray.forEach(function (card, index) {
+        var user = CARD_USERS[index];
+        if (user && bbmIsBlocked(user.id)) {
+            card.style.display = 'none';
+        }
+    });
+
+    // 카드의 '신고' 버튼 — 대상 정보를 report.html에 전달
+    window.reportCardUser = function (index) {
+        var user = CARD_USERS[index];
+        if (!user) return;
+        var params = new URLSearchParams({
+            targetType: 'user',
+            targetId: user.id,
+            targetName: user.name,
+            targetAvatar: user.avatar,
+            targetDesc: '영상 게시물에서 신고됨'
+        });
+        location.href = './report.html?' + params.toString();
+    };
+
+    // 카드의 '설정' 버튼 — 차단 확인 후 해당 작성자의 카드를 덱에서 즉시 숨김
+    window.blockCardUser = function (index) {
+        var user = CARD_USERS[index];
+        if (!user) return;
+        if (!confirm(user.name + '님을 차단하시겠어요?\n차단하면 서로 추천에 노출되지 않고, 채팅도 더 이상 할 수 없습니다.\n이 설정은 마이 스위트 > 설정 > 차단 관리에서 해제할 수 있습니다.')) return;
+
+        bbmBlockUser(user);
+
+        // 같은 사용자의 모든 카드를 덱에서 숨김
+        cardArray.forEach(function (c, i) {
+            var u = CARD_USERS[i];
+            if (u && u.id === user.id) c.style.display = 'none';
+        });
+
+        showSwipeToast(user.name + '님을 차단했습니다', 'dup');
+    };
+
+    /* ──────────────────────────────────────────────
+     ▩ 홈 우상단 리나 강 바로가기 — 신규 가입자 한시 노출 (기본 5회, 서버 설정값)
+    ────────────────────────────────────────────── */
+    var RINA_LINK_MAX_VIEWS = 5;
+    var rinaLinkViews = parseInt(localStorage.getItem('bbm_homeRinaLinkViews') || '0', 10) + 1;
+    try { localStorage.setItem('bbm_homeRinaLinkViews', String(rinaLinkViews)); } catch (e) { /* 무시 */ }
+
+    if (rinaLinkViews <= RINA_LINK_MAX_VIEWS) {
+        var rinaLink = document.createElement('div');
+        rinaLink.className = 'rina__quick_link';
+        rinaLink.innerHTML =
+            '<img class="rina__face rina__face_a" src="./assets/images/rina_face_smile_1.png">' +
+            '<img class="rina__face rina__face_b" src="./assets/images/rina_face_smile_9.png">';
+        rinaLink.onclick = function () { location.href = './chatroom_rina.html'; };
+        document.body.appendChild(rinaLink);
+    }
+
+    /* ──────────────────────────────────────────────
+     ▩ 가입정보 입력 촉구 팝업 (2026-07-16 사장님 수정지시, 누락 화면 16번)
+       프로필(관심사/목적 등) 입력을 마치지 않은 사용자에게 한 번 노출 — 데모에서는
+       localStorage 플래그로 "한 번만 보여주기"를 흉내냄.
+    ────────────────────────────────────────────── */
+    var profileNudgeOverlay = document.createElement('div');
+    profileNudgeOverlay.className = 'profile__nudge_overlay';
+    profileNudgeOverlay.innerHTML =
+        '<div class="profile__nudge_card">' +
+            '<div class="profile__nudge_icon">✨</div>' +
+            '<div class="profile__nudge_title">프로필을 더 채워볼까요?</div>' +
+            '<div class="profile__nudge_desc">관심사, 목적 같은 정보를 입력하면<br>나에게 더 잘 맞는 인맥을 추천해드려요.</div>' +
+            '<button class="profile__nudge_cta" onclick="location.href=\'./edit_profile.html\';">정보 입력하기</button>' +
+            '<div class="profile__nudge_dismiss" id="profile-nudge-dismiss">다음에 할게요</div>' +
+        '</div>';
+    profileNudgeOverlay.onclick = function (e) {
+        if (e.target === profileNudgeOverlay) closeProfileNudge();
+    };
+    document.body.appendChild(profileNudgeOverlay);
+
+    function closeProfileNudge() {
+        profileNudgeOverlay.classList.remove('is_open');
+        try { localStorage.setItem('bbm_profileNudgeDismissed', '1'); } catch (e) { /* 무시 */ }
+    }
+    document.getElementById('profile-nudge-dismiss').onclick = closeProfileNudge;
+
+    if (!localStorage.getItem('bbm_profileNudgeDismissed')) {
+        setTimeout(function () {
+            profileNudgeOverlay.classList.add('is_open');
+        }, 1500);
+    }
+
+    /* ──────────────────────────────────────────────
+     ▩ 매칭 성공 팝업 (3-1 시안) — 상호 인맥신청 성사 시 노출
+    ────────────────────────────────────────────── */
+    var matchPopup = document.createElement('div');
+    matchPopup.className = 'match__popup';
+    matchPopup.innerHTML =
+        '<div class="match__popup_logo">BoomBooming</div>' +
+        '<div class="match__popup_avatar"><img id="match-popup-avatar" src=""></div>' +
+        '<div class="match__popup_name" id="match-popup-name"></div>' +
+        '<div class="match__popup_title">인맥이 연결되었어요.</div>' +
+        '<div class="match__popup_subtitle">You\'re now connected</div>' +
+        '<textarea class="match__popup_input" id="match-popup-input" placeholder="메시지를 입력하세요..."></textarea>' +
+        '<button class="match__popup_send" onclick="location.href=\'./chatroom.html\';">메시지 보내기</button>' +
+        '<div class="match__popup_close" id="match-popup-close">닫고 계속 보기</div>';
+    document.body.appendChild(matchPopup);
+
+    document.getElementById('match-popup-close').onclick = function () {
+        matchPopup.classList.remove('is_open'); // 닫으면 다음 영상이 이미 노출된 상태
+    };
+
+    function showMatchPopup(user) {
+        document.getElementById('match-popup-avatar').src = user.avatar;
+        document.getElementById('match-popup-name').textContent = user.name;
+        matchPopup.classList.add('is_open');
+    }
+
+    // 인맥연결 알림 배너 (푸시 알림 흉내)
+    var matchNotification = document.createElement('div');
+    matchNotification.className = 'match__notification';
+    document.body.appendChild(matchNotification);
+    var matchNotificationTimer = null;
+
+    function showMatchNotification(user) {
+        clearTimeout(matchNotificationTimer);
+        matchNotification.innerHTML =
+            '<div class="match__notification_avatar"><img src="' + user.avatar + '"></div>' +
+            '<div>🎉 ' + user.name + '님과 인맥이 연결되었습니다</div>';
+        matchNotification.classList.add('is_visible');
+        matchNotificationTimer = setTimeout(function () {
+            matchNotification.classList.remove('is_visible');
+        }, 2600);
+    }
+
+    /* ──────────────────────────────────────────────
+     ▩ 공유 시트 (2026-07-16 사장님 수정지시, 누락 화면 5번)
+       "링크 복사"는 실제로 클립보드에 복사되고, 나머지 옵션은 공유 완료 토스트를 보여주는 데모 동작
+    ────────────────────────────────────────────── */
+    var SHARE_OPTIONS = [
+        { key: 'kakao', label: '카카오톡', icon: 'icon_chat_32dp.svg' },
+        { key: 'sms', label: '메시지', icon: 'icon_chat_bubble_32dp.svg' },
+        { key: 'instagram', label: '인스타그램', icon: 'icon_add_folder_32dp.svg' },
+        { key: 'more', label: '다른 앱', icon: 'icon_share_32dp.svg' }
+    ];
+
+    var shareSheetOverlay = document.createElement('div');
+    shareSheetOverlay.className = 'share__sheet_overlay';
+    shareSheetOverlay.innerHTML =
+        '<div class="share__sheet">' +
+            '<div class="share__handle"></div>' +
+            '<div class="share__title">공유하기</div>' +
+            '<div class="share__options">' +
+                SHARE_OPTIONS.map(function (opt) {
+                    return '<div class="share__option" onclick="shareVia(\'' + opt.key + '\', \'' + opt.label + '\')">' +
+                        '<div class="share__option_icon"><img src="./assets/images/' + opt.icon + '" width="24" height="24"></div>' +
+                        '<div class="share__option_label">' + opt.label + '</div>' +
+                    '</div>';
+                }).join('') +
+            '</div>' +
+            '<div class="share__link_row">' +
+                '<div class="share__link_text">https://boombooming-mvp.netlify.app/v/8241</div>' +
+                '<div class="share__link_copy_btn" onclick="copyShareLink()">복사</div>' +
+            '</div>' +
+            '<button class="share__cancel_btn" onclick="closeShareSheet()">취소</button>' +
+        '</div>';
+    shareSheetOverlay.onclick = function (e) {
+        if (e.target === shareSheetOverlay) closeShareSheet();
+    };
+    document.body.appendChild(shareSheetOverlay);
+
+    window.openShareSheet = function () {
+        shareSheetOverlay.classList.add('is_open');
+    };
+    window.closeShareSheet = function () {
+        shareSheetOverlay.classList.remove('is_open');
+    };
+    window.shareVia = function (key, label) {
+        closeShareSheet();
+        showSwipeToast(label + '(으)로 공유되었습니다', 'like');
+    };
+    window.copyShareLink = function () {
+        var link = 'https://boombooming-mvp.netlify.app/v/8241';
+        var done = function () {
+            closeShareSheet();
+            showSwipeToast('링크가 복사되었습니다', 'like');
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(link).then(done, done);
+        } else {
+            done();
+        }
+    };
+
+    /* 영상을 한 개도 올리지 않은 사용자는 인맥신청 불가 (2026-07-16 사장님 수정지시, 누락 화면 1번)
+       데모용 값 — 실제로는 서버에서 내 업로드 영상 수를 받아와야 함. 콘솔에서
+       localStorage.setItem('bbm_myVideoCount', '1') 후 새로고침하면 정상 신청 플로를 확인할 수 있음. */
+    var MY_VIDEO_COUNT = parseInt(localStorage.getItem('bbm_myVideoCount') || '0', 10);
+
+    /* 오른쪽 스와이프(인맥신청) 판정 — 붐부밍 매칭 플로(니콜 강, 2026-07-06) 기준
+       1) 최초 신청: "OO님께 인맥신청"
+       2) 상대가 이미 나를 신청해 둔 상태(상호 성사): 매칭 성공 팝업 → 곧이어 다음 영상
+       3) 같은 상대에게 재신청: "이미 인맥신청 했어요"
+       4) 이미 인맥 관계: "OO님과는 이미 인맥 상태에요"
+       0) 내가 올린 영상이 0개: "최소 1개의 영상이 있어야 인맥신청이 이루어져요"
+       ※ 왼쪽 스와이프는 어떤 경우든 "다음 영상" (상대 상태 정보 노출 금지) */
+    function requestMatch(user) {
+        if (!user) { showSwipeToast('인맥신청', 'like'); return; }
+
+        if (MY_VIDEO_COUNT < 1) {
+            showSwipeToast('최소 1개의 영상이 있어야 인맥신청이 이루어져요', 'dup');
+            return;
+        }
+
+        var connections = loadState('bbm_connections');
+        var myRequests = loadState('bbm_myRequests');
+
+        var isConnected = connections.some(function (c) { return c.id === user.id; });
+        if (isConnected) {
+            showSwipeToast(user.name + '님과는 이미 인맥 상태에요', 'dup');
+            return;
+        }
+
+        if (myRequests.indexOf(user.id) > -1) {
+            showSwipeToast('이미 인맥신청 했어요', 'dup');
+            return;
+        }
+
+        if (INCOMING_REQUESTS.indexOf(user.id) > -1) {
+            connections.push({ id: user.id, name: user.name, avatar: user.avatar, at: Date.now() });
+            saveState('bbm_connections', connections);
+            // 매칭 성사 → 풀스크린 팝업 (3-1 시안). 팝업을 닫으면 다음 영상이 이어짐
+            showMatchPopup(user);
+            return;
+        }
+
+        myRequests.push(user.id);
+        saveState('bbm_myRequests', myRequests);
+        showSwipeToast(user.name + '님께 인맥신청', 'like');
+    }
+
+    /* ──────────────────────────────────────────────
+     ▩ 스와이프 정책 (2026-07-06 사장님 지시로 좌우만 유지)
+       - 오른쪽 (틴더식): 인맥신청 → 다음 영상
+       - 왼쪽 (틴더식): 거절("다음 영상") → 다음 영상
+       - 상/하 스와이프: 없음 (기능 삭제됨)
+    ────────────────────────────────────────────── */
+    var SWIPE_THRESHOLD = 120;
+
+    cardArray.forEach(function(card) {
+        // Hammer 인스턴스 생성
+        var hammer = new Hammer(card);
+
+        // 좌우 방향의 Pan만 인식 (상하 스와이프 기능 삭제)
+        hammer.get('pan').set({ direction: Hammer.DIRECTION_HORIZONTAL });
+
+        hammer.on('pan', function(ev) {
+            if (!card.classList.contains('moving')) {
+                card.classList.add('moving');
+            }
+            // 틴더처럼 손가락을 따라가며 기울이기
+            var rotate = ev.deltaX * 0.05; // 0.05 곱해서 기울기 조정
+            card.style.transform = 'translate(' + ev.deltaX + 'px, ' + ev.deltaY + 'px) rotate(' + rotate + 'deg)';
+        });
+
+        hammer.on('panend', function(ev) {
+            card.classList.remove('moving');
+
+            if (Math.abs(ev.deltaX) >= SWIPE_THRESHOLD) {
+                // ── 좌/우: 매칭 결정 ──
+                var endX = Math.max(Math.abs(ev.velocityX) * window.innerWidth, window.innerWidth);
+                endX = ev.deltaX > 0 ? endX : -endX; // 오른쪽인지 왼쪽인지 방향 결정
+
+                card.style.transform = 'translate(' + endX + 'px, ' + (ev.deltaY + ev.velocityY * 1000) + 'px) rotate(' + (endX * 0.05) + 'deg)';
+                card.style.opacity = '0';
+
+                // 오른쪽: 인맥신청(케이스 판정) / 왼쪽: "다음 영상"(거절)
+                if (ev.deltaX > 0) {
+                    requestMatch(CARD_USERS[cardArray.indexOf(card)]);
+                } else {
+                    showSwipeToast('다음 영상', 'pass');
+                }
+
+                // 결정된 카드는 제거하고 다음 영상 노출
+                setTimeout(function() {
+                    card.style.display = 'none';
+                }, 300);
+            } else {
+                // 임계값 미달 — 원위치로 스프링백 복귀
+                card.style.transform = '';
+            }
+        });
+    });
+});
+</script>
+
+</body>
+</html>

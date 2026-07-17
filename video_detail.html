@@ -1,0 +1,1131 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>비디오 상세 — BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/main.css">
+
+    <style>
+        /*
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+        ▩ Video Detail — 영상 상세 페이지
+
+        ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+        */
+
+        body {
+            background-color: #0a0a0a;
+        }
+
+        .header__transparent {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%);
+            z-index: 10;
+        }
+
+        /* ■ 영상 영역
+        ---------------------------------------------------------------------- */
+        .video__player {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 9 / 16;
+            background-color: #111;
+            background-image: url('./assets/images/sample_poster_vod3.png');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .video__play_icon {
+            width: 64px;
+            height: 64px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .video__play_icon.hidden {
+            opacity: 0;
+        }
+
+        /* ■ 콘텐츠 영역
+        ---------------------------------------------------------------------- */
+        .video__content {
+            background-color: #111;
+            padding-bottom: 80px; /* footer 여백 */
+        }
+
+        .video__info {
+            padding: 16px;
+        }
+
+        .video__title {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--color-text-primary);
+            line-height: 1.4;
+            margin-bottom: 6px;
+        }
+
+        .video__tags {
+            font-size: 13px;
+            color: #35b4ce;
+            margin-bottom: 8px;
+        }
+
+        .video__stats {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* ■ 작성자 영역
+        ---------------------------------------------------------------------- */
+        .video__author_row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .video__author_left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .video__author_avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .video__author_avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video__author_name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--color-text-primary);
+        }
+
+        .video__author_sub {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .video__subscribe_btn {
+            background-color: var(--color-primary-pink);
+            color: #ffffff;
+            border: none;
+            padding: 7px 18px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .video__subscribe_btn.subscribed {
+            background-color: rgba(255,255,255,0.1);
+            color: #aaaaaa;
+        }
+
+        /* ■ 액션 버튼
+        ---------------------------------------------------------------------- */
+        .video__actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .action__btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: #cccccc;
+            font-size: 12px;
+        }
+
+        .action__btn img {
+            width: 32px;
+            height: 32px;
+        }
+
+        /* ■ 댓글 섹션
+        ---------------------------------------------------------------------- */
+        .comment__section {
+            padding: 16px;
+        }
+
+        .comment__header {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            margin-bottom: 16px;
+        }
+
+        .comment__input_row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .comment__my_avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .comment__my_avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .comment__input_box {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 100px;
+            padding: 6px 6px 6px 14px;
+        }
+
+        .comment__input_box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--color-text-primary);
+            font-size: 14px;
+        }
+
+        .comment__input_box input::placeholder {
+            color: #666;
+        }
+
+        .comment__send_btn {
+            background: transparent;
+            border: none;
+            padding: 4px;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
+        /* 댓글 아이템 */
+        .comment__item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .comment__avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .comment__avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .comment__body {
+            flex: 1;
+        }
+
+        .comment__name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #dddddd;
+            margin-bottom: 4px;
+        }
+
+        .comment__text {
+            font-size: 14px;
+            color: var(--color-text-primary);
+            line-height: 1.4;
+            margin-bottom: 6px;
+        }
+
+        .comment__meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .comment__like {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        /* ■ 답글 (2026-07-16 사장님 수정지시, 누락 화면 4번)
+        ---------------------------------------------------------------------- */
+        .comment__reply_btn {
+            font-weight: 700;
+            color: #888;
+            cursor: pointer;
+        }
+
+        .comment__view_replies {
+            margin-top: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #35b4ce;
+            cursor: pointer;
+        }
+
+        .comment__replies {
+            display: none;
+            flex-direction: column;
+            gap: 14px;
+            margin-top: 14px;
+            padding-left: 20px;
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .comment__replies.is_open {
+            display: flex;
+        }
+
+        .comment__reply_input_row {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .comment__reply_input_row.is_open {
+            display: flex;
+        }
+
+        .comment__reply_input_row input {
+            flex: 1;
+            height: 32px;
+            padding: 0 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--color-text-primary);
+            font-size: 13px;
+        }
+
+        .comment__reply_cancel {
+            font-size: 12px;
+            color: #888;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        /* ■ 공유 시트 (2026-07-16 사장님 수정지시, 누락 화면 5번) */
+        .share__sheet_overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 200;
+        }
+
+        .share__sheet_overlay.is_open {
+            display: block;
+        }
+
+        .share__sheet {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 400px;
+            background: #1e1e1e;
+            border-radius: 20px 20px 0 0;
+            padding: 14px 20px 34px 20px;
+            z-index: 201;
+            box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .share__handle {
+            width: 40px;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.2);
+            margin: 0 auto 18px auto;
+        }
+
+        .share__title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 18px;
+        }
+
+        .share__options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px 8px;
+            margin-bottom: 20px;
+        }
+
+        .share__option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .share__option_icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .share__option_label {
+            font-size: 11.5px;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+        }
+
+        .share__link_row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.06);
+            margin-bottom: 14px;
+        }
+
+        .share__link_text {
+            flex: 1;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.55);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .share__link_copy_btn {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-primary-pink);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .share__cancel_btn {
+            width: 100%;
+            padding: 13px;
+            border-radius: 12px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .share__toast {
+            position: fixed;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.85);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 12px 24px;
+            border-radius: 12px;
+            z-index: 210;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .share__toast.is_visible {
+            opacity: 1;
+        }
+
+        /* ■ 더보기 액션시트 — 신고하기 / 차단하기 (profile.html과 동일한 패턴) */
+        .more__sheet_backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.45);
+            z-index: 220;
+        }
+
+        .more__sheet_backdrop.is_open {
+            display: block;
+        }
+
+        .more__sheet {
+            position: fixed;
+            left: 50%;
+            bottom: 0;
+            transform: translate(-50%, 100%);
+            width: 100%;
+            max-width: 430px;
+            z-index: 221;
+            background-color: #1e1e1e;
+            border-radius: 16px 16px 0 0;
+            padding: 10px 16px 28px;
+            transition: transform 0.25s ease-out;
+        }
+
+        .more__sheet.is_open {
+            transform: translate(-50%, 0);
+        }
+
+        .more__sheet_handle {
+            width: 36px;
+            height: 4px;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.2);
+            margin: 6px auto 14px;
+        }
+
+        .more__sheet_item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 14px 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+        }
+
+        .more__sheet_item:last-of-type {
+            border-bottom: none;
+        }
+
+        .more__sheet_item_title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .more__sheet_item.is_danger .more__sheet_item_title {
+            color: var(--color-error);
+        }
+
+        .more__sheet_item_desc {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        .more__sheet_cancel {
+            margin-top: 12px;
+            text-align: center;
+            padding: 14px;
+            border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.08);
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app__container app__bg_dark app__container_type_basic" style="background:#000;">
+
+    <!-- ■ Header (투명 오버레이) -->
+    <header class="header header__transparent">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+            </button>
+            <div class="title__main"></div>
+            <div class="iconbox__topbar">
+                <button class="btn btn__size_medium" onclick="openShareSheet()">
+                    <img src="./assets/images/icon_share_32dp.svg" width="24" height="24">
+                </button>
+                <button class="btn btn__size_medium" onclick="openMoreSheet()">
+                    <img src="./assets/images/icon_more_vert_32dp.svg" width="28" height="28">
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ■ Body -->
+    <main class="main__container main__container_type_basic" style="padding-top:0;">
+
+        <!-- ▣ 영상 플레이어 영역 -->
+        <div class="video__player" onclick="togglePlay()">
+            <img src="./assets/images/icon_play.png" class="video__play_icon" id="playIcon">
+        </div>
+
+        <div class="video__content">
+            <!-- ▣ 영상 정보 -->
+            <div class="video__info">
+                <div class="video__title">도쿄 브이로그 — 3박 4일 완전 정복 🇯🇵</div>
+                <div class="video__tags">#도쿄 #여행 #브이로그</div>
+                <div class="video__stats">6,225회 · 2024년 3월 15일</div>
+            </div>
+
+            <!-- ▣ 작성자 -->
+            <div class="video__author_row">
+                <div class="video__author_left" onclick="location.href='./profile.html'" style="cursor:pointer;">
+                    <div class="video__author_avatar">
+                        <img src="./assets/images/sample_avatar_rina.png">
+                    </div>
+                    <div>
+                        <div class="video__author_name">리나강</div>
+                        <div class="video__author_sub">구독자 2.4M</div>
+                    </div>
+                </div>
+                <button class="video__subscribe_btn" onclick="toggleSubscribe(this)">구독</button>
+            </div>
+
+            <!-- ▣ 액션 버튼 -->
+            <div class="video__actions">
+                <button class="action__btn" onclick="toggleLike(this)">
+                    <img src="./assets/images/icon_favorite_32dp.svg" id="likeIcon">
+                    <span id="likeCount">1.2k</span>
+                </button>
+                <button class="action__btn" onclick="document.getElementById('commentInput').focus();">
+                    <img src="./assets/images/icon_add_comment_32dp.svg">
+                    <span>84</span>
+                </button>
+                <button class="action__btn" onclick="openShareSheet()">
+                    <img src="./assets/images/icon_share_32dp.svg">
+                    <span>공유</span>
+                </button>
+                <button class="action__btn" id="saveBtn" onclick="toggleSave(this)">
+                    <img src="./assets/images/icon_add_bookmark_32dp.svg" id="saveIcon">
+                    <span id="saveLabel">저장</span>
+                </button>
+            </div>
+
+            <!-- ▣ 댓글 섹션 -->
+            <div class="comment__section">
+                <div class="comment__header">댓글 <span id="totalComments">84</span>개</div>
+
+                <!-- 댓글 입력 -->
+                <div class="comment__input_row">
+                    <div class="comment__my_avatar">
+                        <img src="./assets/images/sample_avatar_1.png">
+                    </div>
+                    <div class="comment__input_box">
+                        <input type="text" id="commentInput" placeholder="댓글 추가..." onkeypress="handleCommentEnter(event)">
+                        <button class="comment__send_btn" onclick="addComment()">
+                            <img src="./assets/images/icon_send_32dp.svg" width="20" height="20">
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 댓글 리스트 -->
+                <div id="commentList">
+                    <div class="comment__item" id="comment-1">
+                        <div class="comment__avatar" onclick="location.href='./profile.html'">
+                            <img src="./assets/images/sample_avatar_2.png">
+                        </div>
+                        <div class="comment__body">
+                            <div class="comment__name">Elon Musk</div>
+                            <div class="comment__text">정말 멋진 여행이네요! 저도 가보고 싶어요 😍</div>
+                            <div class="comment__meta">
+                                <span>12시간 전</span>
+                                <div class="comment__like">
+                                    <img src="./assets/images/icon_favorite_32dp.svg" width="14" height="14">
+                                    <span>127</span>
+                                </div>
+                                <span class="comment__reply_btn" onclick="toggleReplyInput('comment-1')">답글달기</span>
+                            </div>
+
+                            <div class="comment__view_replies" onclick="toggleReplies('comment-1')">— 답글 2개 보기</div>
+                            <div class="comment__replies" id="replies-comment-1">
+                                <div class="comment__item">
+                                    <div class="comment__avatar" onclick="location.href='./profile.html'">
+                                        <img src="./assets/images/sample_avatar_1.png">
+                                    </div>
+                                    <div class="comment__body">
+                                        <div class="comment__name">Whitney Johns</div>
+                                        <div class="comment__text">다음에 같이 가요! ✈️</div>
+                                        <div class="comment__meta">
+                                            <span>10시간 전</span>
+                                            <div class="comment__like">
+                                                <img src="./assets/images/icon_favorite_32dp.svg" width="14" height="14">
+                                                <span>8</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="comment__item">
+                                    <div class="comment__avatar" onclick="location.href='./profile.html'">
+                                        <img src="./assets/images/sample_avatar_4.png">
+                                    </div>
+                                    <div class="comment__body">
+                                        <div class="comment__name">Jennifer Lawrence</div>
+                                        <div class="comment__text">저도 저도 🙋‍♀️</div>
+                                        <div class="comment__meta">
+                                            <span>9시간 전</span>
+                                            <div class="comment__like">
+                                                <img src="./assets/images/icon_favorite_32dp.svg" width="14" height="14">
+                                                <span>3</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="comment__reply_input_row" id="reply-input-comment-1">
+                                <input type="text" placeholder="답글 추가..." onkeypress="handleReplyEnter(event, 'comment-1')">
+                                <span class="comment__reply_cancel" onclick="toggleReplyInput('comment-1')">취소</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="comment__item" id="comment-2">
+                        <div class="comment__avatar" onclick="location.href='./profile.html'">
+                            <img src="./assets/images/sample_avatar_3.png">
+                        </div>
+                        <div class="comment__body">
+                            <div class="comment__name">Angelina Jolie</div>
+                            <div class="comment__text">브이로그 편집이 너무 예뻐요! 음악도 좋고 ✨</div>
+                            <div class="comment__meta">
+                                <span>1일 전</span>
+                                <div class="comment__like">
+                                    <img src="./assets/images/icon_favorite_32dp.svg" width="14" height="14">
+                                    <span>89</span>
+                                </div>
+                                <span class="comment__reply_btn" onclick="toggleReplyInput('comment-2')">답글달기</span>
+                            </div>
+
+                            <div class="comment__replies" id="replies-comment-2"></div>
+
+                            <div class="comment__reply_input_row" id="reply-input-comment-2">
+                                <input type="text" placeholder="답글 추가..." onkeypress="handleReplyEnter(event, 'comment-2')">
+                                <span class="comment__reply_cancel" onclick="toggleReplyInput('comment-2')">취소</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="comment__item" id="comment-3">
+                        <div class="comment__avatar" onclick="location.href='./profile.html'">
+                            <img src="./assets/images/sample_avatar_5.png">
+                        </div>
+                        <div class="comment__body">
+                            <div class="comment__name">Billie Eilish</div>
+                            <div class="comment__text">리나강 최고! 다음 영상도 기대할게요 🔥</div>
+                            <div class="comment__meta">
+                                <span>2일 전</span>
+                                <div class="comment__like">
+                                    <img src="./assets/images/icon_favorite_32dp.svg" width="14" height="14">
+                                    <span>54</span>
+                                </div>
+                                <span class="comment__reply_btn" onclick="toggleReplyInput('comment-3')">답글달기</span>
+                            </div>
+
+                            <div class="comment__replies" id="replies-comment-3"></div>
+
+                            <div class="comment__reply_input_row" id="reply-input-comment-3">
+                                <input type="text" placeholder="답글 추가..." onkeypress="handleReplyEnter(event, 'comment-3')">
+                                <span class="comment__reply_cancel" onclick="toggleReplyInput('comment-3')">취소</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ■ Footer -->
+    <footer class="footer footer__type_basic" style="background:#111; border-top:1px solid rgba(255,255,255,0.05);">
+        <div class="toolbar">
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./home.html';">
+                    <img src="./assets/images/icon_home_32dp.svg" width="28" height="28">
+                    <div class="btn__text">홈</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./chat.html';">
+                    <img src="./assets/images/icon_chat_32dp.svg" width="26" height="26" style="margin-top: 2px;">
+                    <div class="btn__text">메시지</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./upload_main.html';">
+                    <img src="./assets/images/icon_add_32dp.svg" width="28" height="28">
+                    <div class="btn__text">만들기</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./booming_index_growth.html';">
+                    <img src="./assets/images/icon_mood_up_32dp_white.svg" width="28" height="28">
+                    <div class="btn__text">부밍지수</div>
+                </button>
+            </div>
+            <div class="btnbox__toolbar">
+                <button class="btn__full" onclick="location.href='./mysuite.html';">
+                    <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
+                    <div class="btn__text">마이 스위트</div>
+                </button>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<!-- ▣ 공유 시트 (2026-07-16 사장님 수정지시, 누락 화면 5번) -->
+<div class="share__sheet_overlay" id="shareSheetOverlay" onclick="if (event.target === this) closeShareSheet();">
+    <div class="share__sheet">
+        <div class="share__handle"></div>
+        <div class="share__title">공유하기</div>
+        <div class="share__options">
+            <div class="share__option" onclick="shareVia('카카오톡')">
+                <div class="share__option_icon"><img src="./assets/images/icon_chat_32dp.svg" width="24" height="24"></div>
+                <div class="share__option_label">카카오톡</div>
+            </div>
+            <div class="share__option" onclick="shareVia('메시지')">
+                <div class="share__option_icon"><img src="./assets/images/icon_chat_bubble_32dp.svg" width="24" height="24"></div>
+                <div class="share__option_label">메시지</div>
+            </div>
+            <div class="share__option" onclick="shareVia('인스타그램')">
+                <div class="share__option_icon"><img src="./assets/images/icon_add_folder_32dp.svg" width="24" height="24"></div>
+                <div class="share__option_label">인스타그램</div>
+            </div>
+            <div class="share__option" onclick="shareVia('다른 앱')">
+                <div class="share__option_icon"><img src="./assets/images/icon_share_32dp.svg" width="24" height="24"></div>
+                <div class="share__option_label">다른 앱</div>
+            </div>
+        </div>
+        <div class="share__link_row">
+            <div class="share__link_text">https://boombooming-mvp.netlify.app/v/8241</div>
+            <div class="share__link_copy_btn" onclick="copyShareLink()">복사</div>
+        </div>
+        <button class="share__cancel_btn" onclick="closeShareSheet()">취소</button>
+    </div>
+</div>
+<div class="share__toast" id="shareToast"></div>
+
+<!-- ▣ 더보기 액션시트 — 신고하기 / 차단하기 -->
+<div class="more__sheet_backdrop" id="moreSheetBackdrop" onclick="closeMoreSheet();"></div>
+<div class="more__sheet" id="moreSheet">
+    <div class="more__sheet_handle"></div>
+
+    <div class="more__sheet_item" onclick="reportPost();">
+        <div class="more__sheet_item_title">신고하기</div>
+        <div class="more__sheet_item_desc">부적절한 영상 또는 활동을 운영팀에 알립니다.</div>
+    </div>
+
+    <div class="more__sheet_item is_danger" onclick="blockAuthor();">
+        <div class="more__sheet_item_title">이 사용자 차단하기</div>
+        <div class="more__sheet_item_desc">더 이상 추천되지 않고, 서로 채팅도 할 수 없게 됩니다.</div>
+    </div>
+
+    <div class="more__sheet_cancel" onclick="closeMoreSheet();">취소</div>
+</div>
+
+<script>
+    let isPlaying = false;
+    let isLiked = false;
+
+    function togglePlay() {
+        isPlaying = !isPlaying;
+        const icon = document.getElementById('playIcon');
+        if (isPlaying) {
+            icon.classList.add('hidden');
+        } else {
+            icon.classList.remove('hidden');
+        }
+    }
+
+    function toggleSubscribe(btn) {
+        if (btn.classList.contains('subscribed')) {
+            btn.classList.remove('subscribed');
+            btn.innerText = '구독';
+        } else {
+            btn.classList.add('subscribed');
+            btn.innerText = '구독 중';
+        }
+    }
+
+    function toggleLike(btn) {
+        isLiked = !isLiked;
+        const icon = document.getElementById('likeIcon');
+        const count = document.getElementById('likeCount');
+        
+        if (isLiked) {
+            icon.src = './assets/images/icon_favorite_32dp_fill_red.svg';
+            count.style.color = 'var(--color-primary-pink)';
+        } else {
+            icon.src = './assets/images/icon_favorite_32dp.svg';
+            count.style.color = '#cccccc';
+        }
+    }
+
+    function handleCommentEnter(e) {
+        if (e.key === 'Enter') {
+            addComment();
+        }
+    }
+
+    function addComment() {
+        const input = document.getElementById('commentInput');
+        const text = input.value.trim();
+        if (!text) return;
+
+        const list = document.getElementById('commentList');
+        
+        const newHtml = `
+            <div class="comment__item" style="animation: fadeIn 0.3s;">
+                <div class="comment__avatar">
+                    <img src="./assets/images/sample_avatar_1.png">
+                </div>
+                <div class="comment__body">
+                    <div class="comment__name">Whitney Johns (나)</div>
+                    <div class="comment__text">${text}</div>
+                    <div class="comment__meta">
+                        <span>방금 전</span>
+                        <div class="comment__like">
+                            <img src="./assets/images/icon_favorite_32dp.svg" width="14" height="14">
+                            <span>0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        list.insertAdjacentHTML('afterbegin', newHtml);
+        input.value = '';
+
+        // 총 개수 증가
+        const countSpan = document.getElementById('totalComments');
+        countSpan.innerText = parseInt(countSpan.innerText) + 1;
+    }
+
+    /* ──────────────────────────────────────────────
+     ▩ 답글 (2026-07-16 사장님 수정지시, 누락 화면 4번)
+    ────────────────────────────────────────────── */
+    function toggleReplyInput(commentId) {
+        const row = document.getElementById('reply-input-' + commentId);
+        row.classList.toggle('is_open');
+        if (row.classList.contains('is_open')) {
+            row.querySelector('input').focus();
+        }
+    }
+
+    function toggleReplies(commentId) {
+        const repliesEl = document.getElementById('replies-' + commentId);
+        repliesEl.classList.toggle('is_open');
+    }
+
+    function handleReplyEnter(e, commentId) {
+        if (e.key === 'Enter') {
+            submitReply(commentId);
+        }
+    }
+
+    function submitReply(commentId) {
+        const row = document.getElementById('reply-input-' + commentId);
+        const input = row.querySelector('input');
+        const text = input.value.trim();
+        if (!text) return;
+
+        const repliesEl = document.getElementById('replies-' + commentId);
+        const newHtml = `
+            <div class="comment__item" style="animation: fadeIn 0.3s;">
+                <div class="comment__avatar">
+                    <img src="./assets/images/sample_avatar_1.png">
+                </div>
+                <div class="comment__body">
+                    <div class="comment__name">Whitney Johns (나)</div>
+                    <div class="comment__text">${text}</div>
+                    <div class="comment__meta">
+                        <span>방금 전</span>
+                        <div class="comment__like">
+                            <img src="./assets/images/icon_favorite_32dp.svg" width="14" height="14">
+                            <span>0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        repliesEl.insertAdjacentHTML('beforeend', newHtml);
+        repliesEl.classList.add('is_open');
+
+        input.value = '';
+        row.classList.remove('is_open');
+
+        // 총 댓글 개수에 답글도 포함해서 증가
+        const countSpan = document.getElementById('totalComments');
+        countSpan.innerText = parseInt(countSpan.innerText) + 1;
+    }
+
+    /* ──────────────────────────────────────────────
+     ▩ 공유 시트 (2026-07-16 사장님 수정지시, 누락 화면 5번)
+    ────────────────────────────────────────────── */
+    let shareToastTimer = null;
+    function showShareToast(text) {
+        const toast = document.getElementById('shareToast');
+        clearTimeout(shareToastTimer);
+        toast.textContent = text;
+        toast.classList.add('is_visible');
+        shareToastTimer = setTimeout(function () {
+            toast.classList.remove('is_visible');
+        }, 1600);
+    }
+
+    function openShareSheet() {
+        document.getElementById('shareSheetOverlay').classList.add('is_open');
+    }
+
+    function closeShareSheet() {
+        document.getElementById('shareSheetOverlay').classList.remove('is_open');
+    }
+
+    function shareVia(label) {
+        closeShareSheet();
+        showShareToast(label + '(으)로 공유되었습니다');
+    }
+
+    function copyShareLink() {
+        const link = 'https://boombooming-mvp.netlify.app/v/8241';
+        const done = function () {
+            closeShareSheet();
+            showShareToast('링크가 복사되었습니다');
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(link).then(done, done);
+        } else {
+            done();
+        }
+    }
+
+    /* ──────────────────────────────────────────────
+     ▩ 더보기 액션시트 — 신고하기 / 차단하기
+    ────────────────────────────────────────────── */
+    const VIDEO_AUTHOR = {
+        id: 'rina_kang',
+        name: '리나강',
+        avatar: './assets/images/sample_avatar_rina.png'
+    };
+    const VIDEO_TITLE = '도쿄 브이로그 — 3박 4일 완전 정복';
+
+    function bbmLoadBlocked() {
+        try { return JSON.parse(localStorage.getItem('bbm_blockedUsers') || '[]'); } catch (e) { return []; }
+    }
+    function bbmSaveBlocked(list) {
+        try { localStorage.setItem('bbm_blockedUsers', JSON.stringify(list)); } catch (e) { /* 무시 */ }
+    }
+    function bbmBlockUser(user) {
+        const list = bbmLoadBlocked();
+        if (!list.some(function (u) { return u.id === user.id; })) {
+            list.push({ id: user.id, name: user.name, avatar: user.avatar, blockedAt: Date.now() });
+            bbmSaveBlocked(list);
+        }
+    }
+
+    function openMoreSheet() {
+        document.getElementById('moreSheetBackdrop').classList.add('is_open');
+        document.getElementById('moreSheet').classList.add('is_open');
+    }
+
+    function closeMoreSheet() {
+        document.getElementById('moreSheetBackdrop').classList.remove('is_open');
+        document.getElementById('moreSheet').classList.remove('is_open');
+    }
+
+    // 신고하기 — 이 영상을 운영팀에 신고
+    function reportPost() {
+        closeMoreSheet();
+        const params = new URLSearchParams({
+            targetType: 'video',
+            targetId: 'video_8241',
+            targetName: VIDEO_TITLE,
+            targetAvatar: VIDEO_AUTHOR.avatar,
+            targetDesc: VIDEO_AUTHOR.name + ' 님의 영상'
+        });
+        location.href = './report.html?' + params.toString();
+    }
+
+    // 차단하기 — 이 영상의 작성자를 차단
+    // 저장(북마크) — 마이 스위트 > 저장한 영상에서 모아볼 수 있음
+    const CURRENT_VIDEO = {
+        id: 'video_8241',
+        title: VIDEO_TITLE,
+        thumbnail: './assets/images/sample_poster_vod3.png',
+        author: VIDEO_AUTHOR.name
+    };
+
+    function bbmLoadSaved() {
+        try { return JSON.parse(localStorage.getItem('bbm_savedVideos') || '[]'); } catch (e) { return []; }
+    }
+    function bbmSaveSaved(list) {
+        try { localStorage.setItem('bbm_savedVideos', JSON.stringify(list)); } catch (e) { /* 무시 */ }
+    }
+
+    function applySaveState() {
+        var saved = bbmLoadSaved().some(function (v) { return v.id === CURRENT_VIDEO.id; });
+        document.getElementById('saveIcon').src = saved
+            ? './assets/images/icon_add_bookmark_32dp_fill.svg'
+            : './assets/images/icon_add_bookmark_32dp.svg';
+        document.getElementById('saveLabel').textContent = saved ? '저장됨' : '저장';
+    }
+
+    function toggleSave() {
+        var list = bbmLoadSaved();
+        var idx = list.findIndex(function (v) { return v.id === CURRENT_VIDEO.id; });
+        if (idx > -1) {
+            list.splice(idx, 1);
+            showShareToast('저장을 취소했습니다');
+        } else {
+            list.unshift(Object.assign({ savedAt: Date.now() }, CURRENT_VIDEO));
+            showShareToast('저장했습니다. 마이 스위트에서 볼 수 있어요');
+        }
+        bbmSaveSaved(list);
+        applySaveState();
+    }
+
+    applySaveState();
+
+    function blockAuthor() {
+        closeMoreSheet();
+        if (confirm(VIDEO_AUTHOR.name + '님을 차단하시겠어요?\n차단하면 서로 추천에 노출되지 않고, 채팅도 더 이상 할 수 없습니다.\n이 설정은 마이 스위트 > 설정 > 차단 관리에서 해제할 수 있습니다.')) {
+            bbmBlockUser(VIDEO_AUTHOR);
+            alert('차단되었습니다. 이제 이 사용자는 추천 및 채팅에서 제외됩니다.');
+            location.href = './home.html';
+        }
+    }
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>결제 내역 - BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/main.css">
+
+    <style>
+        /*
+        ▩ 결제 내역 / 영수증 — rina_payment.html "결제 내역 관리" 하위 화면
+        */
+        .ph__list {
+            padding: 0 18px 24px;
+        }
+
+        .ph__month_label {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.45);
+            margin: 22px 0 10px;
+        }
+
+        .ph__item {
+            background-color: var(--color-bg-dark-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .ph__item_row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+        }
+
+        .ph__item_icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(255, 61, 113, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+
+        .ph__item_info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ph__item_title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .ph__item_date {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 2px;
+        }
+
+        .ph__item_amount {
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffffff;
+            flex-shrink: 0;
+        }
+
+        .ph__item_chevron {
+            width: 16px;
+            height: 16px;
+            opacity: 0.35;
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .ph__item.is_open .ph__item_chevron {
+            transform: rotate(90deg);
+        }
+
+        .ph__receipt {
+            display: none;
+            padding: 0 16px 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .ph__item.is_open .ph__receipt {
+            display: block;
+        }
+
+        .ph__receipt_row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 13px;
+        }
+
+        .ph__receipt_row + .ph__receipt_row {
+            border-top: 1px dashed rgba(255, 255, 255, 0.08);
+        }
+
+        .ph__receipt_label {
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        .ph__receipt_value {
+            color: #ffffff;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .ph__receipt_status {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(80, 200, 140, 0.15);
+            color: var(--color-success);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* ■ 빈 상태 */
+        .ph__empty {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 100px 32px;
+        }
+
+        .ph__empty.is_visible {
+            display: flex;
+        }
+
+        .ph__empty_title {
+            font-size: 15px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 6px;
+        }
+
+        .ph__empty_desc {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.35);
+        }
+    </style>
+</head>
+<body>
+
+<div class="app__container app__bg_dark app__container_type_basic">
+    <header class="header header__type_basic" style="background-color: #0a0a0a;">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="24" height="24">
+            </button>
+            <div class="title__main" style="font-size: 16px;">결제 내역</div>
+            <div class="iconbox__topbar" style="width: 40px;"></div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic" style="background-color: #0a0a0a;">
+        <div class="main__content_wrapper">
+
+            <div class="ph__list">
+                <div class="ph__month_label">2026년 2월</div>
+
+                <div class="ph__item" onclick="toggleReceipt(this)">
+                    <div class="ph__item_row">
+                        <div class="ph__item_icon">🪙</div>
+                        <div class="ph__item_info">
+                            <div class="ph__item_title">300 크레딧 충전</div>
+                            <div class="ph__item_date">2026.02.03 · 카드결제</div>
+                        </div>
+                        <div class="ph__item_amount">₩4,300</div>
+                        <img class="ph__item_chevron" src="./assets/images/icon_arrow_forward_32dp.svg">
+                    </div>
+                    <div class="ph__receipt">
+                        <div class="ph__receipt_row"><span class="ph__receipt_label">주문번호</span><span class="ph__receipt_value">BB-20260203-0031</span></div>
+                        <div class="ph__receipt_row"><span class="ph__receipt_label">결제 수단</span><span class="ph__receipt_value">신한카드 **** 1234</span></div>
+                        <div class="ph__receipt_row"><span class="ph__receipt_label">결제 금액</span><span class="ph__receipt_value">₩4,300</span></div>
+                        <div class="ph__receipt_row"><span class="ph__receipt_label">결제 일시</span><span class="ph__receipt_value">2026.02.03 14:22</span></div>
+                        <span class="ph__receipt_status">결제 완료</span>
+                    </div>
+                </div>
+
+                <div class="ph__item" onclick="toggleReceipt(this)">
+                    <div class="ph__item_row">
+                        <div class="ph__item_icon">💬</div>
+                        <div class="ph__item_info">
+                            <div class="ph__item_title">100 크레딧 충전</div>
+                            <div class="ph__item_date">2026.02.01 · 카드결제</div>
+                        </div>
+                        <div class="ph__item_amount">₩1,300</div>
+                        <img class="ph__item_chevron" src="./assets/images/icon_arrow_forward_32dp.svg">
+                    </div>
+                    <div class="ph__receipt">
+                        <div class="ph__receipt_row"><span class="ph__receipt_label">주문번호</span><span class="ph__receipt_value">BB-20260201-0018</span></div>
+                        <div class="ph__receipt_row"><span class="ph__receipt_label">결제 수단</span><span class="ph__receipt_value">신한카드 **** 1234</span></div>
+                        <div class="ph__receipt_row"><span class="ph__receipt_label">결제 금액</span><span class="ph__receipt_value">₩1,300</span></div>
+                        <div class="ph__receipt_row"><span class="ph__receipt_label">결제 일시</span><span class="ph__receipt_value">2026.02.01 09:47</span></div>
+                        <span class="ph__receipt_status">결제 완료</span>
+                    </div>
+                </div>
+
+                <div class="ph__month_label">2026년 1월</div>
+
+                <div class="ph__item" onclick="toggleReceipt(this)">
+                    <div class="ph__item_row">
+                        <div class="ph__item_icon">🪙</div>
+                        <div class="ph__item_info">
+                            <div class="ph__item_title">700 크레딧 충전</div>
+                            <div class="ph__item_date">2026.01.14 · 카드결제</div>
+                        </div>
+                        <div class="ph__item_amount">₩9,900</div>
+                        <img class="ph__item_chevron" src="./assets/images/icon_arrow_forward_32dp.svg">
+                    </div>
+                    <div class="ph__receipt">
+                        <div class="ph__receipt_row"><span class="ph__receipt_label">주문번호</span><span class="ph__receipt_value">BB-20260114-0005</span></div>
+                        <div class="ph__receipt_row"><span class="ph__receipt_label">결제 수단</span><span class="ph__receipt_value">신한카드 **** 1234</span></div>
+                        <div class="ph__receipt_row"><span class="ph__receipt_label">결제 금액</span><span class="ph__receipt_value">₩9,900</span></div>
+                        <div class="ph__receipt_row"><span class="ph__receipt_label">결제 일시</span><span class="ph__receipt_value">2026.01.14 21:03</span></div>
+                        <span class="ph__receipt_status">결제 완료</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ▣ 빈 상태 (결제 내역이 없는 신규 회원용 참고) -->
+            <div class="ph__empty" id="phEmpty">
+                <div class="ph__empty_title">결제 내역이 없습니다</div>
+                <div class="ph__empty_desc">크레딧을 충전하거나 구독하면<br>이곳에서 내역을 확인할 수 있어요.</div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    function toggleReceipt(item) {
+        var wasOpen = item.classList.contains('is_open');
+        document.querySelectorAll('.ph__item.is_open').forEach(function (el) {
+            el.classList.remove('is_open');
+        });
+        if (!wasOpen) item.classList.add('is_open');
+    }
+</script>
+
+</body>
+</html>

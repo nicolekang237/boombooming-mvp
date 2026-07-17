@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>화면 모드 - BoomBooming</title>
+
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/main.css">
+
+    <style>
+        .dm__list {
+            padding: 8px 16px;
+        }
+
+        .dm__item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+        }
+
+        .dm__icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .dm__label_row {
+            flex: 1;
+        }
+
+        .dm__name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .dm__desc {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 2px;
+        }
+
+        .dm__check {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dm__item.is_selected .dm__check {
+            border-color: var(--color-primary-pink-active);
+            background: var(--color-primary-pink-active);
+        }
+
+        .dm__check_dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #fff;
+            display: none;
+        }
+
+        .dm__item.is_selected .dm__check_dot {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app__container app__bg_dark app__container_type_basic">
+    <header class="header header__bg_red header__type_basic">
+        <div class="topbar">
+            <button class="btn btn__size_medium" onclick="history.back();">
+                <img src="./assets/images/icon_arrow_back_32dp.svg" width="32" height="32">
+            </button>
+            <div class="title__main"><span class="title__main_name">화면 모드</span></div>
+            <div class="iconbox__topbar" style="visibility:hidden;"><button class="btn btn__size_medium"></button></div>
+        </div>
+    </header>
+
+    <main class="main__container main__container_type_basic">
+        <div class="dm__list">
+            <div class="dm__item" onclick="selectMode(this);">
+                <div class="dm__icon" style="background:rgba(255,255,255,0.08);">☀️</div>
+                <div class="dm__label_row">
+                    <div class="dm__name">라이트 모드</div>
+                    <div class="dm__desc">밝은 화면으로 표시합니다.</div>
+                </div>
+                <div class="dm__check"><div class="dm__check_dot"></div></div>
+            </div>
+            <div class="dm__item is_selected" onclick="selectMode(this);">
+                <div class="dm__icon" style="background:rgba(255,255,255,0.08);">🌙</div>
+                <div class="dm__label_row">
+                    <div class="dm__name">다크 모드</div>
+                    <div class="dm__desc">어두운 화면으로 표시합니다.</div>
+                </div>
+                <div class="dm__check"><div class="dm__check_dot"></div></div>
+            </div>
+            <div class="dm__item" onclick="selectMode(this);">
+                <div class="dm__icon" style="background:rgba(255,255,255,0.08);">⚙️</div>
+                <div class="dm__label_row">
+                    <div class="dm__name">시스템 설정과 동일하게</div>
+                    <div class="dm__desc">기기 설정을 따라 자동으로 전환합니다.</div>
+                </div>
+                <div class="dm__check"><div class="dm__check_dot"></div></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    function selectMode(item) {
+        document.querySelectorAll('.dm__item').forEach(function (el) {
+            el.classList.remove('is_selected');
+        });
+        item.classList.add('is_selected');
+        try { localStorage.setItem('bbm_displayMode', item.querySelector('.dm__name').textContent); } catch (e) { /* 무시 */ }
+        setTimeout(function () { history.back(); }, 250);
+    }
+</script>
+
+</body>
+</html>
