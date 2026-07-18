@@ -1032,12 +1032,27 @@
     /* ──────────────────────────────────────────────
      ▩ 더보기 액션시트 — 신고하기 / 차단하기
     ────────────────────────────────────────────── */
-    const VIDEO_AUTHOR = {
-        id: 'rina_kang',
-        name: '리나강',
-        avatar: './assets/images/sample_avatar_rina.png'
+    // 영상 정보 데이터베이스
+    const VIDEOS_DB = {
+        1: { id: 'video_8241', title: '도쿄 브이로그 — 3박 4일 완전 정복', author: '리나강', authorId: 'rina_kang', avatar: './assets/images/sample_avatar_rina.png' },
+        2: { id: 'video_8242', title: '서울 카페 투어 & 핫플레이스 모음', author: '김민지', authorId: 'user_kim_minji', avatar: './assets/images/sample_avatar_1.png' },
+        3: { id: 'video_8243', title: '뷰티팁 & 메이크업 튜토리얼', author: '박수진', authorId: 'user_park_sujin', avatar: './assets/images/sample_avatar_2.png' },
+        4: { id: 'video_8244', title: '요리 채널 — 집에서 쉽게 만드는 한식', author: '이준호', authorId: 'user_lee_junho', avatar: './assets/images/sample_avatar_3.png' },
+        5: { id: 'video_8245', title: '헬스 & 다이어트 꿀팁', author: '최호연', authorId: 'user_choi_hoyeon', avatar: './assets/images/sample_avatar_4.png' },
+        6: { id: 'video_8246', title: '여행 브이로그 — 대만 타이페이', author: '정준호', authorId: 'user_jung_junho', avatar: './assets/images/sample_avatar_5.png' }
     };
-    const VIDEO_TITLE = '도쿄 브이로그 — 3박 4일 완전 정복';
+
+    // URLSearchParams에서 videoId 읽기
+    const urlParams = new URLSearchParams(location.search);
+    const videoId = parseInt(urlParams.get('videoId')) || 1;
+    const VIDEO_DATA = VIDEOS_DB[videoId] || VIDEOS_DB[1];
+
+    const VIDEO_AUTHOR = {
+        id: VIDEO_DATA.authorId,
+        name: VIDEO_DATA.author,
+        avatar: VIDEO_DATA.avatar
+    };
+    const VIDEO_TITLE = VIDEO_DATA.title;
 
     function bbmLoadBlocked() {
         try { return JSON.parse(localStorage.getItem('bbm_blockedUsers') || '[]'); } catch (e) { return []; }
@@ -1079,7 +1094,7 @@
     // 차단하기 — 이 영상의 작성자를 차단
     // 저장(북마크) — 마이 스위트 > 저장한 영상에서 모아볼 수 있음
     const CURRENT_VIDEO = {
-        id: 'video_8241',
+        id: VIDEO_DATA.id,
         title: VIDEO_TITLE,
         thumbnail: './assets/images/sample_poster_vod3.png',
         author: VIDEO_AUTHOR.name
