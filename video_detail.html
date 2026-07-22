@@ -123,28 +123,6 @@
             color: var(--color-text-primary);
         }
 
-        .video__author_sub {
-            font-size: 12px;
-            color: #888;
-            margin-top: 2px;
-        }
-
-        .video__subscribe_btn {
-            background-color: var(--color-primary-pink);
-            color: #ffffff;
-            border: none;
-            padding: 7px 18px;
-            border-radius: 100px;
-            font-size: 13px;
-            font-weight: 800;
-            cursor: pointer;
-        }
-
-        .video__subscribe_btn.subscribed {
-            background-color: rgba(255,255,255,0.1);
-            color: #aaaaaa;
-        }
-
         /* ■ 액션 버튼
         ---------------------------------------------------------------------- */
         .video__actions {
@@ -605,12 +583,8 @@
                     <div class="video__author_avatar">
                         <img src="./assets/images/sample_avatar_rina.png">
                     </div>
-                    <div>
-                        <div class="video__author_name">리나강</div>
-                        <div class="video__author_sub">구독자 2.4M</div>
-                    </div>
+                    <div class="video__author_name">리나강</div>
                 </div>
-                <button class="video__subscribe_btn" onclick="toggleSubscribe(this)">구독</button>
             </div>
 
             <!-- ▣ 액션 버튼 -->
@@ -796,7 +770,7 @@
             <div class="btnbox__toolbar">
                 <button class="btn__full" onclick="location.href='./mysuite.html';">
                     <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
-                    <div class="btn__text">마이 스위트</div>
+                    <div class="btn__text">마이스위트</div>
                 </button>
             </div>
         </div>
@@ -864,16 +838,6 @@
             icon.classList.add('hidden');
         } else {
             icon.classList.remove('hidden');
-        }
-    }
-
-    function toggleSubscribe(btn) {
-        if (btn.classList.contains('subscribed')) {
-            btn.classList.remove('subscribed');
-            btn.innerText = '구독';
-        } else {
-            btn.classList.add('subscribed');
-            btn.innerText = '구독 중';
         }
     }
 
@@ -1092,7 +1056,7 @@
     }
 
     // 차단하기 — 이 영상의 작성자를 차단
-    // 저장(북마크) — 마이 스위트 > 저장한 영상에서 모아볼 수 있음
+    // 저장(북마크) — 마이스위트 > 저장한 영상에서 모아볼 수 있음
     const CURRENT_VIDEO = {
         id: VIDEO_DATA.id,
         title: VIDEO_TITLE,
@@ -1123,7 +1087,7 @@
             showShareToast('저장을 취소했습니다');
         } else {
             list.unshift(Object.assign({ savedAt: Date.now() }, CURRENT_VIDEO));
-            showShareToast('저장했습니다. 마이 스위트에서 볼 수 있어요');
+            showShareToast('저장했습니다. 마이스위트에서 볼 수 있어요');
         }
         bbmSaveSaved(list);
         applySaveState();
@@ -1133,7 +1097,7 @@
 
     function blockAuthor() {
         closeMoreSheet();
-        if (confirm(VIDEO_AUTHOR.name + '님을 차단하시겠어요?\n차단하면 서로 추천에 노출되지 않고, 채팅도 더 이상 할 수 없습니다.\n이 설정은 마이 스위트 > 설정 > 차단 관리에서 해제할 수 있습니다.')) {
+        if (confirm(VIDEO_AUTHOR.name + '님을 차단하시겠어요?\n차단하면 서로 추천에 노출되지 않고, 채팅도 더 이상 할 수 없습니다.\n이 설정은 마이스위트 > 설정 > 차단 관리에서 해제할 수 있습니다.')) {
             bbmBlockUser(VIDEO_AUTHOR);
             alert('차단되었습니다. 이제 이 사용자는 추천 및 채팅에서 제외됩니다.');
             location.href = './home.html';

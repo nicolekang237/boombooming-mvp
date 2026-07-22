@@ -306,7 +306,7 @@
 
                 <label id="blockAlongWrap" style="display:none; align-items:flex-start; gap:10px; margin-top:16px; padding:14px; border-radius:10px; background:rgba(255,255,255,0.04); cursor:pointer;">
                     <input type="checkbox" id="blockAlongCheckbox" style="margin-top:2px; width:16px; height:16px; flex-shrink:0;">
-                    <span style="font-size:13px; color:#ccc; line-height:1.5;">신고와 함께 <strong id="blockAlongName" style="color:#fff;">이 사용자</strong>를 차단합니다<br><span style="font-size:12px; color:#777;">차단하면 서로 추천되지 않고 채팅도 할 수 없어요. 마이 스위트 &gt; 설정에서 해제할 수 있습니다.</span></span>
+                    <span style="font-size:13px; color:#ccc; line-height:1.5;">신고와 함께 <strong id="blockAlongName" style="color:#fff;">이 사용자</strong>를 차단합니다<br><span style="font-size:12px; color:#777;">차단하면 서로 추천되지 않고 채팅도 할 수 없어요. 마이스위트 &gt; 설정에서 해제할 수 있습니다.</span></span>
                 </label>
             </div>
 
@@ -360,7 +360,7 @@
             <div class="btnbox__toolbar">
                 <button class="btn__full" onclick="location.href='./mysuite.html';">
                     <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
-                    <div class="btn__text">마이 스위트</div>
+                    <div class="btn__text">마이스위트</div>
                 </button>
             </div>
         </div>
@@ -369,7 +369,7 @@
 
 <script>
     // ─────────────────────────────────────────────────────────
-    // 차단 데이터 저장 (마이 스위트 > 설정 > 차단 관리에서 조회/해제)
+    // 차단 데이터 저장 (마이스위트 > 설정 > 차단 관리에서 조회/해제)
     // ─────────────────────────────────────────────────────────
     function bbmLoadBlocked() {
         try { return JSON.parse(localStorage.getItem('bbm_blockedUsers') || '[]'); } catch (e) { return []; }

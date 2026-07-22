@@ -421,7 +421,7 @@
                 <button class="btn__full">
                     <img src="./assets/images/icon_chat_32dp_fill.svg" width="26" height="26" style="margin-top: 2px;">
 
-                    <div class="btn__text" style="color: var(--color-primary-pink);">대화</div>
+                    <div class="btn__text" style="color: var(--color-primary-pink);">메시지</div>
                 </button>
                 -->
             </div>
@@ -457,7 +457,7 @@
                 <button class="btn__full" onclick="location.href='./mysuite.html';">
                     <img src="./assets/images/icon_person_32dp.svg" width="29" height="29">
 
-                    <div class="btn__text">마이 스위트</div>
+                    <div class="btn__text">마이스위트</div>
                 </button>
 
                 <!-- Active Button - 'My Suite' -->
@@ -465,7 +465,7 @@
                 <button class="btn__full">
                     <img src="./assets/images/icon_person_32dp_fill.svg" width="29" height="29">
 
-                    <div class="btn__text" style="color: var(--color-primary-pink);">마이 스위트</div>
+                    <div class="btn__text" style="color: var(--color-primary-pink);">마이스위트</div>
                 </button>
                 -->
             </div>
@@ -1048,7 +1048,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     /* ──────────────────────────────────────────────
-     ▩ 차단 / 신고 (마이 스위트 > 설정 > 차단 관리에서 조회/해제)
+     ▩ 차단 / 신고 (마이스위트 > 설정 > 차단 관리에서 조회/해제)
     ────────────────────────────────────────────── */
     function bbmLoadBlocked() {
         try { return JSON.parse(localStorage.getItem('bbm_blockedUsers') || '[]'); } catch (e) { return []; }
@@ -1093,7 +1093,7 @@ document.addEventListener("DOMContentLoaded", function() {
     window.blockCardUser = function (index) {
         var user = CARD_USERS[index];
         if (!user) return;
-        if (!confirm(user.name + '님을 차단하시겠어요?\n차단하면 서로 추천에 노출되지 않고, 채팅도 더 이상 할 수 없습니다.\n이 설정은 마이 스위트 > 설정 > 차단 관리에서 해제할 수 있습니다.')) return;
+        if (!confirm(user.name + '님을 차단하시겠어요?\n차단하면 서로 추천에 노출되지 않고, 채팅도 더 이상 할 수 없습니다.\n이 설정은 마이스위트 > 설정 > 차단 관리에서 해제할 수 있습니다.')) return;
 
         bbmBlockUser(user);
 
